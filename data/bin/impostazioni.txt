@@ -1,0 +1,7 @@
+colore_sfondo:#ffffff
+ordinamento_dipendenti:ordine_alfabetico_cognome
+ordinamento_aziende:ordine_alfabetico
+email:mlombardi@nanolever.com
+smtp_server:smtps.aruba.it
+smtp_port:465
+password:Orceoli13*

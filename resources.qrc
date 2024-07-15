@@ -1,0 +1,21 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+    <file alias="home.qss">test/application/style/home.qss</file>
+    <file alias="azienda.qss">test/application/style/azienda.qss</file>
+    <file alias="dipendente.qss">test/application/style/dipendente.qss</file>
+    <file alias="test_page.qss">test/application/style/test_page.qss</file>
+    <file alias="navbar.qss">test/application/style/navbar.qss</file>
+    <file alias="importazione.qss">test/application/style/importazione.qss</file>
+    <file alias="crea_test.qss">test/application/style/crea_test.qss</file>
+    <file alias="home.qss">style/home.qss</file>
+    <file alias="azienda.qss">style/azienda.qss</file>
+    <file alias="test_completo.qss">style/test_completo.qss</file>
+    <file alias="dipendente.qss">style/dipendente.qss</file>
+    <file alias="test_page.qss">style/test_page.qss</file>
+    <file alias="navbar.qss">style/navbar.qss</file>
+    <file alias="importazione.qss">style/importazione.qss</file>
+    <file alias="crea_test.qss">style/crea_test.qss</file>
+    <file alias="test_wid.qss">style/test_wid.qss</file>
+    <file alias="impostazioni.qss">style/impostazioni.qss</file>
+</qresource>
+</RCC>

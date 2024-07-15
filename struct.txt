@@ -1,0 +1,36 @@
+# Project Structure
+
+spam_mail/
+| requirements.txt
+| README.md
+| .gitignore
+| struct.txt
+| struct_db.txt
+| main.py
+|
+|-- API/
+
+|
+|-- OBJ/
+
+|
+|-- CMP/
+|   |-- navbar.py
+|
+|-- risorse/
+|   |-- resources_rc.py
+|   |-- resources.qrc
+|
+|-- PAGE/
+|
+|-- data/
+|   |-- bin/
+|   |   |-- impostazioni.txt
+|
+|-- ico/
+|   |-- tante foto .png
+|
+|-- spec/
+|   |-- main_linux.spec
+|   |-- main_mac.spec
+|   |-- main_win.spec
