@@ -5,41 +5,16 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtGui import QPixmap,  QAction
 
-from PAGE import import_page as i, rubrica as r, test_main as t, settings_page as s, rubrica_azienda as a
+from PAGE import home_page as h
 
 from CMP import navbar as nv
-from API import funzioni_base as f
+
 import sys
 
-def qt_object_properties(qt_object: object) -> dict:
-    """
-    Create a dictionary of property names and values from a QObject.
-    
-    :param qt_object: The QObject to retrieve properties from.
-    :type qt_object: object
-    :return: Dictionary with format
-        {'name': property_name, 'value': property_value}
-    :rtype: dict
-    """
-    properties: list = []
-    
-    # Returns a list of QByteArray.
-    button_properties: list = qt_object.dynamicPropertyNames()
-    
-    for prop in button_properties:
-        # Decode the QByteArray into a string.
-        name: str = str(prop, 'utf-8')
-    
-        # Get the property value from the button.
-        value: str = qt_object.property(name)
-    
-        properties.append({'name': name, 'value': value})
-    
-    return properties
     
 class MainWindow(QMainWindow):
     def __init__(self):
-        f.boot()
+        
         self.state = 0
         super().__init__()
         self.setWindowTitle("RESPONSE ANALYZE APP")
@@ -61,10 +36,7 @@ class MainWindow(QMainWindow):
 
         # Connect buttons to change pages and highlight active button
         self.pages = {
-            self.navbar.rubrica_button: 0,
-            self.navbar.azienda_button: 1,
-            self.navbar.inserisci_button: 2,
-            self.navbar.test_button: 3
+            self.navbar.home_button: 0
         }
         for button, index in self.pages.items():
             button.clicked.connect(lambda checked=True, index=index: self.change_page(index))
@@ -75,22 +47,9 @@ class MainWindow(QMainWindow):
 
     def create_pages(self):
         # Rubrica Page
-        self.rubrica_page = r.RubricaPage()
+        self.rubrica_page = h.Home_Page(self)
         self.central_widget.addWidget(self.rubrica_page)
 
-        self.azienda_page = a.RubricaAzzPage()
-        self.central_widget.addWidget(self.azienda_page)
-        # Inserisci Page
-        inserisci_page = i.FileMover()
-        self.central_widget.addWidget(inserisci_page)
-
-        # Test Page
-        test_page = t.widget_test()
-        self.central_widget.addWidget(test_page)
-
-        # Settings Page
-        settings_page = s.SettingsPage()
-        self.central_widget.addWidget(settings_page)
 
     def change_page(self, index):
         if self.state != 0 and index == 0:

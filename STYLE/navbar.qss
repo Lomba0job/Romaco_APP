@@ -1,0 +1,39 @@
+#navbar {
+    background-color: #ffffff;
+    border-bottom: 2px solid #c9c9c9;
+}
+
+QLabel#companyName {
+    font-size: 24px;
+    color: #000000;
+    font-weight: bold;
+}
+QLabel#companyName2 {
+    font-size: 24px;
+    color: rgb(220, 0, 0);
+    font-weight: bold;
+}
+
+QPushButton#navButton {
+    color: #000000;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 0px;
+    border-style: dotted;
+
+}
+
+QPushButton#navButton:hover {
+    color: #dc5252;
+}
+
+QPushButton#navButton:pressed {
+    color: #e63838;
+}
+
+QPushButton#navButton[active="true"] {
+    color: #d15858;
+    border-bottom: 3px solid black;
+}
+

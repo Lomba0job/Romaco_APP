@@ -5,22 +5,15 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtGui import QPixmap, QAction, QIcon
 import os 
-from risorse import resources_rc
 
+# from risorse import resources_rc
+from API import funzioni as f
 class NavbarWidget(QFrame):
     settings_button_clicked = pyqtSignal()
 
     def __init__(self, parent=None):
         
-        def get_resource_path(relative_path):
-            """ Get the absolute path to the resource, works for dev and PyInstaller """
-            try:
-                # PyInstaller creates a temp folder and stores path in _MEIPASS
-                base_path = sys._MEIPASS
-            except Exception:
-                base_path = os.path.abspath(".")
-
-            return os.path.join(base_path, relative_path)
+        
         
         super().__init__(parent)
         self.setObjectName("navbar")
@@ -33,8 +26,7 @@ class NavbarWidget(QFrame):
         # Logo
         logo_label = QLabel()
         
-        directory = get_resource_path("ico")
-        ico = os.path.join(directory, "logo.jpg")
+        ico = f.get_img("logo.jpg")
         logo_label.setPixmap(QPixmap(ico).scaled(50, 50, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
         layout.addWidget(logo_label)
         
@@ -58,30 +50,16 @@ class NavbarWidget(QFrame):
         layout.addWidget(spacer_left)
 
         # Navigation Buttons
-        self.rubrica_button = QPushButton("Persone")
-        self.rubrica_button.setObjectName("navButton")
-        self.azienda_button = QPushButton("Aziende")
-        self.azienda_button.setObjectName("navButton")
-        self.inserisci_button = QPushButton("Inserisci")
-        self.inserisci_button.setObjectName("navButton")
-        self.test_button = QPushButton("Test")
-        self.test_button.setObjectName("navButton")
+        self.home_button = QPushButton("Persone")
+        self.home_button.setObjectName("navButton")
 
         
-        self.rubrica_button.setProperty('active', False)
-        self.azienda_button.setProperty('active', False)
-        self.inserisci_button.setProperty('active', False)
-        self.test_button.setProperty('active', False)
+        self.home_button.setProperty('active', False)
         
-        self.rubrica_button.setFixedSize(100, 50)
-        self.azienda_button.setFixedSize(100, 50)
-        self.inserisci_button.setFixedSize(100, 50)
-        self.test_button.setFixedSize(100, 50)
+        self.home_button.setFixedSize(100, 50)
         
-        layout.addWidget(self.rubrica_button)
-        layout.addWidget(self.azienda_button)
-        layout.addWidget(self.inserisci_button)
-        layout.addWidget(self.test_button)
+        layout.addWidget(self.home_button)
+  
         
         # Spacer
         spacer_right = QFrame()
@@ -97,7 +75,7 @@ class NavbarWidget(QFrame):
         
         # Settings Icon
         settings_button = QPushButton()
-        settings_button.setIcon(QIcon(os.path.join(directory, "settings.png")))
+        settings_button.setIcon(QIcon(f.get_img("settings.png")))
         settings_button.setIconSize(QSize(24, 24))
         settings_button.setFixedSize(50, 50)
         layout.addWidget(settings_button)
@@ -106,7 +84,7 @@ class NavbarWidget(QFrame):
 
         self.setLayout(layout)
 
-        file = QFile("://navbar.qss")
+        file = QFile(f.get_style("navbar.qss"))
         if file.open(QFile.OpenModeFlag.ReadOnly | QFile.OpenModeFlag.Text):
             stream = QTextStream(file)
             style_sheet = stream.readAll()
