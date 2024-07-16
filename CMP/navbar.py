@@ -50,7 +50,7 @@ class NavbarWidget(QFrame):
         layout.addWidget(spacer_left)
 
         # Navigation Buttons
-        self.home_button = QPushButton("Persone")
+        self.home_button = QPushButton("HOMEPAGE")
         self.home_button.setObjectName("navButton")
 
         

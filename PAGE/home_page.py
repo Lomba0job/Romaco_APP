@@ -10,7 +10,7 @@ class Home_Page(QWidget):
         
         w = QHBoxLayout()
         self.mast = master
-        self.mast.setWindowTitle("3D Rectangles with PyQt and OpenGL")
+        self.mast.setWindowTitle("HomePage")
         self.glWidget = r.GLWidget(num_rectangles=5)
         
         w.addWidget(self.glWidget)
