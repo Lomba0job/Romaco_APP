@@ -16,12 +16,42 @@ class GLWidget(QOpenGLWidget):
     def __init__(self, num_rectangles, parent=None):
         super().__init__(parent)
         self.num_rectangles = num_rectangles
-        self.rect_positions = [
+        if self.num_rectangles == 4:
+            self.rect_positions = [
             QVector3D(-50, 0, 50),  # Top-left
             QVector3D(50, 0, 50),   # Top-right
             QVector3D(50, 0, -50),  # Bottom-left
             QVector3D(-50, 0, -50)  # Bottom-right
-        ]
+            ]
+            
+        elif self.num_rectangles == 3:
+            self.rect_positions = [
+            QVector3D(-50, 0, 50),  # Top-left
+            QVector3D(50, 0, 50),   # Top-right
+            QVector3D(0, 0, -50)  # Bottomcenter
+            ]
+            
+        elif self.num_rectangles == 2:
+            self.rect_positions = [
+            QVector3D(0, 0, 50),   # Top-center
+            QVector3D(0, 0, -50)  # Bottom-center
+            ]
+            
+        elif self.num_rectangles == 1:
+            self.rect_positions = [
+            QVector3D(0, 0, 0)  # center
+            ]
+            
+        elif self.num_rectangles == 6:
+            self.rect_positions = [
+            QVector3D(-50, 0, 60),  # Top-left
+            QVector3D(50, 0, 60),   # Top-right
+            QVector3D(50, 0, 0),  # Center-left
+            QVector3D(-50, 0, 0),  # Center-right
+            QVector3D(50, 0, -60),  # Bottom-left
+            QVector3D(-50, 0, -60)  # Bottom-right
+            ]
+        
         self.rect_size = QVector3D(30.0, 10.0, 30.0)
         self.selected_rect = None
         self.last_pos = QPointF()
@@ -51,13 +81,10 @@ class GLWidget(QOpenGLWidget):
                     vertex = [float(x) for x in line.strip().split()[1:]]
                     # Adjust the axes
                     vertices.append([vertex[0], vertex[2], -vertex[1]])
-                    colors.append([0.5, 0.5, 0.5])  # Default color
+                    colors.append([0.6, 0.6, 0.6])  # Default color
                 elif line.startswith('f '):
                     face = [int(vertex.split('/')[0]) for vertex in line.strip().split()[1:]]
                     faces.append(face)
-                elif line.startswith('usemtl handle'):  # Handle material
-                    for v in range(len(vertices) - len(faces), len(vertices)):
-                        colors[v] = [1.0, 0.0, 0.0]  # Color for handles
         print("Loaded model with", len(vertices), "vertices and", len(faces), "faces.")
         return vertices, faces, colors
 
@@ -85,20 +112,10 @@ class GLWidget(QOpenGLWidget):
     def initializeGL(self):
         glClearColor(1.0, 1.0, 1.0, 1.0)
         glEnable(GL_DEPTH_TEST)
-        glEnable(GL_LIGHTING)
-        glEnable(GL_LIGHT0)
         glEnable(GL_COLOR_MATERIAL)
         glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE)
 
-        # Set light properties
-        light_position = [0, 100, 100, 1.0]
-        light_ambient = [0.5, 0.5, 0.5, 1.0]
-        light_diffuse = [0.5, 0.5, 0.5, 1.0]
-        light_specular = [0.0, 0.0, 0.0, 1.0]  # Disable specular reflection
-        glLightfv(GL_LIGHT0, GL_POSITION, light_position)
-        glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient)
-        glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse)
-        glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular)
+        glDisable(GL_CULL_FACE)  # Ensure that both front and back faces are drawn
 
         self.init_vbo()
 
@@ -167,6 +184,20 @@ class GLWidget(QOpenGLWidget):
         glTranslatef(position.x(), position.y(), position.z())
         glScalef(self.model_scale, self.model_scale, self.model_scale)
 
+        # Draw the wireframe in black
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
+        glColor3f(0.0, 0.0, 0.0)  # Set color to black
+        glEnableClientState(GL_VERTEX_ARRAY)
+        glBindBuffer(GL_ARRAY_BUFFER, self.vbo_vertices)
+        glVertexPointer(3, GL_FLOAT, 0, None)
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self.vbo_faces)
+        glDrawElements(GL_TRIANGLES, len(self.model[1]) * 3, GL_UNSIGNED_INT, None)
+
+        glDisableClientState(GL_VERTEX_ARRAY)
+
+        # Draw the solid model with colors
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
         glEnableClientState(GL_VERTEX_ARRAY)
         glBindBuffer(GL_ARRAY_BUFFER, self.vbo_vertices)
         glVertexPointer(3, GL_FLOAT, 0, None)
