@@ -6,17 +6,9 @@ from PyQt6.QtOpenGLWidgets import QOpenGLWidget
 from OpenGL.GL import *
 from OpenGL.GLUT import *
 from OpenGL.GLU import *
-import math
+import numpy as np
 
-class RectDialog(QDialog):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setWindowTitle("Rectangle Dialog")
-        layout = QVBoxLayout()
-        button = QPushButton("Close")
-        button.clicked.connect(self.close)
-        layout.addWidget(button)
-        self.setLayout(layout)
+from API import funzioni as f
 
 class GLWidget(QOpenGLWidget):
     rectDoubleClicked = pyqtSignal(int)
@@ -27,27 +19,90 @@ class GLWidget(QOpenGLWidget):
         self.rect_positions = [
             QVector3D(-40, 0, 40),  # Top-left
             QVector3D(40, 0, 40),   # Top-right
-            QVector3D(40, 0, -40), # Bottom-left
-            QVector3D(-40, 0, -40)   # Bottom-right
+            QVector3D(40, 0, -40),  # Bottom-left
+            QVector3D(-40, 0, -40)  # Bottom-right
         ]
-        self.rect_size = QVector3D(20.0, 5.0, 20.0)
+        self.rect_size = QVector3D(30.0, 10.0, 30.0)
         self.selected_rect = None
         self.last_pos = QPointF()
         self.camera_angle_x = 0
         self.camera_angle_y = 0
+        self.camera_position_x = 0
+        self.camera_position_y = 100
+        self.camera_position_z = 400
         self.rotating_camera = False
-        self.zoom_distance = 400  # Initialize the zoom distance
+        self.moving_camera = False
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update)
         self.timer.start(16)
 
+        self.model = self.load_obj(f.get_img("bilancia.obj"))
+        self.vbo_vertices = None
+        self.vbo_faces = None
+        self.model_scale = self.calculate_scale()
+
+    def load_obj(self, filepath):
+        vertices = []
+        faces = []
+        with open(filepath, 'r') as file:
+            for line in file:
+                if line.startswith('v '):
+                    vertex = [float(x) for x in line.strip().split()[1:]]
+                    # Adjust the axes
+                    vertices.append([vertex[0], vertex[2], -vertex[1]])
+                elif line.startswith('f '):
+                    face = [int(vertex.split('/')[0]) for vertex in line.strip().split()[1:]]
+                    faces.append(face)
+        print("Loaded model with", len(vertices), "vertices and", len(faces), "faces.")
+        return vertices, faces
+
+
+    def calculate_scale(self):
+        vertices, _ = self.model
+        vertices = np.array(vertices)
+        print("Vertices array shape:", vertices.shape)
+        
+        if vertices.size == 0:
+            print("Vertices array is empty.")
+            return 1.0
+
+        min_coords = vertices.min(axis=0)
+        max_coords = vertices.max(axis=0)
+        dimensions = max_coords - min_coords
+        print("Model dimensions:", dimensions)
+
+        scale_x = self.rect_size.x() / dimensions[0]
+        scale_y = self.rect_size.y() / dimensions[1]
+        scale_z = self.rect_size.z() / dimensions[2]
+
+        print(f"Calculated scales - X: {scale_x}, Y: {scale_y}, Z: {scale_z}")
+        return min(scale_x, scale_y, scale_z)
+
     def initializeGL(self):
-        # Initialize OpenGL settings
         glClearColor(1.0, 1.0, 1.0, 1.0)
         glEnable(GL_DEPTH_TEST)
+        self.init_vbo()
+
+    def init_vbo(self):
+        vertices, faces = self.model
+
+        vertices = np.array(vertices, dtype=np.float32)
+        faces = np.array(faces, dtype=np.uint32) - 1
+
+        print("Vertices buffer size:", vertices.nbytes)
+        print("Faces buffer size:", faces.nbytes)
+
+        self.vbo_vertices = glGenBuffers(1)
+        glBindBuffer(GL_ARRAY_BUFFER, self.vbo_vertices)
+        glBufferData(GL_ARRAY_BUFFER, vertices.nbytes, vertices, GL_STATIC_DRAW)
+        print("Vertices VBO initialized.")
+
+        self.vbo_faces = glGenBuffers(1)
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self.vbo_faces)
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, faces.nbytes, faces, GL_STATIC_DRAW)
+        print("Faces VBO initialized.")
 
     def resizeGL(self, w, h):
-        # Adjust the viewport and projection matrix
         glViewport(0, 0, w, h)
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
@@ -56,116 +111,60 @@ class GLWidget(QOpenGLWidget):
         glLoadIdentity()
 
     def paintGL(self):
-        # Clear the buffer and set the camera position
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         glLoadIdentity()
+        gluLookAt(self.camera_position_x, self.camera_position_y, self.camera_position_z, 0, 0, 0, 0, 1, 0)
         glRotatef(self.camera_angle_x, 1, 0, 0)
         glRotatef(self.camera_angle_y, 0, 1, 0)
-        gluLookAt(0, 100, self.zoom_distance, 0, 0, 0, 0, 1, 0)  # Set camera with zoom distance
 
         self.drawPlane()
 
-        for i, pos in enumerate(self.rect_positions):
-            self.drawRectangle(pos.x(), pos.y(), pos.z())
-            if i > 0:
-                self.drawArrow(self.rect_positions[i - 1], pos)
+        for i in range(self.num_rectangles):
+            self.drawModel(self.rect_positions[i])
 
     def drawPlane(self):
-        # Draw the ground plane
-        glColor3f(0.8, 0.8, 0.8)
-        glBegin(GL_QUADS)
-        glVertex3f(-100, -5, -100)
-        glVertex3f(100, -5, -100)
-        glVertex3f(100, -5, 100)
-        glVertex3f(-100, -5, 100)
+        glColor3f(0, 0, 0)
+        glBegin(GL_LINES)
+        grid_size = 100
+        step = 5
+        for i in range(-grid_size, grid_size + step, step):
+            # Horizontal lines
+            glVertex3f(i, -5, -grid_size)
+            glVertex3f(i, -5, grid_size)
+            # Vertical lines
+            glVertex3f(-grid_size, -5, i)
+            glVertex3f(grid_size, -5, i)
         glEnd()
 
-    def drawRectangle(self, x, y, z):
-        # Draw a filled rectangle
-        w, h, d = self.rect_size.x() / 2, self.rect_size.y() / 2, self.rect_size.z() / 2
+    def drawModel(self, position):
         glPushMatrix()
-        glTranslatef(x, y, z)
+        glTranslatef(position.x(), position.y(), position.z())
+        glScalef(self.model_scale, self.model_scale, self.model_scale)
 
-        glBegin(GL_QUADS)
-        glColor3f(0.0, 1.0, 0.0)
-        # Front face
-        glVertex3f(-w, -h, d)
-        glVertex3f(w, -h, d)
-        glVertex3f(w, h, d)
-        glVertex3f(-w, h, d)
-        glEnd()
+        glEnableClientState(GL_VERTEX_ARRAY)
+        glBindBuffer(GL_ARRAY_BUFFER, self.vbo_vertices)
+        glVertexPointer(3, GL_FLOAT, 0, None)
 
-        glBegin(GL_QUADS)
-        # Back face
-        glVertex3f(-w, -h, -d)
-        glVertex3f(w, -h, -d)
-        glVertex3f(w, h, -d)
-        glVertex3f(-w, h, -d)
-        glEnd()
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self.vbo_faces)
+        glDrawElements(GL_TRIANGLES, len(self.model[1]) * 3, GL_UNSIGNED_INT, None)
 
-        glBegin(GL_QUADS)
-        # Top face
-        glVertex3f(-w, h, d)
-        glVertex3f(w, h, d)
-        glVertex3f(w, h, -d)
-        glVertex3f(-w, h, -d)
-        glEnd()
-
-        glBegin(GL_QUADS)
-        # Bottom face
-        glVertex3f(-w, -h, d)
-        glVertex3f(w, -h, d)
-        glVertex3f(w, -h, -d)
-        glVertex3f(-w, -h, -d)
-        glEnd()
-
-        glBegin(GL_QUADS)
-        # Left face
-        glVertex3f(-w, -h, d)
-        glVertex3f(-w, h, d)
-        glVertex3f(-w, h, -d)
-        glVertex3f(-w, -h, -d)
-        glEnd()
-
-        glBegin(GL_QUADS)
-        # Right face
-        glVertex3f(w, -h, d)
-        glVertex3f(w, h, d)
-        glVertex3f(w, h, -d)
-        glVertex3f(w, -h, -d)
-        glEnd()
-
+        glDisableClientState(GL_VERTEX_ARRAY)
         glPopMatrix()
 
-    def drawArrow(self, start, end):
-        # Draw an arrow from one rectangle to the next
-        glBegin(GL_LINES)
-        glColor3f(0, 0, 0)
-        glVertex3f(start.x(), start.y(), start.z())
-        glVertex3f(end.x(), end.y(), end.z())
-        glEnd()
-
     def mousePressEvent(self, event):
-        # Handle mouse press events for selecting rectangles and rotating camera
+        self.makeCurrent()
         self.last_pos = event.position()
         if event.buttons() == Qt.MouseButton.LeftButton:
-            print("premuto tasto sinistro")
-            for i, pos in enumerate(self.rect_positions):
-                if (pos.x() - self.rect_size.x() / 2 <= (self.last_pos.x() - self.width() / 2) <= pos.x() + self.rect_size.x() / 2 and
-                    pos.y() - self.rect_size.y() / 2 <= -(self.last_pos.y() - self.height() / 2) <= pos.y() + self.rect_size.y() / 2):
-                    print("interno")
-                    self.selected_rect = i
-                    break
+            self.moving_camera = True
         elif event.buttons() == Qt.MouseButton.RightButton:
-            print("premuto tasto destro")
             self.rotating_camera = True
 
     def mouseMoveEvent(self, event):
-        # Handle mouse move events for dragging rectangles and rotating camera
-        if self.selected_rect is not None:
-            dx = (event.position().x() - self.last_pos.x()) / 10.0
-            dy = -(event.position().y() - self.last_pos.y()) / 10.0
-            self.rect_positions[self.selected_rect] += QVector3D(dx, dy, 0)
+        if self.moving_camera:
+            dx = (event.position().x() - self.last_pos.x()) / 5.0
+            dy = (event.position().y() - self.last_pos.y()) / 5.0
+            self.camera_position_x -= dx
+            self.camera_position_y += dy
             self.last_pos = event.position()
         elif self.rotating_camera:
             dx = (event.position().x() - self.last_pos.x()) / 5.0
@@ -176,22 +175,11 @@ class GLWidget(QOpenGLWidget):
         self.update()
 
     def mouseReleaseEvent(self, event):
-        # Handle mouse release events to stop dragging or rotating
-        self.selected_rect = None
+        self.moving_camera = False
         self.rotating_camera = False
 
-    def mouseDoubleClickEvent(self, event):
-        # Handle mouse double click events to signal rectangle double click
-        for i, pos in enumerate(self.rect_positions):
-            if (pos.x() - self.rect_size.x() / 2 <= (event.position().x() - self.width() / 2) <= pos.x() + self.rect_size.x() / 2 and
-                pos.y() - self.rect_size.y() / 2 <= -(event.position().y() - self.height() / 2) <= pos.y() + self.rect_size.y() / 2):
-                self.rectDoubleClicked.emit(i)
-                print(f"Rectangle {i} double-clicked")
-                break
-    
     def wheelEvent(self, event):
-        # Handle mouse wheel events for zooming in and out
         delta = event.angleDelta().y() / 120
-        self.zoom_distance -= delta * 10
-        self.zoom_distance = max(100, min(self.zoom_distance, 1000))  # Set zoom limits
+        self.camera_position_z -= delta * 10
+        self.camera_position_z = max(100, min(self.camera_position_z, 1000))
         self.update()

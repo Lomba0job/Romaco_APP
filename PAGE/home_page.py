@@ -11,10 +11,9 @@ class Home_Page(QWidget):
         w = QHBoxLayout()
         self.mast = master
         self.mast.setWindowTitle("HomePage")
-        self.glWidget = r.GLWidget(num_rectangles=5)
+        self.glWidget = r.GLWidget(num_rectangles=4)
         
         w.addWidget(self.glWidget)
-        self.glWidget.rectDoubleClicked.connect(self.openDialog)
         
         self.setLayout(w)
 
