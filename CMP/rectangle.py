@@ -17,10 +17,10 @@ class GLWidget(QOpenGLWidget):
         super().__init__(parent)
         self.num_rectangles = num_rectangles
         self.rect_positions = [
-            QVector3D(-40, 0, 40),  # Top-left
-            QVector3D(40, 0, 40),   # Top-right
-            QVector3D(40, 0, -40),  # Bottom-left
-            QVector3D(-40, 0, -40)  # Bottom-right
+            QVector3D(-50, 0, 50),  # Top-left
+            QVector3D(50, 0, 50),   # Top-right
+            QVector3D(50, 0, -50),  # Bottom-left
+            QVector3D(-50, 0, -50)  # Bottom-right
         ]
         self.rect_size = QVector3D(30.0, 10.0, 30.0)
         self.selected_rect = None
@@ -44,21 +44,25 @@ class GLWidget(QOpenGLWidget):
     def load_obj(self, filepath):
         vertices = []
         faces = []
+        colors = []
         with open(filepath, 'r') as file:
             for line in file:
                 if line.startswith('v '):
                     vertex = [float(x) for x in line.strip().split()[1:]]
                     # Adjust the axes
                     vertices.append([vertex[0], vertex[2], -vertex[1]])
+                    colors.append([0.5, 0.5, 0.5])  # Default color
                 elif line.startswith('f '):
                     face = [int(vertex.split('/')[0]) for vertex in line.strip().split()[1:]]
                     faces.append(face)
+                elif line.startswith('usemtl handle'):  # Handle material
+                    for v in range(len(vertices) - len(faces), len(vertices)):
+                        colors[v] = [1.0, 0.0, 0.0]  # Color for handles
         print("Loaded model with", len(vertices), "vertices and", len(faces), "faces.")
-        return vertices, faces
-
+        return vertices, faces, colors
 
     def calculate_scale(self):
-        vertices, _ = self.model
+        vertices, _, _ = self.model
         vertices = np.array(vertices)
         print("Vertices array shape:", vertices.shape)
         
@@ -81,16 +85,33 @@ class GLWidget(QOpenGLWidget):
     def initializeGL(self):
         glClearColor(1.0, 1.0, 1.0, 1.0)
         glEnable(GL_DEPTH_TEST)
+        glEnable(GL_LIGHTING)
+        glEnable(GL_LIGHT0)
+        glEnable(GL_COLOR_MATERIAL)
+        glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE)
+
+        # Set light properties
+        light_position = [0, 100, 100, 1.0]
+        light_ambient = [0.5, 0.5, 0.5, 1.0]
+        light_diffuse = [0.5, 0.5, 0.5, 1.0]
+        light_specular = [0.0, 0.0, 0.0, 1.0]  # Disable specular reflection
+        glLightfv(GL_LIGHT0, GL_POSITION, light_position)
+        glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient)
+        glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse)
+        glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular)
+
         self.init_vbo()
 
     def init_vbo(self):
-        vertices, faces = self.model
+        vertices, faces, colors = self.model
 
         vertices = np.array(vertices, dtype=np.float32)
         faces = np.array(faces, dtype=np.uint32) - 1
+        colors = np.array(colors, dtype=np.float32)
 
         print("Vertices buffer size:", vertices.nbytes)
         print("Faces buffer size:", faces.nbytes)
+        print("Colors buffer size:", colors.nbytes)
 
         self.vbo_vertices = glGenBuffers(1)
         glBindBuffer(GL_ARRAY_BUFFER, self.vbo_vertices)
@@ -101,6 +122,11 @@ class GLWidget(QOpenGLWidget):
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self.vbo_faces)
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, faces.nbytes, faces, GL_STATIC_DRAW)
         print("Faces VBO initialized.")
+
+        self.vbo_colors = glGenBuffers(1)
+        glBindBuffer(GL_ARRAY_BUFFER, self.vbo_colors)
+        glBufferData(GL_ARRAY_BUFFER, colors.nbytes, colors, GL_STATIC_DRAW)
+        print("Colors VBO initialized.")
 
     def resizeGL(self, w, h):
         glViewport(0, 0, w, h)
@@ -145,9 +171,14 @@ class GLWidget(QOpenGLWidget):
         glBindBuffer(GL_ARRAY_BUFFER, self.vbo_vertices)
         glVertexPointer(3, GL_FLOAT, 0, None)
 
+        glEnableClientState(GL_COLOR_ARRAY)
+        glBindBuffer(GL_ARRAY_BUFFER, self.vbo_colors)
+        glColorPointer(3, GL_FLOAT, 0, None)
+
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self.vbo_faces)
         glDrawElements(GL_TRIANGLES, len(self.model[1]) * 3, GL_UNSIGNED_INT, None)
 
+        glDisableClientState(GL_COLOR_ARRAY)
         glDisableClientState(GL_VERTEX_ARRAY)
         glPopMatrix()
 
@@ -158,6 +189,7 @@ class GLWidget(QOpenGLWidget):
             self.moving_camera = True
         elif event.buttons() == Qt.MouseButton.RightButton:
             self.rotating_camera = True
+
 
     def mouseMoveEvent(self, event):
         if self.moving_camera:
