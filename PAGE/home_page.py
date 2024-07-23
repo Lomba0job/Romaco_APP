@@ -9,11 +9,11 @@ class Home_Page(QWidget):
     def __init__(self, master):
         super().__init__()
 
-        self.mast = master
-        self.mast.setWindowTitle("HomePage")
+        self.master = master
+        self.master.setWindowTitle("HomePage")
 
         self.glWidget = None
-        self.initUI()
+        
 
     def initUI(self):
         main_layout = QHBoxLayout()
@@ -21,25 +21,17 @@ class Home_Page(QWidget):
         # Left side layout
         left_layout = QVBoxLayout()
         
-        self.config_label = QLabel("Scegli configurazione")
+        print(f"DEBUG HOMEPAGE {len(self.master.lista_bilance)}")
+        numero = len(self.master.lista_bilance)
+        self.config_label = QLabel(f"CONFIGURAZIONE DA {numero} BILANCE")
         left_layout.addWidget(self.config_label)
         
-        self.combo_box = QComboBox()
-        self.combo_box.addItems(["1", "2", "3", "4", "6"])
-        left_layout.addWidget(self.combo_box)
-        
-        self.num_label = QLabel("Numero bilance")
-        left_layout.addWidget(self.num_label)
-        
-        self.load_button = QPushButton("Carica configurazione")
-        self.load_button.clicked.connect(self.loadConfiguration)
-        left_layout.addWidget(self.load_button)
-        
+    
         main_layout.addLayout(left_layout)
         
         # Right side fixed area
         self.fixed_area = QWidget()
-        self.fixed_area.setFixedSize(int(self.mast.width() * 0.45), int(self.mast.height() * 0.8))
+        self.fixed_area.setFixedSize(int(self.master.width() * 0.45), int(self.master.height() * 0.8))
         self.fixed_area.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         
         palette = self.fixed_area.palette()
@@ -50,10 +42,11 @@ class Home_Page(QWidget):
         main_layout.addWidget(self.fixed_area, alignment=Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
 
         self.setLayout(main_layout)
+        if numero != 0:
+            self.loadConfiguration()
 
     def loadConfiguration(self):
-        num_rectangles = int(self.combo_box.currentText())
-        
+        num_rectangles = len(self.master.lista_bilance)        
         # Remove the previous widget and its layout if they exist
         if self.glWidget is not None:
             self.fixed_area.layout().removeWidget(self.glWidget)

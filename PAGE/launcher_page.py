@@ -4,7 +4,7 @@ from pymodbus.client import ModbusSerialClient as ModbusClient
 import serial.tools.list_ports
 import sys
 import glob
-from API import Modbus as m
+from API import modbus_generico as m
 import time
 
 def serial_ports():
@@ -84,13 +84,16 @@ class LauncherWidget(QWidget):
         self.scanner.start()
         self.progress_bar.setVisible(True)
 
-    @pyqtSlot(list)
+    @pyqtSlot(list) 
     def scan_finished(self, connected_ids):
         self.progress_bar.setVisible(False)
         
         if len(connected_ids) != 0:
-            QMessageBox.information(self, "Scan Results", f"Connected IDs: {connected_ids}")
+            # QMessageBox.information(self, "Scan Results", f"Connected IDs: {connected_ids}")
+            self.lista_bilance = m.configure(self.port_combo.currentText(), connected_ids)
         else:
             QMessageBox.warning(self, "Scan Results", "No Connected ID")
-
+        
+        
+        print(f"DEBUG LAUNCHER {len(self.lista_bilance)}")
         self.finished.emit()

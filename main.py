@@ -41,6 +41,7 @@ class MainWindow(QMainWindow):
 
     def create_pages(self):
         # Launcher Page
+        self.lista_bilance = []
         self.launcher_page = l.LauncherWidget()
         self.launcher_page.finished.connect(self.on_launcher_finished)
         self.central_widget.addWidget(self.launcher_page)
@@ -51,6 +52,9 @@ class MainWindow(QMainWindow):
 
     def on_launcher_finished(self):
         self.navbar.setVisible(True)  # Mostra la barra di navigazione
+        self.lista_bilance = self.launcher_page.lista_bilance
+        print(f"DEBUG MAIN {len(self.lista_bilance)}")
+        self.rubrica_page.initUI()
         self.change_page(1)  # Passa alla pagina rubrica
 
     def change_page(self, index):

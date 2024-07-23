@@ -51,6 +51,15 @@ class GLWidget(QOpenGLWidget):
             QVector3D(50, 0, -60),  # Bottom-left
             QVector3D(-50, 0, -60)  # Bottom-right
             ]
+            
+        elif self.num_rectangles == 5:
+            self.rect_positions = [
+            QVector3D(-50, 0, 60),  # Top-left
+            QVector3D(50, 0, 60),   # Top-right
+            QVector3D(50, 0, 0),  # Center-left
+            QVector3D(-50, 0, 0),  # Center-right
+            QVector3D(0, 0, -60)  # Bottom-center
+            ]
         
         self.rect_size = QVector3D(30.0, 10.0, 30.0)
         self.selected_rect = None
