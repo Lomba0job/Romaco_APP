@@ -105,18 +105,24 @@ class LauncherWidget(QWidget):
         print(f"DEBUG LAUNCHER {len(self.lista_bilance)}")
     
     
-def ordinamento(self):
-    results = []
-    with ThreadPoolExecutor() as executor:
-        futures = [executor.submit(b.start_set_position) for b in self.lista_bilance]
-        
-        # Collect results from all futures
-        for future in futures:
-            try:
-                result = future.result()  # This will wait for the thread to complete and get the return value
-                results.append(result)
-            except Exception as e:
-                results.append(f"Error in processing Bilancia: {e}")
+    def ordinamento(self):
 
-    self.finished.emit()
-    return results
+        # Passaggio 1: Imposta COIL_CONFIG a 0 per tutte le bilance in sequenza
+        for b in self.lista_bilance:
+            b.set_coil_config()
+
+        # Passaggio 2: Controlla lo stato della bobina in sequenza
+        status_ok = [0 for _ in range(len(self.lista_bilance))]
+
+        while 0 in status_ok:
+            print(status_ok)
+            for i in range(len(self.lista_bilance)):
+                if status_ok[i] == 0:
+                    try:
+                        result = self.lista_bilance[i].check_coil_status()
+                        if result == 1:
+                            status_ok[i] = 1
+                    except Exception as e:
+                        print(f"Errore durante l'elaborazione della Bilancia {self.lista_bilance[i].modbusI.address}: {e}")
+
+        self.finished.emit()

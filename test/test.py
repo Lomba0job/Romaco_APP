@@ -1,4 +1,4 @@
-from API import modbus
+import minimalmodbus
 import serial
 
 # Costanti per i registri holding
@@ -41,19 +41,19 @@ MAX_SCALES = 6
 
 
 # Configurazione del master Modbus
-instrument = modbus.Instrument('/dev/tty.usbserial-FT57PLKR', 1)  # Modifica '/dev/ttyUSB0' con il tuo dispositivo seriale e '1' con l'ID del tuo slave
+instrument = minimalmodbus.Instrument('/dev/tty.usbserial-FT57PLKR', 1)  # Modifica '/dev/ttyUSB0' con il tuo dispositivo seriale e '1' con l'ID del tuo slave
 instrument.serial.baudrate = 9600  # Modifica la velocità in baud secondo necessità instrument.serial.bytesize = 8 instrument.serial.parity = serial.PARITY_NONE
 instrument.serial.stopbits = 1
 instrument.serial.bytesize = 8
 instrument.serial.parity = serial.PARITY_NONE
 instrument.serial.timeout = 2  # secondi
 
-instrument.mode = modbus.MODE_RTU
+instrument.mode = minimalmodbus.MODE_RTU
 
 # Funzioni per leggere i registri holding
 def read_holding_registers():
     try:
-        registers = instrument.read_registers(0, 15, 3)  # Legge 15 registri a partire dal registro HOLDING_CELL1_MS
+        registers = instrument.read_registers(0, 15, functioncode=3)  # Legge 15 registri a partire dal registro HOLDING_CELL1_MS
         print(f"Registers read: {registers}")  # Debug
         holding_reg_params = {
             'holding_cell1MS': registers[0],
@@ -79,8 +79,10 @@ def read_holding_registers():
 
 # Funzioni per leggere i coil
 def read_coils():
+    coils = []
     try:
-        coils = instrument.read_bits(0, 8, 1)  # Legge 8 coil a partire dal coil COIL_PESO_COMMAND
+        for i in range(0,9):
+            coils.append(instrument.read_bit(i*8 , functioncode=1))  # Legge 8 coil a partire dal coil COIL_PESO_COMMAND
         print(f"Coils read: {coils}")  # Debug
         coil_reg_params = {
             'coil_PesoCommand': coils[0],
@@ -90,41 +92,18 @@ def read_coils():
             'coil_PresenceStatus': coils[4],
             'coil_CellStatus': coils[5],
             'coil_AdcsStatus': coils[6],
-            'coil_Config': coils[7]
+            'coil_Config': coils[7],
+            'input_state': coils[8]
         }
         return coil_reg_params
     except Exception as e:
         print(f"Error reading coils: {e}")
         return None
-    
-def test_connection():
-    try:
-        instrument.serial.timeout = 10
-        register = instrument.read_register(12, 3)  # Legge il registro con address 12
-        print(f"Connection dummy read: {register}, type: {type(register)}")  # Debug
-        if isinstance(register, float) and abs(register - 0.001) < 0.0001:
-            register = 1  # Trattare 0.001 come 1
-        connection_dummy = register
-        print(connection_dummy)
-        instrument.serial.timeout = 2
-        if connection_dummy != 0:
-            return 0
-        else:
-            return -1
-    except Exception as e:
-        print(f"Errore nel test di connessione: {e}, indirizzo {instrument.address}")
-        instrument.serial.timeout = 2
-        return -2
-    
-    
-def write():
-    instrument.write_register(12, 8)
-    instrument.write_register(13, 8)
-    instrument.write_register(14, 8)
-    
+
     
 
-Test = test_connection()
+    
+
 
 
 # Esempio di utilizzo della lettura dei registri
@@ -134,18 +113,3 @@ print("Holding Registers:", holding_regs)
 coil_regs = read_coils()
 print("Coil Registers:", coil_regs)
 
-write()
-
-Test = test_connection()
-
-
-# Esempio di utilizzo della lettura dei registri
-holding_regs = read_holding_registers()
-print("Holding Registers:", holding_regs)
-
-coil_regs = read_coils()
-print("Coil Registers:", coil_regs)
-"""
-Holding Registers: {'holding_cell1MS': 0, 'holding_cell1LS': 0, 'holding_cell2MS': 0, 'holding_cell2LS': 0, 'holding_cell3MS': 0, 'holding_cell3LS': 0, 'holding_cell4MS': 0, 'holding_cell4LS': 0, 'holding_pesoTotMS': 0, 'holding_pesoTotLS': 0, 'holding_pesoCalibMS': 0, 'holding_pesoCalibLS': 0, 'connection_dummy': 1, 'count': 0, 'diagnostic': 0}
-Coil Registers: {'coil_PesoCommand': 0, 'coil_TareCommand': 0, 'coil_CalibCommand': 0, 'coil_LastCommandSuccess': 0, 'coil_PresenceStatus': 0, 'coil_CellStatus': 0, 'coil_AdcsStatus': 0, 'coil_Config': 0}
-"""
