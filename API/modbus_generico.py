@@ -1,4 +1,4 @@
-import minimalmodbus
+from API import modbus
 import serial
 import concurrent.futures
 
@@ -10,7 +10,9 @@ def configure(port, list_add):
     lista_bilance = []
     for add in list_add:
         print(f"iniziallizzando id {add}")
-        instrument = minimalmodbus.Instrument(port, add)
+        instrument = modbus.Instrument(port, add)
+        instrument.serial.baudrate = 9600
+        instrument.serial.timeout = 1
         ogg = b.Bilancia(instrument)
         lista_bilance.append(ogg)
     
@@ -29,10 +31,10 @@ def connect_modbus(port, address, baud):
         -1: connessione non stabilita
     """
     try:
-        instrument = minimalmodbus.Instrument(port, address)  # port name, slave address (in decimal)
+        instrument = modbus.Instrument(port, address)  # port name, slave address (in decimal)
         instrument.serial.baudrate = baud
         instrument.serial.timeout = 1
-        instrument.mode = minimalmodbus.MODE_RTU
+        instrument.mode = modbus.MODE_RTU
         if test_connection(instrument) == 0:
             return 0
         else:
@@ -44,15 +46,15 @@ def connect_modbus(port, address, baud):
         print(f"Errore generico: {e}")
         return -1
 
-def test_connection(instrument):
+def test_connection(instrument: modbus.Instrument):
     instrument.serial.timeout = 1
     try:
-        registers = instrument.read_registers(0, 15, 3)  # Legge 15 registri a partire dal registro HOLDING_CELL1_MS
+        register = instrument.read_register(12 , functioncode=3)  # Legge 15 registri a partire dal registro HOLDING_CELL1_MS
         
-        connection_dummy = registers[12]
+        connection_dummy = register
         print(connection_dummy)
         instrument.serial.timeout = 1
-        if connection_dummy == 1:
+        if connection_dummy != 0:
             return 0
         else:
             return -1
