@@ -1,5 +1,8 @@
 import minimalmodbus
 import serial
+import os 
+import curses
+import time 
 
 # Costanti per i registri holding
 HOLDING_CELL1_MS = 0
@@ -39,17 +42,19 @@ DISCRETE_TEST = 0
 # Definisce la dimensione massima possibile per il numero di scale
 MAX_SCALES = 6
 
-
+list_instrument = []
 # Configurazione del master Modbus
-instrument = minimalmodbus.Instrument('/dev/tty.usbserial-FT57PLKR', 1)  # Modifica '/dev/ttyUSB0' con il tuo dispositivo seriale e '1' con l'ID del tuo slave
-instrument.serial.baudrate = 9600  # Modifica la velocità in baud secondo necessità instrument.serial.bytesize = 8 instrument.serial.parity = serial.PARITY_NONE
-instrument.serial.stopbits = 1
-instrument.serial.bytesize = 8
-instrument.serial.parity = serial.PARITY_NONE
-instrument.serial.timeout = 2  # secondi
+for i in range(1, 6):
+    if i != 2:
+        instrument = minimalmodbus.Instrument('/dev/tty.usbserial-FT57PLKR', i)  # Modifica '/dev/ttyUSB0' con il tuo dispositivo seriale e '1' con l'ID del tuo slave
+        instrument.serial.baudrate = 9600  # Modifica la velocità in baud secondo necessità instrument.serial.bytesize = 8 instrument.serial.parity = serial.PARITY_NONE
+        instrument.serial.stopbits = 1
+        instrument.serial.bytesize = 8
+        instrument.serial.parity = serial.PARITY_NONE
+        instrument.serial.timeout = 0.2  # secondi
 
-instrument.mode = minimalmodbus.MODE_RTU
-
+        instrument.mode = minimalmodbus.MODE_RTU
+        list_instrument.append(instrument)
 # Funzioni per leggere i registri holding
 def read_holding_registers():
     try:
@@ -78,12 +83,12 @@ def read_holding_registers():
         return None
 
 # Funzioni per leggere i coil
-def read_coils():
+def read_coils(instrument_i):
     coils = []
     try:
-        for i in range(0,9):
-            coils.append(instrument.read_bit(i*8 , functioncode=1))  # Legge 8 coil a partire dal coil COIL_PESO_COMMAND
-        print(f"Coils read: {coils}")  # Debug
+        for i in range(0,10):
+            coils.append(instrument_i.read_bit(i*8 , functioncode=1))  # Legge 8 coil a partire dal coil COIL_PESO_COMMAND
+        # print(f"Coils read: {coils}")  # Debug
         coil_reg_params = {
             'coil_PesoCommand': coils[0],
             'coil_TareCommand': coils[1],
@@ -93,23 +98,46 @@ def read_coils():
             'coil_CellStatus': coils[5],
             'coil_AdcsStatus': coils[6],
             'coil_Config': coils[7],
-            'input_state': coils[8]
+            'coils_Start': coils[8],
+            'coils_Input': coils[9]
         }
         return coil_reg_params
     except Exception as e:
         print(f"Error reading coils: {e}")
         return None
 
+
+def start(instrument_t):
+    instrument_t.write_bit(64, value=1, functioncode=5)
     
+    """
+while True:
 
+    for instrument in list_instrument:
+        print(f" DEBUG | scheda {instrument.address}")
+        coil_regs = read_coils(instrument)
+        #print("Coil Registers:", coil_regs)
+
+    os.system("clear")
+    """
     
+    
+def main(stdscr):
+    curses.curs_set(0)  # Nascondi il cursore
 
+    for instrument in list_instrument:
+        start(instrument)
+        
+        
+    while True:
+        stdscr.clear()
+        
+        for idx, instrument in enumerate(list_instrument):
+            stdscr.addstr(idx, 0, f" DEBUG | scheda {instrument.address}")
+            coil_regs = read_coils(instrument)
+            stdscr.addstr(idx, 20, f" Coil Registers: {coil_regs}")
 
+        stdscr.refresh()
+        time.sleep(0.6)
 
-# Esempio di utilizzo della lettura dei registri
-holding_regs = read_holding_registers()
-print("Holding Registers:", holding_regs)
-
-coil_regs = read_coils()
-print("Coil Registers:", coil_regs)
-
+curses.wrapper(main)

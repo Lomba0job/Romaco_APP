@@ -1,5 +1,5 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QComboBox, QPushButton, QMessageBox, QFormLayout, QProgressBar
-from PyQt6.QtCore import pyqtSignal, QThread, pyqtSlot
+from PyQt6.QtCore import pyqtSignal, QThread, pyqtSlot, QThread
 from pymodbus.client import ModbusSerialClient as ModbusClient
 import serial.tools.list_ports
 import sys
@@ -7,7 +7,6 @@ import glob
 from API import modbus_generico as m
 import time
 
-from concurrent.futures import ThreadPoolExecutor
 
 def serial_ports():
     if sys.platform.startswith('win'):
@@ -29,6 +28,34 @@ def serial_ports():
         except (OSError, serial.SerialException):
             pass
     return result
+
+class OrdinamentoWorker(QThread):
+    progress_updated = pyqtSignal(int)
+    finished = pyqtSignal()
+
+    def __init__(self, lista_bilance):
+        super().__init__()
+        self.lista_bilance = lista_bilance
+
+    def run(self):
+        status_ok = [0 for _ in range(len(self.lista_bilance))]
+
+        while 0 in status_ok:
+            for i in range(len(self.lista_bilance)):
+                if status_ok[i] == 0:
+                    try:
+                        result = self.lista_bilance[i].check_coil_status()
+                        if result == 1:
+                            status_ok[i] = 1
+                            self.lista_bilance[i].set_number(sum(status_ok))
+                            self.progress_updated.emit(sum(status_ok))
+                            print(status_ok)
+                    except Exception as e:
+                        print(f"Errore durante l'elaborazione della Bilancia {self.lista_bilance[i].modbusI.address}: {e}")
+            time.sleep(0.2)
+        
+        self.finished.emit()
+        
 
 class ModbusScanner(QThread):
     result_ready = pyqtSignal(list)
@@ -92,7 +119,7 @@ class LauncherWidget(QWidget):
 
     @pyqtSlot(list) 
     def scan_finished(self, connected_ids):
-        self.label.setText("ORDER ID IDENTIFICATION")
+        self.label.setText("Identificazione ordine bilane (Ricerca della bilancia collegata per prima)")
         
         if len(connected_ids) != 0:
             # QMessageBox.information(self, "Scan Results", f"Connected IDs: {connected_ids}")
@@ -102,27 +129,39 @@ class LauncherWidget(QWidget):
             QMessageBox.warning(self, "Scan Results", "No Connected ID")
         
         
-        print(f"DEBUG LAUNCHER {len(self.lista_bilance)}")
-    
+        
     
     def ordinamento(self):
+        self.worker = OrdinamentoWorker(self.lista_bilance)
+        self.progress_bar.setMaximum(100)
+        self.worker.progress_updated.connect(self.update_progress)
+        self.worker.finished.connect(self.on_finished)
+        self.start_ordinamento()
+        
+    def start_ordinamento(self):
+        self.worker.start()
 
-        # Passaggio 1: Imposta COIL_CONFIG a 0 per tutte le bilance in sequenza
-        for b in self.lista_bilance:
-            b.set_coil_config()
+    def update_progress(self, value):
+        # Assuming each bilancia corresponds to an equal percentage of the progress bar
+        percentage = (value / len(self.lista_bilance)) * 100
+        if value == 1:
+            self.label.setText(f"Identificazione ordine bilane (Ricerca della bilancia collegata per seconda)")
+        elif value == 2:
+            self.label.setText(f"Identificazione ordine bilane (Ricerca della bilancia collegata per terza)")
+        elif value == 3:
+            self.label.setText(f"Identificazione ordine bilane (Ricerca della bilancia collegata per quarta)")
+        elif value == 4:
+            self.label.setText(f"Identificazione ordine bilane (Ricerca della bilancia collegata per quinta)")
+        elif value == 5:
+            self.label.setText(f"Identificazione ordine bilane (Ricerca della bilancia collegata per sesta)")
+            
+            
+            
+            
+        self.progress_bar.setValue(int(percentage))
 
-        # Passaggio 2: Controlla lo stato della bobina in sequenza
-        status_ok = [0 for _ in range(len(self.lista_bilance))]
-
-        while 0 in status_ok:
-            print(status_ok)
-            for i in range(len(self.lista_bilance)):
-                if status_ok[i] == 0:
-                    try:
-                        result = self.lista_bilance[i].check_coil_status()
-                        if result == 1:
-                            status_ok[i] = 1
-                    except Exception as e:
-                        print(f"Errore durante l'elaborazione della Bilancia {self.lista_bilance[i].modbusI.address}: {e}")
-
+    def on_finished(self):
+        print("Ordinamento finished")
+        # Handle any cleanup or final actions here
+        print(f"DEBUG LAUNCHER {len(self.lista_bilance)}")
         self.finished.emit()

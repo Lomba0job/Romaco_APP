@@ -12,11 +12,12 @@ def configure(port, list_add):
         print(f"iniziallizzando id {add}")
         instrument = modbus.Instrument(port, add)
         instrument.serial.baudrate = 9600
-        instrument.serial.timeout = 1
+        instrument.serial.timeout = 0.5
         ogg = b.Bilancia(instrument)
+        ogg.set_coil_config()
         lista_bilance.append(ogg)
     
-    print(f"temrianto con {len(list_add)} / {len(lista_bilance)}")
+    print(f"create bilance {len(list_add)} / {len(lista_bilance)}")
     return lista_bilance
 
 
@@ -33,7 +34,7 @@ def connect_modbus(port, address, baud):
     try:
         instrument = modbus.Instrument(port, address)  # port name, slave address (in decimal)
         instrument.serial.baudrate = baud
-        instrument.serial.timeout = 1
+        instrument.serial.timeout = 0.3
         instrument.mode = modbus.MODE_RTU
         if test_connection(instrument) == 0:
             return 0
@@ -47,13 +48,13 @@ def connect_modbus(port, address, baud):
         return -1
 
 def test_connection(instrument: modbus.Instrument):
-    instrument.serial.timeout = 1
+    instrument.serial.timeout = 0.3
     try:
         register = instrument.read_register(12 , functioncode=3)  # Legge 15 registri a partire dal registro HOLDING_CELL1_MS
         
         connection_dummy = register
         print(connection_dummy)
-        instrument.serial.timeout = 1
+        instrument.serial.timeout = 0.3
         if connection_dummy != 0:
             return 0
         else:

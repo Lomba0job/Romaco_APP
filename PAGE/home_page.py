@@ -46,7 +46,9 @@ class Home_Page(QWidget):
             self.loadConfiguration()
 
     def loadConfiguration(self):
-        num_rectangles = len(self.master.lista_bilance)        
+        num_rectangles = len(self.master.lista_bilance) 
+        for b in self.master.lista_bilance:
+            print(f"{b.position} corrisponde all'id {b.modbusI.address}")     
         # Remove the previous widget and its layout if they exist
         if self.glWidget is not None:
             self.fixed_area.layout().removeWidget(self.glWidget)
