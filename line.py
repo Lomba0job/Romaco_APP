@@ -8,60 +8,65 @@ skip_file_error_list = True
 
 this_file_dir = os.path.realpath(__file__)
 
-print("Path to ignore:", this_file_dir)
-print("-------------------------------------------------")
+output_file = "line.txt"
 
-def _walk(path, depth):
-    """Recursively list files and directories up to a certain depth"""
-    depth -= 1
-    with os.scandir(path) as p:
-        for entry in p:
+with open(output_file, "w") as out_file:
+    out_file.write(f"Path to ignore: {this_file_dir}\n")
+    out_file.write("-------------------------------------------------\n")
 
-            skip_entry = False
-            for fName in exclude_filenames:
-                if entry.path.endswith(fName):
-                    skip_entry = True
-                    break
+    def _walk(path, depth):
+        """Recursively list files and directories up to a certain depth"""
+        depth -= 1
+        with os.scandir(path) as p:
+            for entry in p:
 
-            if skip_entry:
-                print("Skipping entry", entry.path)
-                continue
+                skip_entry = False
+                for fName in exclude_filenames:
+                    if entry.path.endswith(fName):
+                        skip_entry = True
+                        break
 
-            yield entry.path
-            if entry.is_dir() and depth > 0:
-                yield from _walk(entry.path, depth)
+                if skip_entry:
+                    out_file.write(f"Skipping entry {entry.path}\n")
+                    continue
 
-print("Caching entries")
-files = list(_walk(directory, directory_depth))
-print("\n\n |==================================================================================================|")
+                yield entry.path
+                if entry.is_dir() and depth > 0:
+                    yield from _walk(entry.path, depth)
 
-print(f" |{'Counting Lines':>45} \t{' ':>44}|")
-file_err_list = []
-line_count = 0
-len_files = len(files)
-for i, file_dir in enumerate(files):
+    out_file.write("Caching entries\n")
+    files = list(_walk(directory, directory_depth))
+    out_file.write("\n\n |==================================================================================================|\n")
 
-    if not os.path.isfile(file_dir):
-        continue
+    out_file.write(f" |{'Counting Lines':>45} \t  {' ':>46}|\n")
+    file_err_list = []
+    line_count = 0
+    len_files = len(files)
+    for i, file_dir in enumerate(files):
 
-    skip_File = True
-    for ending in extensions_to_consider:
-        if file_dir.endswith(ending) or ending == "all":
-            skip_File = False
-
-    if not skip_File:
-        try:
-            with open(file_dir, "r") as file:
-                local_count = 0
-                for line in file:
-                    if line != "\n":
-                        local_count += 1
-                relative_path = os.path.relpath(file_dir, directory)
-                print(f" |{relative_path:<80} |\t {local_count:>10} |")
-                line_count += local_count
-        except:
-            file_err_list.append(file_dir)
+        if not os.path.isfile(file_dir):
             continue
 
-print(" |==================================================================================================| ")
-print(f" |{'Total lines':<80} |\t {line_count:>10} | ")
+        skip_File = True
+        for ending in extensions_to_consider:
+            if file_dir.endswith(ending) or ending == "all":
+                skip_File = False
+
+        if not skip_File:
+            try:
+                with open(file_dir, "r") as file:
+                    local_count = 0
+                    for line in file:
+                        if line != "\n":
+                            local_count += 1
+                    relative_path = os.path.relpath(file_dir, directory)
+                    out_file.write(f" |{relative_path:<80} |\t {local_count:>10} |\n")
+                    line_count += local_count
+            except:
+                file_err_list.append(file_dir)
+                continue
+
+    out_file.write(" |==================================================================================================| \n")
+    out_file.write(f" |{'Total lines':<80} |\t {line_count:>10} |\n")
+
+print(f"Output written to {output_file}")
