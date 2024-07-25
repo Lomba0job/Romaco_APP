@@ -48,8 +48,8 @@ class OrdinamentoWorker(QThread):
                         if result == 1:
                             status_ok[i] = 1
                             self.lista_bilance[i].set_number(sum(status_ok))
-                            self.progress_updated.emit(sum(status_ok))
-                            print(status_ok)
+                        self.progress_updated.emit(sum(status_ok))
+                            
                     except Exception as e:
                         print(f"Errore durante l'elaborazione della Bilancia {self.lista_bilance[i].modbusI.address}: {e}")
             time.sleep(0.2)
@@ -133,7 +133,7 @@ class LauncherWidget(QWidget):
     
     def ordinamento(self):
         self.worker = OrdinamentoWorker(self.lista_bilance)
-        self.progress_bar.setMaximum(100)
+        self.progress_bar.setMaximum(1000)
         self.worker.progress_updated.connect(self.update_progress)
         self.worker.finished.connect(self.on_finished)
         self.start_ordinamento()
@@ -143,7 +143,9 @@ class LauncherWidget(QWidget):
 
     def update_progress(self, value):
         # Assuming each bilancia corresponds to an equal percentage of the progress bar
-        percentage = (value / len(self.lista_bilance)) * 100
+        percentage = (value / len(self.lista_bilance)) * 1000
+        next_percentage = percentage + ((1 / len(self.lista_bilance)) * 1000)
+        
         if value == 1:
             self.label.setText(f"Identificazione ordine bilane (Ricerca della bilancia collegata per seconda)")
         elif value == 2:
@@ -157,8 +159,11 @@ class LauncherWidget(QWidget):
             
             
             
-            
-        self.progress_bar.setValue(int(percentage))
+        if(percentage <= self.progress_bar.value()):
+            if self.progress_bar.value()+1 < int(next_percentage):
+                self.progress_bar.setValue(int(self.progress_bar.value()+5))
+        else:
+            self.progress_bar.setValue(int(percentage))
 
     def on_finished(self):
         print("Ordinamento finished")
