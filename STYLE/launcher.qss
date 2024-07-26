@@ -1,0 +1,81 @@
+/* styles.css */
+
+
+QLabel#title_label {
+    font-size: 24px;
+    font-weight: bold;
+    color: #000000;
+}
+QLabel#t_wid {
+    font-size: 30px;
+    color: #FD6363;
+}
+
+QWidget#wid {
+    border: 2px solid #5D5D5D;
+    border-radius: 20px;
+}
+
+QLabel#passo {
+    font-size: 20px;
+    color: #5D5D5D;
+    font-weight: bold;
+}
+
+QLabel#desc {
+    font-size: 20px;
+    color: #898989;
+}
+
+QLabel#title_label span {
+    color: #E74C3C;
+}
+
+QLabel#subtitle_label {
+    font-size: 14px;
+    color: #7F8C8D;
+}
+
+QLabel#progress_label, QLabel#usage_steps {
+    font-size: 16px;
+    color: #2C3E50;
+}
+
+QPushButton {
+    background-color: #E74C3C;
+    color: #FFFFFF;
+    font-size: 14px;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+QPushButton:disabled {
+    background-color: #C0392B;
+}
+
+QProgressBar {
+    height: 20px;
+    border: 1px solid #BDC3C7;
+    border-radius: 5px;
+    text-align: center;
+}
+
+QProgressBar::chunk {
+    background-color: #E74C3C;
+    width: 20px;
+    margin: 0.5px;
+}
+
+QGroupBox {
+    border: 1px solid #E74C3C;
+    border-radius: 5px;
+    margin-top: 1em;
+}
+
+QGroupBox::title {
+   
+    padding: 0 3px;
+    font-weight: bold;
+    font-size: 20px;
+    color: #E74C3C;
+}

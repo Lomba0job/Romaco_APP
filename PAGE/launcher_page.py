@@ -1,18 +1,20 @@
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QComboBox, QPushButton, QMessageBox, QFormLayout, QProgressBar
-from PyQt6.QtCore import pyqtSignal, QThread, pyqtSlot, QThread
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QComboBox, QPushButton, QMessageBox, QFormLayout, QProgressBar, QHBoxLayout, QGroupBox
+from PyQt6.QtCore import Qt, pyqtSignal, QThread, pyqtSlot, QFile, QTextStream
+from PyQt6.QtGui import QFontDatabase, QPixmap, QPalette, QColor    
 from pymodbus.client import ModbusSerialClient as ModbusClient
 import serial.tools.list_ports
 import sys
 import glob
 from API import modbus_generico as m
+from API import funzioni as f
 import time
+
 
 
 def serial_ports():
     if sys.platform.startswith('win'):
         ports = ['COM%s' % (i + 1) for i in range(256)]
     elif sys.platform.startswith('linux') or sys.platform.startswith('cygwin'):
-        # this excludes your current terminal "/dev/tty"
         ports = glob.glob('/dev/tty[A-Za-z]*')
     elif sys.platform.startswith('darwin'):
         ports = glob.glob('/dev/tty.*')
@@ -74,37 +76,171 @@ class LauncherWidget(QWidget):
     def __init__(self):
         super().__init__()
         self.initUI()
+        self.setAutoFillBackground(True)
+        self.set_background_color()
+    
+    def set_background_color(self):
+        
+        p = self.palette()
+        p.setColor(self.backgroundRole(), Qt.GlobalColor.white)
+        self.setPalette(p)
 
     def initUI(self):
-        layout = QVBoxLayout()
+        self.setWindowTitle("Luancher page")
 
-        label = QLabel("Configurazione Modbus")
-        layout.addWidget(label)
+        
+        
+        main_layout = QVBoxLayout()
 
+        # Horizontal layout for the title and logo
+        title_layout = QHBoxLayout()
+
+        # Add the logo
+        logo_label = QLabel()
+        logo_pixmap = QPixmap(f.get_img("logo.jpg"))  # Path to your logo file
+        logo_label.setPixmap(logo_pixmap.scaledToHeight(50))
+        title_layout.addWidget(logo_label)
+
+        # Add the title and subtitle
+        title_label = QLabel("NANO<span style='color:#E74C3C'>LEVER</span>")
+        title_label.setObjectName("title_label")
+        title_layout.addWidget(title_label)
+
+        subtitle_label = QLabel("SISTEMA AD ISOLA")
+        subtitle_label.setObjectName("subtitle_label")
+        title_layout.addWidget(subtitle_label)
+
+        title_layout.addStretch()
+        main_layout.addLayout(title_layout)
+
+        # Horizontal layout for the main content
+        content_layout = QHBoxLayout()
+
+        # Left vertical layout for the controls
+        controls_layout = QVBoxLayout()
+
+        # Form layout for port selection
         form_layout = QFormLayout()
-
         self.port_combo = QComboBox()
         self.populate_ports()
-        self.label = QLabel("ID IDENTIFICATION")
-        self.label.setVisible(False)
-        self.start_button = QPushButton("Start Scanning")
+        form_layout.addRow("Porta Selezionata", self.port_combo)
+        controls_layout.addLayout(form_layout)
+
+        self.detect_button = QPushButton("Rileva le porte disponibili")
+        self.detect_button.clicked.connect(self.populate_ports)
+        controls_layout.addWidget(self.detect_button)
+
+        self.start_button = QPushButton("Avvia Configurazione Automatica")
         self.start_button.clicked.connect(self.start_scanning)
+        controls_layout.addWidget(self.start_button)
 
-        self.progress_bar = QProgressBar()
-        self.progress_bar.setRange(0, 0)  # Indeterminate mode
-        self.progress_bar.setVisible(False)
+        controls_layout.addStretch()
+        content_layout.addLayout(controls_layout)
 
-        form_layout.addRow("Port:", self.port_combo)
+        # Right vertical layout for the usage steps and progress
+        wid = QWidget()
+        wid.setObjectName("wid")
+        usage_layout = QVBoxLayout()
+
         
-        layout.addLayout(form_layout)
-        layout.addWidget(self.label)
-        layout.addWidget(self.start_button)
-        layout.addWidget(self.progress_bar)
+        
+        titolo_wid = QLabel(" ISTRUZIONI DI UTILIZZO ")
+        titolo_wid.setObjectName("t_wid")
+        titolo_wid.setMinimumHeight(200)
+        
+        l0 = QHBoxLayout()
+        p0 = QLabel("PASSO 1:")
+        p0.setObjectName("passo")
+        d0 = QLabel("Collegare le bilance tramite il cavo in dotazione. ")
+        d0.setObjectName("desc")
+        l0.addWidget(p0)
+        l0.addWidget(d0)
+        
+        
+        l1 = QHBoxLayout()
+        p1 = QLabel("PASSO 2:")
+        p1.setObjectName("passo")
+        d1 = QLabel("Collegare la prima bilancia al PC.")
+        d1.setObjectName("desc")
+        l1.addWidget(p1)
+        l1.addWidget(d1)
+        
+        l2 = QHBoxLayout()
+        p2 = QLabel("PASSO 3:")
+        p2.setObjectName("passo")
+        d2 = QLabel("Posizionare le bilance seguendo uno ordine circolare\npartendo da quella collegata al PC.")
+        d2.setObjectName("desc")
+        l2.addWidget(p2)
+        l2.addWidget(d2)
+        
+        l3 = QHBoxLayout()
+        p3 = QLabel("PASSO 4:")
+        p3.setObjectName("passo")
+        d3 = QLabel("Rimuovere eventuali componenti dalla superficie della\nbilancia. ")
+        d3.setObjectName("desc")
+        l3.addWidget(p3)
+        l3.addWidget(d3)
+        
+        l4 = QHBoxLayout()
+        p4 = QLabel("PASSO 5:")
+        p4.setObjectName("passo")
+        d4 = QLabel("Identificare e selezionare la porta della bilancia. ")
+        d4.setObjectName("desc")
+        l4.addWidget(p4)
+        l4.addWidget(d4)
+        
+        l5 = QHBoxLayout()
+        p5 = QLabel("PASSO 6:")
+        p5.setObjectName("passo")
+        d5 = QLabel(" Avviare la configurazione automatica.")
+        d5.setObjectName("desc")
+        l5.addWidget(p5)
+        l5.addWidget(d5)
+        
 
-        self.setLayout(layout)
+        
+        
+        usage_layout.setSpacing(2)
+        
+        usage_layout.addWidget(titolo_wid)
+        usage_layout.addLayout(l0)
+        usage_layout.addLayout(l1)
+        usage_layout.addLayout(l2)
+        usage_layout.addLayout(l3)
+        usage_layout.addLayout(l4)
+        usage_layout.addLayout(l5)
+        
+        
+        
+        
+        
+        
+        
+        self.progress_bar = QProgressBar()
+        self.progress_bar.setVisible(False)
+        
+        
+        wid.setLayout(usage_layout)
+        content_layout.addWidget(wid)
+        content_layout.addWidget(self.progress_bar)
+        
+        main_layout.addLayout(content_layout)
+        self.setLayout(main_layout)
+
+        # Load the stylesheet
+        self.load_stylesheet()
+        
+    def load_stylesheet(self):
+        file = QFile(f.get_style("launcher.qss"))
+        if file.open(QFile.OpenModeFlag.ReadOnly | QFile.OpenModeFlag.Text):
+            stream = QTextStream(file)
+            style_sheet = stream.readAll()
+            file.close()
+            self.setStyleSheet(style_sheet)
 
     def populate_ports(self):
         ports = serial_ports()
+        self.port_combo.clear()
         for port in ports:
             self.port_combo.addItem(port)
 
@@ -113,60 +249,35 @@ class LauncherWidget(QWidget):
         self.scanner = ModbusScanner(port)
         self.scanner.result_ready.connect(self.scan_finished)
         self.scanner.start()
-        self.label.setVisible(True)
-        self.start_button.setVisible(False)
+        self.start_button.setEnabled(False)
         self.progress_bar.setVisible(True)
+        self.progress_bar.setRange(0, 0)  # Indeterminate mode
 
-    @pyqtSlot(list) 
+    @pyqtSlot(list)
     def scan_finished(self, connected_ids):
-        self.label.setText("Identificazione ordine bilane (Ricerca della bilancia collegata per prima)")
-        
+        self.progress_bar.setRange(0, 100)  # Determinate mode
         if len(connected_ids) != 0:
-            # QMessageBox.information(self, "Scan Results", f"Connected IDs: {connected_ids}")
             self.lista_bilance = m.configure(self.port_combo.currentText(), connected_ids)
             self.ordinamento()
         else:
             QMessageBox.warning(self, "Scan Results", "No Connected ID")
-        
-        
-        
-    
+            self.start_button.setEnabled(True)
+            self.progress_bar.setVisible(False)
+
     def ordinamento(self):
         self.worker = OrdinamentoWorker(self.lista_bilance)
-        self.progress_bar.setMaximum(1000)
         self.worker.progress_updated.connect(self.update_progress)
         self.worker.finished.connect(self.on_finished)
         self.start_ordinamento()
-        
+
     def start_ordinamento(self):
         self.worker.start()
 
     def update_progress(self, value):
-        # Assuming each bilancia corresponds to an equal percentage of the progress bar
-        percentage = (value / len(self.lista_bilance)) * 1000
-        next_percentage = percentage + ((1 / len(self.lista_bilance)) * 1000)
-        
-        if value == 1:
-            self.label.setText(f"Identificazione ordine bilane (Ricerca della bilancia collegata per seconda)")
-        elif value == 2:
-            self.label.setText(f"Identificazione ordine bilane (Ricerca della bilancia collegata per terza)")
-        elif value == 3:
-            self.label.setText(f"Identificazione ordine bilane (Ricerca della bilancia collegata per quarta)")
-        elif value == 4:
-            self.label.setText(f"Identificazione ordine bilane (Ricerca della bilancia collegata per quinta)")
-        elif value == 5:
-            self.label.setText(f"Identificazione ordine bilane (Ricerca della bilancia collegata per sesta)")
-            
-            
-            
-        if(percentage <= self.progress_bar.value()):
-            if self.progress_bar.value()+1 < int(next_percentage):
-                self.progress_bar.setValue(int(self.progress_bar.value()+5))
-        else:
-            self.progress_bar.setValue(int(percentage))
+        percentage = (value / len(self.lista_bilance)) * 100
+        self.progress_bar.setValue(int(percentage))
 
     def on_finished(self):
-        print("Ordinamento finished")
-        # Handle any cleanup or final actions here
-        print(f"DEBUG LAUNCHER {len(self.lista_bilance)}")
+        QMessageBox.information(self, "Ordinamento", "Ordinamento completato")
         self.finished.emit()
+        self.start_button.setEnabled(True)
