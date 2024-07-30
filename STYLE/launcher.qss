@@ -112,3 +112,25 @@ QProgressBar::chunk {
 
 } 
 
+
+QComboBox#combo {
+    background-color: #f1f3f4;
+    color: #000000;
+    font-size: 20px;
+    border: 1px solid #5D5D5D;
+    border-radius: 5px;
+}
+
+
+/* Stile per il menu a discesa */
+QComboBox QAbstractItemView {
+    border: 1px solid #BDC3C7;
+    selection-background-color: #E74C3C;
+    selection-color: #E74C3C;
+    background-color: #FFFFFF;
+}
+
+/* Stile per gli elementi nel menu a discesa */
+QComboBox QAbstractItemView::item {
+    min-height: 25px;
+}

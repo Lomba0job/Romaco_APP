@@ -122,7 +122,7 @@ class LauncherWidget(QWidget):
         h0 = QHBoxLayout()
         controls_layout = QVBoxLayout()
         controls_layout.addStretch()
-        detect_button = QPushButton("RILEVARE LE PORTI DISPONIBILI")
+        detect_button = QPushButton("RILEVARE LE PORTE DISPONIBILI")
         detect_button.clicked.connect(self.rileva_porte)
         detect_button.setMaximumWidth(400)
         h0.addStretch()
@@ -134,21 +134,28 @@ class LauncherWidget(QWidget):
         h1 = QHBoxLayout()
         
         porta_label = QLabel("PORTA SELEZIONATA")
-        porta_label.setMinimumWidth(300)
+        porta_label.setMinimumWidth(200)
         porta_label.setObjectName("passo1")
         h1.addWidget(porta_label)
 
         self.port_combo = QComboBox()
-        self.port_combo.setMinimumWidth(300)
+        self.port_combo.setObjectName("combo")
+        self.port_combo.setMinimumWidth(400)
         h1.addWidget(self.port_combo)
         controls_layout.addLayout(h1)
         controls_layout.addSpacing(100)
 
         self.start_button = QPushButton("AVVIARE CONFIGURAZIONE AUTOMATICA")
-        self.start_button.setMaximumWidth(400)
+        self.start_button.setMaximumWidth(600)
+        self.start_button.setMinimumHeight(70)
         self.start_button.clicked.connect(self.start_scanning)
 
         controls_layout.addStretch()
+        self.label = QLabel("")
+        self.label.setVisible(False)
+        self.label.setObjectName("desc")
+        controls_layout.addWidget(self.label)
+        
         content_layout.addLayout(controls_layout)
 
         # Right side - Usage steps
@@ -243,7 +250,8 @@ class LauncherWidget(QWidget):
         
     @pyqtSlot(list)
     def scan_finished(self, connected_ids):
-        self.progress_bar.setRange(0, 100)  # Determinate mode
+        self.progress_bar.setRange(0, 1000)  # Determinate mode
+        self.label.setVisible(True)
         if len(connected_ids) != 0:
             self.lista_bilance = m.configure(self.port_combo.currentText(), connected_ids)
             self.ordinamento()
@@ -262,10 +270,32 @@ class LauncherWidget(QWidget):
         self.worker.start()
 
     def update_progress(self, value):
-        percentage = (value / len(self.lista_bilance)) * 100
-        self.progress_bar.setValue(int(percentage))
+        # Assuming each bilancia corresponds to an equal percentage of the progress bar
+        print(value)
+        print(len(self.lista_bilance))
+        percentage = (value / len(self.lista_bilance)) * 1000
+        next_percentage = percentage + ((1 / len(self.lista_bilance)) * 1000)
+        
+        if value == 1:
+            self.label.setText(f"Identificazione ordine bilance (Ricerca della bilancia collegata per seconda)")
+        elif value == 2:
+            self.label.setText(f"Identificazione ordine bilance (Ricerca della bilancia collegata per terza)")
+        elif value == 3:
+            self.label.setText(f"Identificazione ordine bilance (Ricerca della bilancia collegata per quarta)")
+        elif value == 4:
+            self.label.setText(f"Identificazione ordine bilance (Ricerca della bilancia collegata per quinta)")
+        elif value == 5:
+            self.label.setText(f"Identificazione ordine bilance (Ricerca della bilancia collegata per sesta)")
+            
+            
+            
+        if(percentage <= self.progress_bar.value()):
+            if self.progress_bar.value()+1 < int(next_percentage):
+                self.progress_bar.setValue(int(self.progress_bar.value()+5))
+        else:
+            self.progress_bar.setValue(int(percentage))
 
     def on_finished(self):
-        QMessageBox.information(self, "Ordinamento", "Ordinamento completato")
+        #QMessageBox.information(self, "Ordinamento", "Ordinamento completato")
         self.finished.emit()
-        self.start_button.setEnabled(True)
+        #self.start_button.setEnabled(True)

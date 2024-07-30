@@ -13,21 +13,22 @@ class Home_Page(QWidget):
         self.master.setWindowTitle("HomePage")
 
         self.glWidget = None
-        
-
-    def initUI(self):
-        main_layout = QHBoxLayout()
-
-        # Left side layout
-        left_layout = QVBoxLayout()
-        
-        print(f"DEBUG HOMEPAGE {len(self.master.lista_bilance)}")
-        numero = len(self.master.lista_bilance)
-        self.config_label = QLabel(f"CONFIGURAZIONE DA {numero} BILANCE")
-        left_layout.addWidget(self.config_label)
-        
+        self.main_layout = None
+        self.left_layout = None
+        self.config_label = None
+        self.preUI()
     
-        main_layout.addLayout(left_layout)
+    def preUI(self):
+        self.main_layout = QHBoxLayout()
+        self.left_layout = QVBoxLayout()
+        
+        push_config = QPushButton()
+        push_config.setText("ESEGUI LA CONFIGURAZIONE")
+        push_config.clicked.connect(self.master.launcher_call)
+        self.left_layout.addStretch()
+        self.left_layout.addWidget(push_config)
+        self.left_layout.addStretch()
+        self.main_layout.addLayout(self.left_layout)
         
         # Right side fixed area
         self.fixed_area = QWidget()
@@ -39,11 +40,32 @@ class Home_Page(QWidget):
         self.fixed_area.setPalette(palette)
         self.fixed_area.setAutoFillBackground(True)
         
-        main_layout.addWidget(self.fixed_area, alignment=Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+        self.main_layout.addWidget(self.fixed_area, alignment=Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
 
-        self.setLayout(main_layout)
+        self.setLayout(self.main_layout)
+
+    def initUI(self):
+        # Clear existing widgets from layouts
+        self.clearLayout(self.left_layout)
+        self.clearLayout(self.fixed_area.layout())
+
+        print(f"DEBUG HOMEPAGE {len(self.master.lista_bilance)}")
+        numero = len(self.master.lista_bilance)
+        self.config_label = QLabel(f"CONFIGURAZIONE DA {numero} BILANCE")
+        self.left_layout.addWidget(self.config_label)
+        
         if numero != 0:
             self.loadConfiguration()
+
+    def clearLayout(self, layout):
+        if layout is not None:
+            while layout.count():
+                item = layout.takeAt(0)
+                widget = item.widget()
+                if widget is not None:
+                    widget.deleteLater()
+                else:
+                    self.clearLayout(item.layout())
 
     def loadConfiguration(self):
         num_rectangles = len(self.master.lista_bilance) 

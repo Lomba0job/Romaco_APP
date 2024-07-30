@@ -27,7 +27,7 @@ class MainWindow(QMainWindow):
 
         self.navbar = nv.NavbarWidget(self)
         self.setMenuWidget(self.navbar)
-        self.navbar.setVisible(False)  # Nascondi la barra di navigazione all'avvio
+        self.navbar.setVisible(True)  # Nascondi la barra di navigazione all'avvio
 
         self.pages = {
             self.navbar.home_button: 1
@@ -37,7 +37,7 @@ class MainWindow(QMainWindow):
 
         self.navbar.settings_button_clicked.connect(lambda: self.change_page(4))
 
-        self.change_page(0)  # Initialize to the launcher page
+        self.change_page(1)  # Initialize to the launcher page
 
     def create_pages(self):
         # Launcher Page
@@ -49,6 +49,10 @@ class MainWindow(QMainWindow):
         # Rubrica Page
         self.rubrica_page = h.Home_Page(self)
         self.central_widget.addWidget(self.rubrica_page)
+        
+    def launcher_call(self):
+        self.navbar.setVisible(False)   #Nascondi La navbar
+        self.change_page(0)  # Passa alla pagina rubrica
 
     def on_launcher_finished(self):
         self.navbar.setVisible(True)  # Mostra la barra di navigazione
