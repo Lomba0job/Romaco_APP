@@ -77,28 +77,8 @@ QPushButton:hover{
     border-radius: 9px;
 }
 
-QPushButton:disabled {
-    background-color: #C0392B;
-}
 
-QProgressBar {
-    height: 20px;
-    border: 1px solid #BDC3C7;
-    border-radius: 5px;
-    text-align: center;
-}
 
-QProgressBar::chunk {
-    background-color: #E74C3C;
-    width: 20px;
-    margin: 0.5px;
-}
-
-QGroupBox {
-    border: 1px solid #E74C3C;
-    border-radius: 5px;
-    margin-top: 1em;
-}
 
 QGroupBox::title {
    
@@ -107,3 +87,28 @@ QGroupBox::title {
     font-size: 20px;
     color: #E74C3C;
 }
+
+
+QProgressBar {
+    /* Basic properties */    
+    border: 1px solid #E74C3C;
+    border-radius: 5px;
+    text-align: center;
+    
+    /* Size */
+    min-height: 20px;
+    max-height: 20px;
+    
+    /* Colors */
+    background-color: #ECF0F1;
+
+}
+
+QProgressBar::chunk {
+   
+    background-color: #E74C3C;
+    width: 5px; 
+    animation-duration: 3ms;
+
+} 
+

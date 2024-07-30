@@ -1,6 +1,6 @@
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QComboBox, QPushButton, QMessageBox, QFormLayout, QProgressBar, QHBoxLayout, QGroupBox
-from PyQt6.QtCore import Qt, pyqtSignal, QThread, pyqtSlot, QFile, QTextStream
-from PyQt6.QtGui import QFontDatabase, QPixmap, QPalette, QColor    
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QComboBox, QPushButton, QMessageBox, QFormLayout, QProgressBar, QHBoxLayout, QGroupBox, QGraphicsEffect
+from PyQt6.QtCore import Qt, pyqtSignal, QThread, pyqtSlot, QFile, QTextStream, QPropertyAnimation, QEasingCurve, QParallelAnimationGroup
+from PyQt6.QtGui import QFontDatabase, QPixmap, QPalette, QColor
 from pymodbus.client import ModbusSerialClient as ModbusClient
 import serial.tools.list_ports
 import sys
@@ -226,9 +226,14 @@ class LauncherWidget(QWidget):
 
     def start_scanning(self):
         self.progress_bar.setVisible(True)
-        self.progress_bar.setRange(0, 100)
-        self.progress_bar.setValue(12)
-        self.start_button.setEnabled(False)
+        self.progress_bar.setRange(0, 0)
+        
+        port = self.port_combo.currentText()
+        self.scanner = ModbusScanner(port)
+        self.scanner.result_ready.connect(self.scan_finished)
+        self.scanner.start()
+        
+        self.start_button.setVisible(False)
         
     def rileva_porte(self):
         result = serial_ports()
@@ -244,7 +249,7 @@ class LauncherWidget(QWidget):
             self.ordinamento()
         else:
             QMessageBox.warning(self, "Scan Results", "No Connected ID")
-            self.start_button.setEnabled(True)
+            self.start_button.setVisible(True)
             self.progress_bar.setVisible(False)
 
     def ordinamento(self):
