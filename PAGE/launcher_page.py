@@ -80,156 +80,142 @@ class LauncherWidget(QWidget):
         self.set_background_color()
     
     def set_background_color(self):
-        
         p = self.palette()
-        p.setColor(self.backgroundRole(), Qt.GlobalColor.white)
+        p.setColor(self.backgroundRole(), QColor.fromRgb(241,241,241))
         self.setPalette(p)
 
     def initUI(self):
-        self.setWindowTitle("Luancher page")
-
-        
+        self.setWindowTitle("Configurazione NANOLEVER")
         
         main_layout = QVBoxLayout()
 
-        # Horizontal layout for the title and logo
-        title_layout = QHBoxLayout()
-
-        # Add the logo
+        # Header
+        header_layout = QHBoxLayout()
         logo_label = QLabel()
-        logo_pixmap = QPixmap(f.get_img("logo.jpg"))  # Path to your logo file
+        logo_pixmap = QPixmap(f.get_img("logo.jpg"))
         logo_label.setPixmap(logo_pixmap.scaledToHeight(50))
-        title_layout.addWidget(logo_label)
+        header_layout.addWidget(logo_label)
 
-        # Add the title and subtitle
         title_label = QLabel("NANO<span style='color:#E74C3C'>LEVER</span>")
         title_label.setObjectName("title_label")
-        title_layout.addWidget(title_label)
+        header_layout.addWidget(title_label)
 
         subtitle_label = QLabel("SISTEMA AD ISOLA")
         subtitle_label.setObjectName("subtitle_label")
-        title_layout.addWidget(subtitle_label)
+        header_layout.addWidget(subtitle_label)
 
-        title_layout.addStretch()
-        main_layout.addLayout(title_layout)
+        header_layout.addStretch()
+        
+        configurazione_label = QLabel("CONFIGURAZIONE")
+        configurazione_label.setObjectName("configurazione_label")
+        header_layout.addWidget(configurazione_label)
 
-        # Horizontal layout for the main content
+        wid = QWidget()
+        wid.setObjectName("menulab")
+        wid.setLayout(header_layout)
+        main_layout.addWidget(wid)
+
+        # Content
         content_layout = QHBoxLayout()
-
-        # Left vertical layout for the controls
+        content_layout.addSpacing(100)
+        # Left side - Controls
+        h0 = QHBoxLayout()
         controls_layout = QVBoxLayout()
+        controls_layout.addStretch()
+        detect_button = QPushButton("RILEVARE LE PORTI DISPONIBILI")
+        detect_button.clicked.connect(self.rileva_porte)
+        detect_button.setMaximumWidth(400)
+        h0.addStretch()
+        h0.addWidget(detect_button)
+        h0.addStretch()
+        
+        controls_layout.addLayout(h0)
+        controls_layout.addSpacing(60)
+        h1 = QHBoxLayout()
+        
+        porta_label = QLabel("PORTA SELEZIONATA")
+        porta_label.setMinimumWidth(300)
+        porta_label.setObjectName("passo1")
+        h1.addWidget(porta_label)
 
-        # Form layout for port selection
-        form_layout = QFormLayout()
         self.port_combo = QComboBox()
-        self.populate_ports()
-        form_layout.addRow("Porta Selezionata", self.port_combo)
-        controls_layout.addLayout(form_layout)
+        self.port_combo.setMinimumWidth(300)
+        h1.addWidget(self.port_combo)
+        controls_layout.addLayout(h1)
+        controls_layout.addSpacing(100)
 
-        self.detect_button = QPushButton("Rileva le porte disponibili")
-        self.detect_button.clicked.connect(self.populate_ports)
-        controls_layout.addWidget(self.detect_button)
-
-        self.start_button = QPushButton("Avvia Configurazione Automatica")
+        self.start_button = QPushButton("AVVIARE CONFIGURAZIONE AUTOMATICA")
+        self.start_button.setMaximumWidth(400)
         self.start_button.clicked.connect(self.start_scanning)
-        controls_layout.addWidget(self.start_button)
 
         controls_layout.addStretch()
         content_layout.addLayout(controls_layout)
 
-        # Right vertical layout for the usage steps and progress
-        wid = QWidget()
-        wid.setObjectName("wid")
-        usage_layout = QVBoxLayout()
+        # Right side - Usage steps
+        usage_widget = QWidget()
+        usage_widget.setObjectName("wid")
+        usage_layout = QVBoxLayout(usage_widget)
 
-        
-        
-        titolo_wid = QLabel(" ISTRUZIONI DI UTILIZZO ")
-        titolo_wid.setObjectName("t_wid")
-        titolo_wid.setMinimumHeight(200)
-        
-        l0 = QHBoxLayout()
-        p0 = QLabel("PASSO 1:")
-        p0.setObjectName("passo")
-        d0 = QLabel("Collegare le bilance tramite il cavo in dotazione. ")
-        d0.setObjectName("desc")
-        l0.addWidget(p0)
-        l0.addWidget(d0)
-        
-        
-        l1 = QHBoxLayout()
-        p1 = QLabel("PASSO 2:")
-        p1.setObjectName("passo")
-        d1 = QLabel("Collegare la prima bilancia al PC.")
-        d1.setObjectName("desc")
-        l1.addWidget(p1)
-        l1.addWidget(d1)
-        
-        l2 = QHBoxLayout()
-        p2 = QLabel("PASSO 3:")
-        p2.setObjectName("passo")
-        d2 = QLabel("Posizionare le bilance seguendo uno ordine circolare\npartendo da quella collegata al PC.")
-        d2.setObjectName("desc")
-        l2.addWidget(p2)
-        l2.addWidget(d2)
-        
-        l3 = QHBoxLayout()
-        p3 = QLabel("PASSO 4:")
-        p3.setObjectName("passo")
-        d3 = QLabel("Rimuovere eventuali componenti dalla superficie della\nbilancia. ")
-        d3.setObjectName("desc")
-        l3.addWidget(p3)
-        l3.addWidget(d3)
-        
-        l4 = QHBoxLayout()
-        p4 = QLabel("PASSO 5:")
-        p4.setObjectName("passo")
-        d4 = QLabel("Identificare e selezionare la porta della bilancia. ")
-        d4.setObjectName("desc")
-        l4.addWidget(p4)
-        l4.addWidget(d4)
-        
-        l5 = QHBoxLayout()
-        p5 = QLabel("PASSO 6:")
-        p5.setObjectName("passo")
-        d5 = QLabel(" Avviare la configurazione automatica.")
-        d5.setObjectName("desc")
-        l5.addWidget(p5)
-        l5.addWidget(d5)
-        
+        fasi_label = QLabel("FASI DI UTILIZZO")
+        fasi_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        fasi_label.setObjectName("t_wid")
+        usage_layout.addStretch(1)
+        usage_layout.addWidget(fasi_label)
+        usage_layout.addStretch(2)
 
+        steps = [
+            "Collegare le bilance tramite il cavo in dotazione.",
+            "Collegare la prima bilancia al PC.",
+            "Posizionare le bilance seguendo uno ordine circolare\npartendo da quella collegata al PC.",
+            "Rimuovere eventuali componenti dalla superficie della\nbilancia.",
+            "Identificare e selezionare la porta della bilancia.",
+            "Avviare la configurazione automatica."
+        ]
+
+        for i, step in enumerate(steps, 1):
+            step_layout = QHBoxLayout()
+            step_number = QLabel(f"PASSO {i}:")
+            step_number.setMaximumWidth(300)
+            step_number.setObjectName("passo")
+            
+            step_desc = QLabel(step)
+            step_desc.setAlignment(Qt.AlignmentFlag.AlignLeft)
+            step_desc.setObjectName("desc")
+            step_layout.addSpacing(100)
+            step_layout.addWidget(step_number)
+            step_layout.addWidget(step_desc)
+            step_layout.addStretch()
+            usage_layout.addLayout(step_layout)
+            usage_layout.addSpacing(20)
         
+        usage_layout.addStretch(2)
+        content_layout.addStretch()
+        content_layout.addWidget(usage_widget)
+        content_layout.addSpacing(40)
+        main_layout.addLayout(content_layout)
+        usage_widget.setMinimumHeight(600)
+        usage_widget.setMaximumHeight(600)
+        usage_widget.setMinimumWidth(700)
+        usage_widget.setMaximumWidth(700)
         
-        usage_layout.setSpacing(2)
+        h2 = QHBoxLayout()
+        h2.addStretch()
+        h2.addWidget(self.start_button)
+        h2.addStretch()
         
-        usage_layout.addWidget(titolo_wid)
-        usage_layout.addLayout(l0)
-        usage_layout.addLayout(l1)
-        usage_layout.addLayout(l2)
-        usage_layout.addLayout(l3)
-        usage_layout.addLayout(l4)
-        usage_layout.addLayout(l5)
+        main_layout.addLayout(h2)
+        main_layout.addSpacing(50)
         
-        
-        
-        
-        
-        
-        
+        # Progress bar
         self.progress_bar = QProgressBar()
         self.progress_bar.setVisible(False)
-        
-        
-        wid.setLayout(usage_layout)
-        content_layout.addWidget(wid)
-        content_layout.addWidget(self.progress_bar)
-        
-        main_layout.addLayout(content_layout)
+        main_layout.addWidget(self.progress_bar)
+
         self.setLayout(main_layout)
 
         # Load the stylesheet
         self.load_stylesheet()
-        
+
     def load_stylesheet(self):
         file = QFile(f.get_style("launcher.qss"))
         if file.open(QFile.OpenModeFlag.ReadOnly | QFile.OpenModeFlag.Text):
@@ -238,21 +224,18 @@ class LauncherWidget(QWidget):
             file.close()
             self.setStyleSheet(style_sheet)
 
-    def populate_ports(self):
-        ports = serial_ports()
-        self.port_combo.clear()
-        for port in ports:
-            self.port_combo.addItem(port)
-
     def start_scanning(self):
-        port = self.port_combo.currentText()
-        self.scanner = ModbusScanner(port)
-        self.scanner.result_ready.connect(self.scan_finished)
-        self.scanner.start()
-        self.start_button.setEnabled(False)
         self.progress_bar.setVisible(True)
-        self.progress_bar.setRange(0, 0)  # Indeterminate mode
-
+        self.progress_bar.setRange(0, 100)
+        self.progress_bar.setValue(12)
+        self.start_button.setEnabled(False)
+        
+    def rileva_porte(self):
+        result = serial_ports()
+        for port in result:
+            self.port_combo.addItem(port)
+            
+        
     @pyqtSlot(list)
     def scan_finished(self, connected_ids):
         self.progress_bar.setRange(0, 100)  # Determinate mode

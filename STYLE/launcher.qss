@@ -6,6 +6,14 @@ QLabel#title_label {
     font-weight: bold;
     color: #000000;
 }
+
+
+QLabel#configurazione_label {
+    font-size: 24px;
+    font-weight: normal;
+    color: #000000;
+}
+
 QLabel#t_wid {
     font-size: 30px;
     color: #FD6363;
@@ -13,13 +21,24 @@ QLabel#t_wid {
 
 QWidget#wid {
     border: 2px solid #5D5D5D;
+    background-color: #FFFFFF;
     border-radius: 20px;
+}
+
+QWidget#menulab {
+    background-color: #FFFFFF;
 }
 
 QLabel#passo {
     font-size: 20px;
     color: #5D5D5D;
     font-weight: bold;
+}
+
+QLabel#passo1 {
+    font-size: 20px;
+    font-weight: bold;
+    color: rgb(137, 137, 137);
 }
 
 QLabel#desc {
@@ -42,11 +61,20 @@ QLabel#progress_label, QLabel#usage_steps {
 }
 
 QPushButton {
+    background-color: #f1f3f4;
+    border: 2px solid #E74C3C;
+    color: #E74C3C;
+    font-size: 20px;
+    padding: 10px;
+    border-radius: 9px;
+}
+
+QPushButton:hover{
     background-color: #E74C3C;
     color: #FFFFFF;
-    font-size: 14px;
+    font-size: 20px;
     padding: 10px;
-    border-radius: 5px;
+    border-radius: 9px;
 }
 
 QPushButton:disabled {
