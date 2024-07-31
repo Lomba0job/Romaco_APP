@@ -1,5 +1,5 @@
 from PyQt6.QtWidgets import (
-    QWidget, QVBoxLayout, QLabel, QComboBox, QPushButton, QRadioButton, QTextEdit, QHBoxLayout,
+    QWidget, QVBoxLayout, QLabel, QComboBox, QPushButton, QRadioButton, QTextEdit, QHBoxLayout,QSpacerItem , QSizePolicy, 
     QGridLayout, QFrame
 )
 from PyQt6.QtGui import QPixmap, QColor, QFont
@@ -84,38 +84,57 @@ class SalvaPesoWidget(QWidget):
         # Individual scale weights
         scales_label = QLabel("PESO RILEVATO PER BILANCIA:")
         scales_label.setObjectName("label")
-        grid_layout.addWidget(scales_label, 2, 0, 1, 3)
+        grid_layout.addWidget(scales_label, 3, 0, 1, 3)
 
         for i in range(6):
+            v = QVBoxLayout()
+            v.setSpacing(5)
+            
             scale_label = QLabel(f"BILANCIA {i+1}")
             scale_label.setObjectName("scale_label")
-            grid_layout.addWidget(scale_label, 2, (i*3)+4, 1, 2)
+            scale_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            scale_label.setMaximumHeight(40)
 
             scale_value = QLabel("36,64")
             scale_value.setObjectName("scale_value")
-            grid_layout.addWidget(scale_value, 3, (i*3)+4, 1, 2)
-
+            scale_value.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            scale_value.setMaximumHeight(40)
+            
+            v.addWidget(scale_label)
+            v.addWidget(scale_value)
+            
+            
+            grid_layout.addLayout(v, 3, (i*3)+4, 1, 2, Qt.AlignmentFlag.AlignLeft)
+        inner = QLabel("")
+        inner.setMinimumHeight(40)
+        
+        
+        grid_layout.addWidget(inner, 6, 3)
+        
+        grid_layout.addWidget(inner, 4, 0)
+        grid_layout.addWidget(inner, 7, 0)
+        grid_layout.addWidget(inner, 10, 0)
         # Machine front
         front_label = QLabel("FACCIATA FRONTALE MACCHINA:")
         front_label.setObjectName("label")
-        grid_layout.addWidget(front_label, 5, 0, 1, 3)
+        grid_layout.addWidget(front_label, 6, 0, 1, 3)
 
         front_combo = QComboBox()
         front_combo.addItem("BILANCIA 1 - BILANCIA 2")
-        grid_layout.addWidget(front_combo, 5, 4, 1, 4)
+        grid_layout.addWidget(front_combo, 6, 4, 1, 4)
 
         # Description
         description_label = QLabel("DESCRIZIONE PESATA:")
         description_label.setObjectName("label")
-        grid_layout.addWidget(description_label, 7, 0, 1, 3)
+        grid_layout.addWidget(description_label, 8, 0, 1, 3)
 
         description_input = QTextEdit()
-        grid_layout.addWidget(description_input, 7, 4, 2, 17)
+        grid_layout.addWidget(description_input, 8, 4, 2, 17)
 
         # Priority
         priority_label = QLabel("PRIORITÁ PESATA:")
         priority_label.setObjectName("label")
-        grid_layout.addWidget(priority_label, 10, 0, 1, 3)
+        grid_layout.addWidget(priority_label, 11, 0, 1, 3)
 
         priority_layout = QHBoxLayout()
         test_radio = QRadioButton("TEST")
@@ -130,14 +149,19 @@ class SalvaPesoWidget(QWidget):
         priority_layout.addWidget(definitive_radio)
         
 
-        grid_layout.addLayout(priority_layout, 10, 4, 1, 17)
-
-        main_layout.addLayout(grid_layout)
-
+        grid_layout.addLayout(priority_layout, 11, 4, 1, 17)
+        h = QHBoxLayout()
+        h.addSpacing(20)
+        h.addLayout(grid_layout)
+        h.addSpacing(20)
+        
+        main_layout.addLayout(h)
+        main_layout.addSpacing(50)
         # Action buttons
         button_layout = QHBoxLayout()
         delete_button = QPushButton("ELIMINA")
         delete_button.setObjectName("delete_button")
+        
         save_button = QPushButton("SALVA")
         save_button.setObjectName("save_button")
 
