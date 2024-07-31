@@ -32,11 +32,11 @@ Skipping entry /Users/lavoro/Documents/PROGETTI_LAVORO/Romaco_4/05_software/Roma
  |API/__init__.py                                                                  |	          0 |
  |API/modbus.py                                                                    |	       3348 |
  |API/modbus_generico.py                                                           |	         82 |
- |API/API_db.py                                                                    |	         27 |
+ |API/API_db.py                                                                    |	        114 |
  |API/funzioni.py                                                                  |	         27 |
  |.ipynb_checkpoints/untitled-checkpoint.py                                        |	         56 |
  |main_test.py                                                                     |	         28 |
  |main.py                                                                          |	         74 |
  |untitled.py                                                                      |	         56 |
  |==================================================================================================| 
- |Total lines                                                                      |	       6148 |
+ |Total lines                                                                      |	       6235 |
