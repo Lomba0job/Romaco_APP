@@ -154,7 +154,7 @@ class LauncherWidget(QWidget):
         self.label = QLabel("")
         self.label.setVisible(False)
         self.label.setObjectName("desc")
-        controls_layout.addWidget(self.label)
+        
         
         content_layout.addLayout(controls_layout)
 
@@ -217,6 +217,8 @@ class LauncherWidget(QWidget):
         # Progress bar
         self.progress_bar = QProgressBar()
         self.progress_bar.setVisible(False)
+        
+        main_layout.addWidget(self.label)
         main_layout.addWidget(self.progress_bar)
 
         self.setLayout(main_layout)
@@ -234,6 +236,8 @@ class LauncherWidget(QWidget):
 
     def start_scanning(self):
         self.progress_bar.setVisible(True)
+        self.label.setVisible(True)
+        self.label.setText("Identificazione bilance")
         self.progress_bar.setRange(0, 0)
         
         port = self.port_combo.currentText()
@@ -275,26 +279,30 @@ class LauncherWidget(QWidget):
         print(value)
         print(len(self.lista_bilance))
         percentage = (value / len(self.lista_bilance)) * 1000
-        next_percentage = percentage + ((1 / len(self.lista_bilance)) * 1000)
+        next_percentage =  (value+1 / len(self.lista_bilance)) * 1000
+        soglia = (1 /len(self.lista_bilance) * 1000) / 3
         
         if value == 0:
-            self.label.setText(f"Identificazione ordine bilance (Ricerca della bilancia collegata per prima)")
+            self.label.setText(f"Ordinamento bilance (Ricerca della bilancia collegata per prima)")
         elif value == 1:
-            self.label.setText(f"Identificazione ordine bilance (Ricerca della bilancia collegata per seconda)")
+            self.label.setText(f"Ordinamento bilance (Ricerca della bilancia collegata per seconda)")
         elif value == 2:
-            self.label.setText(f"Identificazione ordine bilance (Ricerca della bilancia collegata per terza)")
+            self.label.setText(f"Ordinamento bilance (Ricerca della bilancia collegata per terza)")
         elif value == 3:
-            self.label.setText(f"Identificazione ordine bilance (Ricerca della bilancia collegata per quarta)")
+            self.label.setText(f"Ordinamento bilance (Ricerca della bilancia collegata per quarta)")
         elif value == 4:
-            self.label.setText(f"Identificazione ordine bilance (Ricerca della bilancia collegata per quinta)")
+            self.label.setText(f"Ordinamento bilance (Ricerca della bilancia collegata per quinta)")
         elif value == 5:
-            self.label.setText(f"Identificazione ordine bilance (Ricerca della bilancia collegata per sesta)")
+            self.label.setText(f"Ordinamento bilance (Ricerca della bilancia collegata per sesta)")
             
             
-            
-        if(percentage <= self.progress_bar.value()):
+        print(f"DEBUG PROGRESSBAR | percentage: {percentage}, value: {self.progress_bar.value()}, next_percentage: {next_percentage}. ")
+        if(int(percentage) <= self.progress_bar.value()):
             if self.progress_bar.value()+1 < int(next_percentage):
-                self.progress_bar.setValue(int(self.progress_bar.value()+1))
+                if(int(next_percentage) - self.progress_bar.value()) > int(soglia): 
+                    self.progress_bar.setValue(int(self.progress_bar.value()+5))
+                else: 
+                    self.progress_bar.setValue(int(self.progress_bar.value()+1))
         else:
             self.progress_bar.setValue(int(percentage))
 
@@ -304,3 +312,4 @@ class LauncherWidget(QWidget):
         self.start_button.setVisible(True)
         self.start_button.setEnabled(True)
         self.progress_bar.setVisible(False)
+        self.label.setVisible(False)

@@ -5,7 +5,7 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtGui import QPixmap, QAction
 
-from PAGE import home_page as h, launcher_page as l
+from PAGE import home_page as h, launcher_page as l, salva_peso_page as s
 from CMP import navbar as nv
 
 
@@ -50,9 +50,16 @@ class MainWindow(QMainWindow):
         self.rubrica_page = h.Home_Page(self)
         self.central_widget.addWidget(self.rubrica_page)
         
+        self.salva_peso = s.SalvaPesoWidget(self)
+        self.central_widget.addWidget(self.salva_peso)
+        
     def launcher_call(self):
         self.navbar.setVisible(False)   #Nascondi La navbar
         self.change_page(0)  # Passa alla pagina rubrica
+        
+    def save_call(self):
+        self.navbar.setVisible(False)   #Nascondi La navbar
+        self.change_page(2)  # Passa alla pagina rubrica
 
     def on_launcher_finished(self):
         self.navbar.setVisible(True)  # Mostra la barra di navigazione

@@ -4,7 +4,30 @@ QLabel#desc {
     color: #898989;
 }
 
-QPushButton {
+QLabel#desc1 {
+    font-size: 20px;
+    color: #898989;
+}
+
+QLabel#passo {
+    font-size: 20px;
+    color: #5D5D5D;
+}
+
+
+QLabel#titolo {
+    font-size: 30px;
+    color: #5D5D5D;
+    font-weight: bold;
+}
+
+QLabel#peso {
+    font-size: 35px;
+    color: #E74C3C;
+    font-weight: bold;
+}
+
+QPushButton#puls {
     background-color: #f1f3f4;
     border: 2px solid #E74C3C;
     color: #E74C3C;
@@ -13,7 +36,7 @@ QPushButton {
     border-radius: 9px;
 }
 
-QPushButton:hover{
+QPushButton#puls:hover{
     background-color: #E74C3C;
     color: #FFFFFF;
     font-size: 20px;

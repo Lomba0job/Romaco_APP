@@ -1,0 +1,107 @@
+QWidget#menulab {
+    background-color: #FFFFFF;
+}
+
+
+
+
+QLabel#configurazione_label {
+    font-size: 24px;
+    font-weight: normal;
+    color: #000000;
+}
+
+QLabel#title_label {
+    font-size: 24px;
+    font-weight: bold;
+    color: #000000;
+}
+
+QLabel#subtitle_label {
+    font-size: 14px;
+    color: #7F8C8D;
+}
+
+QLabel#salva_peso_label {
+    font-size: 18px;
+    color: #5D5D5D;
+    font-weight: bold;
+}
+
+QLabel#label {
+    font-size: 14px;
+    color: #5D5D5D;
+}
+
+QLabel#value {
+    font-size: 14px;
+    color: #E74C3C;
+    font-weight: bold;
+}
+
+QLabel#scale_label {
+    font-size: 12px;
+    color: #5D5D5D;
+}
+
+QLabel#scale_value {
+    font-size: 14px;
+    color: #E74C3C;
+    font-weight: bold;
+}
+
+QPushButton#delete_button {
+    background-color: #FF9999;
+    color: #FFFFFF;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+}
+
+QPushButton#save_button {
+    background-color: #99FF99;
+    color: #FFFFFF;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+}
+
+QComboBox {
+    background-color: white;
+    color: #000000;
+    font-size: 14px;
+    border: 1px solid #CCCCCC;
+    border-radius: 4px;
+    padding: 5px;
+}
+
+QLineEdit {
+    border: 1px solid #CCCCCC;
+    border-radius: 4px;
+    padding: 5px;
+    font-size: 14px;
+}
+
+QRadioButton {
+    font-size: 14px;
+    color: #5D5D5D;
+}
+
+QRadioButton::indicator {
+    width: 13px;
+    height: 13px;
+}
+
+QRadioButton::indicator::unchecked {
+    border: 2px solid #5D5D5D;
+    background-color: white;
+    border-radius: 7px;
+}
+
+QRadioButton::indicator::checked {
+    border: 2px solid #5D5D5D;
+    background-color: #E74C3C;
+    border-radius: 7px;
+}

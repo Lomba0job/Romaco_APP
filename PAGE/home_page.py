@@ -25,6 +25,16 @@ class Home_Page(QWidget):
         p = self.palette()
         p.setColor(self.backgroundRole(), QColor.fromRgb(241,241,241))
         self.setPalette(p)
+        # Load the stylesheet
+        self.load_stylesheet()
+
+    def load_stylesheet(self):
+        file = QFile(f.get_style("home.qss"))
+        if file.open(QFile.OpenModeFlag.ReadOnly | QFile.OpenModeFlag.Text):
+            stream = QTextStream(file)
+            style_sheet = stream.readAll()
+            file.close()
+            self.setStyleSheet(style_sheet)
 
     
     def preUI(self):
@@ -33,6 +43,7 @@ class Home_Page(QWidget):
         
         push_config = QPushButton()
         push_config.setText("ESEGUI LA CONFIGURAZIONE")
+        push_config.setObjectName("puls")
         push_config.clicked.connect(self.master.launcher_call)
         self.left_layout.addStretch()
         self.left_layout.addWidget(push_config)
@@ -52,17 +63,9 @@ class Home_Page(QWidget):
         self.main_layout.addWidget(self.fixed_area, alignment=Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
 
         self.setLayout(self.main_layout)
-        # Load the stylesheet
         self.load_stylesheet()
 
-    def load_stylesheet(self):
-        file = QFile(f.get_style("launcher.qss"))
-        if file.open(QFile.OpenModeFlag.ReadOnly | QFile.OpenModeFlag.Text):
-            stream = QTextStream(file)
-            style_sheet = stream.readAll()
-            file.close()
-            self.setStyleSheet(style_sheet)
-
+        
 
     def initUI(self):
         # Clear existing widgets from layouts
@@ -85,15 +88,86 @@ class Home_Page(QWidget):
         
         push_weught = QPushButton()
         push_weught.setText("ESEGUI UNA PESATA")
-        
+        push_weught.setObjectName("puls")
+        push_weught.clicked.connect(self.pesata)
         
         self.left_layout.addLayout(h1)
         self.left_layout.addStretch()
         self.left_layout.addWidget(push_weught)
         self.left_layout.addStretch()
-        
+        self.load_stylesheet()
+
         if numero != 0:
             self.loadConfiguration()
+            
+    def finalUI(self):
+        self.clearLayout(self.left_layout)
+        
+        numero = len(self.master.lista_bilance)
+        h1 = QHBoxLayout()
+        self.config_label = QLabel(f"Rilevata configurazione da {numero} bilance")
+        self.config_label.setObjectName("desc")
+        push_config = QPushButton()
+        push_config.setText("RIESEGUI LA CONFIGURAZIONE")
+        push_config.setObjectName("small")
+        push_config.clicked.connect(self.master.launcher_call)
+        h1.addWidget(self.config_label)
+        h1.addWidget(push_config)
+        
+        
+        titolo = QLabel("PESO TOTALE RILEVATO: ")
+        titolo.setObjectName("titolo")
+        titolo.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        
+        peso = QLabel("136,75 Kg")
+        peso.setObjectName("peso")
+        peso.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        
+        
+        v = QVBoxLayout()
+        for i in range(numero):
+            h = QHBoxLayout()
+            numbi = QLabel(f"PESO BILANCIA {i+1}:")
+            numbi.setObjectName("passo")
+            numbi.setMinimumWidth(200)
+            numbi.setMaximumWidth(200)
+            pesobi = QLabel("33 kg")
+            pesobi.setObjectName("desc1")
+            pesobi.setMinimumWidth(60)
+            
+            h.addSpacing(50)
+            h.addWidget(numbi)
+            h.addSpacing(10)
+            h.addWidget(pesobi)
+            h.addStretch()
+            
+            v.addLayout(h)
+        
+        h2 = QHBoxLayout()
+        salva = QPushButton()
+        salva.setText("SALVA PESATA")
+        salva.setObjectName("puls")
+        salva.clicked.connect(self.salva_f)
+        riesegui = QPushButton()
+        riesegui.setText("ESEGUI PESATA")
+        riesegui.setObjectName("puls")
+        riesegui.clicked.connect(self.pesata)
+        
+        h2.addWidget(salva)
+        h2.addStretch()
+        h2.addWidget(riesegui)
+                
+        self.left_layout.addLayout(h1)
+        self.left_layout.addSpacing(int(self.master.height() * 0.2))
+        self.left_layout.addWidget(titolo)
+        self.left_layout.addWidget(peso)
+        self.left_layout.addSpacing(int(self.master.height() * 0.1))
+        self.left_layout.addLayout(v)
+        self.left_layout.addStretch()
+        self.left_layout.addLayout(h2)
+        self.left_layout.addSpacing(int(self.master.height() * 0.05))
+        self.load_stylesheet()
+
 
     def clearLayout(self, layout):
         if layout is not None:
@@ -127,3 +201,10 @@ class Home_Page(QWidget):
         
         self.fixed_area.setLayout(layout)
         self.fixed_area.setAutoFillBackground(False)
+        
+        
+    def pesata(self):
+        self.finalUI()
+        
+    def salva_f(self):
+        self.master.save_call()
