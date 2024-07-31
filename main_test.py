@@ -15,10 +15,10 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Pagina di TEST")
         
         screen_geometry = QApplication.primaryScreen().geometry()
-        screen_width = screen_geometry.width()
-        screen_height = screen_geometry.height()
+        self.screen_width = screen_geometry.width()
+        self.screen_height = screen_geometry.height()
 
-        self.setGeometry(0, 0, screen_width, screen_height)
+        self.setGeometry(0, 0, self.screen_width, self.screen_height)
         
         ogg = s.SalvaPesoWidget(self)
         

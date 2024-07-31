@@ -166,7 +166,7 @@ class SalvaPesoWidget(QWidget):
         save_button.setObjectName("save_button")
 
         button_layout.addWidget(delete_button)
-        button_layout.addStretch()
+        button_layout.addSpacing(int(self.master.screen_width * 0.4))
         button_layout.addWidget(save_button)
 
         main_layout.addLayout(button_layout)

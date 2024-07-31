@@ -158,14 +158,14 @@ class Home_Page(QWidget):
         h2.addWidget(riesegui)
                 
         self.left_layout.addLayout(h1)
-        self.left_layout.addSpacing(int(self.master.height() * 0.2))
+        self.left_layout.addSpacing(int(self.master.screen_height * 0.2))
         self.left_layout.addWidget(titolo)
         self.left_layout.addWidget(peso)
-        self.left_layout.addSpacing(int(self.master.height() * 0.1))
+        self.left_layout.addSpacing(int(self.master.screen_height * 0.1))
         self.left_layout.addLayout(v)
         self.left_layout.addStretch()
         self.left_layout.addLayout(h2)
-        self.left_layout.addSpacing(int(self.master.height() * 0.05))
+        self.left_layout.addSpacing(int(self.master.screen_height * 0.05))
         self.load_stylesheet()
 
 

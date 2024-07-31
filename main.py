@@ -15,10 +15,10 @@ class MainWindow(QMainWindow):
         self.state = 0
         self.setWindowTitle("RESPONSE ANALYZE APP")
         screen_geometry = QApplication.primaryScreen().geometry()
-        screen_width = screen_geometry.width()
-        screen_height = screen_geometry.height()
+        self.screen_width = screen_geometry.width()
+        self.screen_height = screen_geometry.height()
 
-        self.setGeometry(0, 0, screen_width, screen_height)
+        self.setGeometry(0, 0, self.screen_width, self.screen_height)
 
         self.central_widget = QStackedWidget()
         self.setCentralWidget(self.central_widget)
