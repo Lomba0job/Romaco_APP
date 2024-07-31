@@ -1,9 +1,10 @@
 from PyQt6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QLabel, QComboBox, QPushButton, QSizePolicy
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QFile, QTextStream
 from PyQt6.QtGui import QColor, QPalette
+
+
 from CMP import rectangle as r
-
-
+from API import funzioni as f
 class Home_Page(QWidget):
 
     def __init__(self, master):
@@ -17,6 +18,14 @@ class Home_Page(QWidget):
         self.left_layout = None
         self.config_label = None
         self.preUI()
+        self.setAutoFillBackground(True)
+        self.set_background_color()
+    
+    def set_background_color(self):
+        p = self.palette()
+        p.setColor(self.backgroundRole(), QColor.fromRgb(241,241,241))
+        self.setPalette(p)
+
     
     def preUI(self):
         self.main_layout = QHBoxLayout()
@@ -43,6 +52,17 @@ class Home_Page(QWidget):
         self.main_layout.addWidget(self.fixed_area, alignment=Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
 
         self.setLayout(self.main_layout)
+        # Load the stylesheet
+        self.load_stylesheet()
+
+    def load_stylesheet(self):
+        file = QFile(f.get_style("launcher.qss"))
+        if file.open(QFile.OpenModeFlag.ReadOnly | QFile.OpenModeFlag.Text):
+            stream = QTextStream(file)
+            style_sheet = stream.readAll()
+            file.close()
+            self.setStyleSheet(style_sheet)
+
 
     def initUI(self):
         # Clear existing widgets from layouts
@@ -51,8 +71,26 @@ class Home_Page(QWidget):
 
         print(f"DEBUG HOMEPAGE {len(self.master.lista_bilance)}")
         numero = len(self.master.lista_bilance)
-        self.config_label = QLabel(f"CONFIGURAZIONE DA {numero} BILANCE")
-        self.left_layout.addWidget(self.config_label)
+        
+        h1 = QHBoxLayout()
+        self.config_label = QLabel(f"Rilevata configurazione da {numero} bilance")
+        self.config_label.setObjectName("desc")
+        push_config = QPushButton()
+        push_config.setText("RIESEGUI LA CONFIGURAZIONE")
+        push_config.setObjectName("small")
+        push_config.clicked.connect(self.master.launcher_call)
+        h1.addWidget(self.config_label)
+        h1.addWidget(push_config)
+        
+        
+        push_weught = QPushButton()
+        push_weught.setText("ESEGUI UNA PESATA")
+        
+        
+        self.left_layout.addLayout(h1)
+        self.left_layout.addStretch()
+        self.left_layout.addWidget(push_weught)
+        self.left_layout.addStretch()
         
         if numero != 0:
             self.loadConfiguration()

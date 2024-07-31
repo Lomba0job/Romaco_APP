@@ -1,0 +1,43 @@
+
+QLabel#desc {
+    font-size: 15px;
+    color: #898989;
+}
+
+QPushButton {
+    background-color: #f1f3f4;
+    border: 2px solid #E74C3C;
+    color: #E74C3C;
+    font-size: 20px;
+    padding: 10px;
+    border-radius: 9px;
+}
+
+QPushButton:hover{
+    background-color: #E74C3C;
+    color: #FFFFFF;
+    font-size: 20px;
+    padding: 10px;
+    border-radius: 9px;
+}
+
+
+
+QPushButton#small {
+    background-color: #f1f3f4;
+    border: 1px solid #E74C3C;
+    color: #E74C3C;
+    font-size: 13px;
+    padding: 10px;
+    border-radius: 9px;
+}
+
+QPushButton#small:hover{
+    background-color: #E74C3C;
+    color: #FFFFFF;
+    font-size: 13px;
+    padding: 10px;
+    border-radius: 9px;
+}
+
+

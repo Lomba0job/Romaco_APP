@@ -187,6 +187,7 @@ class LauncherWidget(QWidget):
             
             step_desc = QLabel(step)
             step_desc.setAlignment(Qt.AlignmentFlag.AlignLeft)
+            # step_desc.setAlignment(Qt.AlignmentFlag.AlignBottom)
             step_desc.setObjectName("desc")
             step_layout.addSpacing(100)
             step_layout.addWidget(step_number)
@@ -276,7 +277,9 @@ class LauncherWidget(QWidget):
         percentage = (value / len(self.lista_bilance)) * 1000
         next_percentage = percentage + ((1 / len(self.lista_bilance)) * 1000)
         
-        if value == 1:
+        if value == 0:
+            self.label.setText(f"Identificazione ordine bilance (Ricerca della bilancia collegata per prima)")
+        elif value == 1:
             self.label.setText(f"Identificazione ordine bilance (Ricerca della bilancia collegata per seconda)")
         elif value == 2:
             self.label.setText(f"Identificazione ordine bilance (Ricerca della bilancia collegata per terza)")
@@ -291,11 +294,13 @@ class LauncherWidget(QWidget):
             
         if(percentage <= self.progress_bar.value()):
             if self.progress_bar.value()+1 < int(next_percentage):
-                self.progress_bar.setValue(int(self.progress_bar.value()+5))
+                self.progress_bar.setValue(int(self.progress_bar.value()+1))
         else:
             self.progress_bar.setValue(int(percentage))
 
     def on_finished(self):
         #QMessageBox.information(self, "Ordinamento", "Ordinamento completato")
         self.finished.emit()
-        #self.start_button.setEnabled(True)
+        self.start_button.setVisible(True)
+        self.start_button.setEnabled(True)
+        self.progress_bar.setVisible(False)

@@ -33,13 +33,21 @@ class NavbarWidget(QFrame):
         # Company Name
         name_label = QLabel("NANO")
         name_label.setObjectName("companyName")
+        name_label.setMinimumHeight(35)
         name_label2 = QLabel("LEVER")
         name_label2.setObjectName("companyName2")
+        name_label2.setMinimumHeight(35)
         wid = QWidget()
         l = QHBoxLayout()
         l.setSpacing(0)  # Imposta lo spazio tra i widget a 0
         l.addWidget(name_label)
         l.addWidget(name_label2)
+        isola = QLabel("SISTEMA AD ISOLA")
+        isola.setObjectName("isola")
+        isola.setMinimumHeight(33)
+        isola.setAlignment(Qt.AlignmentFlag.AlignBottom)
+        l.addSpacing(5)
+        l.addWidget(isola)
         wid.setLayout(l)
         layout.addWidget(wid)
 
@@ -52,6 +60,11 @@ class NavbarWidget(QFrame):
         # Navigation Buttons
         self.home_button = QPushButton("Home")
         self.home_button.setObjectName("navButton")
+        self.log_button = QPushButton("Log")
+        self.log_button.setObjectName("navButton")
+        self.diagno_button = QPushButton("Diagnostica")
+        self.diagno_button.setObjectName("navButton")
+        
 
         
         self.home_button.setProperty('active', False)
@@ -59,6 +72,8 @@ class NavbarWidget(QFrame):
         self.home_button.setFixedSize(100, 50)
         
         layout.addWidget(self.home_button)
+        layout.addWidget(self.log_button)
+        layout.addWidget(self.diagno_button)
   
         
         # Spacer
