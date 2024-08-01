@@ -67,7 +67,7 @@ class LogEntryWidget(QWidget):
         
         self.setLayout(layout)
         self.setAutoFillBackground(True)
-        self.set_background_color(QColor(241, 241, 241))
+        self.set_background_color(QColor(255, 255, 255))
         self.set_priority_color(color_widget, priority_level)
     
     

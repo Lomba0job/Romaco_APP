@@ -1,8 +1,9 @@
 
 QLabel#desc {
     font-size: 15px;
-    color: #898989;
+    color: rgb(138, 138, 138);
 }
+
 
 QLabel#desc1 {
     font-size: 20px;
