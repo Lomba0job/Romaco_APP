@@ -1,0 +1,17 @@
+#filterTitle {
+    font-size: 14px;
+}
+
+QRadioButton::indicator {
+    border: 1px solid gray;
+    background-color: white;
+}
+
+#smallButton {
+    background-color: lightgray;
+}
+
+#largeButton {
+    background-color: red;
+    color: white;
+}

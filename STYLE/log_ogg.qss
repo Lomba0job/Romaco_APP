@@ -1,0 +1,24 @@
+
+
+QLabel {
+    font-size: 14px;
+    color: #000000;
+}
+
+QLabel#date {
+    font-weight: bold;
+}
+
+QLabel#weight {
+    font-weight: bold;
+}
+
+QLabel#priority {
+    color: #FF0000;
+    font-weight: bold;
+}
+
+QWidget#colorIndicator {
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+}

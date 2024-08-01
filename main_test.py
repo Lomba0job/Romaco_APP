@@ -5,7 +5,7 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtGui import QPixmap, QAction, QGuiApplication
 
-from PAGE import home_page as h, launcher_page as l, salva_peso_page as s
+from PAGE import home_page as h, launcher_page as l, salva_peso_page as s, log_page as lo
 from CMP import navbar as nv
 
 
@@ -20,7 +20,7 @@ class MainWindow(QMainWindow):
 
         self.setGeometry(0, 0, self.screen_width, self.screen_height)
         
-        ogg = s.SalvaPesoWidget(self)
+        ogg = lo.LogPage(self)
         
         self.setCentralWidget(ogg)
         
