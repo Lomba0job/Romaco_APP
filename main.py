@@ -30,7 +30,9 @@ class MainWindow(QMainWindow):
         self.navbar.setVisible(True)  # Nascondi la barra di navigazione all'avvio
 
         self.pages = {
-            self.navbar.home_button: 1
+            self.navbar.home_button: 1,
+            self.navbar.log_button: 3, 
+            self.navbar.diagno_button: 4
         }
         for button, index in self.pages.items():
             button.clicked.connect(lambda checked=True, index=index: self.change_page(index))
@@ -53,6 +55,12 @@ class MainWindow(QMainWindow):
         self.salva_peso = s.SalvaPesoWidget(self)
         self.central_widget.addWidget(self.salva_peso)
         
+        self.log = QWidget()
+        self.central_widget.addWidget(self.log)
+        
+        self.diagno = QWidget()
+        self.central_widget.addWidget(self.diagno)
+        
     def launcher_call(self):
         self.navbar.setVisible(False)   #Nascondi La navbar
         self.change_page(0)  # Passa alla pagina rubrica
@@ -69,8 +77,7 @@ class MainWindow(QMainWindow):
         self.change_page(1)  # Passa alla pagina rubrica
 
     def change_page(self, index):
-        if self.state != 0 and index == 1:
-            self.rubrica_page.reload_data()
+        
 
         self.state = index
         self.central_widget.setCurrentIndex(index)
