@@ -12,12 +12,14 @@ Skipping entry /Users/lavoro/Documents/PROGETTI_LAVORO/Romaco_4/05_software/Roma
  |==================================================================================================|
  |                               Counting Lines 	                                                |
  |OBJ/__init__.py                                                                  |	          0 |
+ |OBJ/log_ogg.py                                                                   |	        116 |
  |OBJ/bilancia.py                                                                  |	         27 |
  |CMP/navbar.py                                                                    |	         97 |
  |CMP/__init__.py                                                                  |	          0 |
  |CMP/rectangle.py                                                                 |	        221 |
  |PAGE/launcher_page.py                                                            |	        280 |
  |PAGE/salva_peso_page.py                                                          |	        148 |
+ |PAGE/log_page.py                                                                 |	        195 |
  |PAGE/__init__.py                                                                 |	          0 |
  |PAGE/graph_page.py                                                               |	         18 |
  |PAGE/home_page.py                                                                |	        195 |
@@ -27,16 +29,22 @@ Skipping entry /Users/lavoro/Documents/PROGETTI_LAVORO/Romaco_4/05_software/Roma
  |TEST/test.py                                                                     |	        126 |
  |TEST/.ipynb_checkpoints/test-checkpoint.py                                       |	         56 |
  |line.py                                                                          |	         57 |
+ |STYLE/home.qss                                                                   |	         52 |
+ |STYLE/navbar.qss                                                                 |	         36 |
+ |STYLE/salva_peso.qss                                                             |	         91 |
+ |STYLE/launcher.qss                                                               |	        107 |
+ |STYLE/log_ogg.qss                                                                |	         18 |
+ |STYLE/log.qss                                                                    |	         77 |
  |API/modbus_strutture.py                                                          |	         26 |
  |API/modbus_unico.py                                                              |	         24 |
  |API/__init__.py                                                                  |	          0 |
  |API/modbus.py                                                                    |	       3348 |
  |API/modbus_generico.py                                                           |	         82 |
- |API/API_db.py                                                                    |	        114 |
+ |API/API_db.py                                                                    |	        118 |
  |API/funzioni.py                                                                  |	         27 |
  |.ipynb_checkpoints/untitled-checkpoint.py                                        |	         56 |
  |main_test.py                                                                     |	         28 |
- |main.py                                                                          |	         74 |
+ |main.py                                                                          |	         81 |
  |untitled.py                                                                      |	         56 |
  |==================================================================================================| 
- |Total lines                                                                      |	       6235 |
+ |Total lines                                                                      |	       6938 |

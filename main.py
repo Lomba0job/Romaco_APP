@@ -5,7 +5,7 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtGui import QPixmap, QAction
 
-from PAGE import home_page as h, launcher_page as l, salva_peso_page as s
+from PAGE import home_page as h, launcher_page as l, salva_peso_page as s, log_page as lo
 from CMP import navbar as nv
 
 
@@ -55,7 +55,7 @@ class MainWindow(QMainWindow):
         self.salva_peso = s.SalvaPesoWidget(self)
         self.central_widget.addWidget(self.salva_peso)
         
-        self.log = QWidget()
+        self.log = lo.LogPage(self)
         self.central_widget.addWidget(self.log)
         
         self.diagno = QWidget()
