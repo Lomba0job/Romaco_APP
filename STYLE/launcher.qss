@@ -1,0 +1,136 @@
+/* styles.css */
+
+
+QLabel#title_label {
+    font-size: 24px;
+    font-weight: bold;
+    color: #000000;
+}
+
+
+QLabel#configurazione_label {
+    font-size: 24px;
+    font-weight: normal;
+    color: #000000;
+}
+
+QLabel#t_wid {
+    font-size: 30px;
+    color: #FD6363;
+}
+
+QWidget#wid {
+    border: 2px solid #5D5D5D;
+    background-color: #FFFFFF;
+    border-radius: 20px;
+}
+
+QWidget#menulab {
+    background-color: #FFFFFF;
+}
+
+QLabel#passo {
+    font-size: 20px;
+    color: #5D5D5D;
+    font-weight: bold;
+}
+
+QLabel#passo1 {
+    font-size: 20px;
+    font-weight: bold;
+    color: rgb(137, 137, 137);
+}
+
+QLabel#desc {
+    font-size: 20px;
+    color: #898989;
+}
+
+QLabel#title_label span {
+    color: #E74C3C;
+}
+
+QLabel#subtitle_label {
+    font-size: 14px;
+    color: #7F8C8D;
+}
+
+QLabel#progress_label, QLabel#usage_steps {
+    font-size: 16px;
+    color: #2C3E50;
+}
+
+QPushButton {
+    background-color: #f1f3f4;
+    border: 2px solid #E74C3C;
+    color: #E74C3C;
+    font-size: 20px;
+    padding: 10px;
+    border-radius: 9px;
+}
+
+QPushButton:hover{
+    background-color: #E74C3C;
+    color: #FFFFFF;
+    font-size: 20px;
+    padding: 10px;
+    border-radius: 9px;
+}
+
+
+
+
+QGroupBox::title {
+   
+    padding: 0 3px;
+    font-weight: bold;
+    font-size: 20px;
+    color: #E74C3C;
+}
+
+
+QProgressBar {
+    /* Basic properties */    
+    border: 1px solid #E74C3C;
+    border-radius: 5px;
+    text-align: center;
+    
+    /* Size */
+    min-height: 20px;
+    max-height: 20px;
+    
+    /* Colors */
+    background-color: #ECF0F1;
+
+}
+
+QProgressBar::chunk {
+   
+    background-color: #E74C3C;
+    width: 5px; 
+    animation-duration: 3ms;
+
+} 
+
+
+QComboBox#combo {
+    background-color: #f1f3f4;
+    color: #000000;
+    font-size: 20px;
+    border: 1px solid #5D5D5D;
+    border-radius: 5px;
+}
+
+
+/* Stile per il menu a discesa */
+QComboBox QAbstractItemView {
+    border: 1px solid #BDC3C7;
+    selection-background-color: #E74C3C;
+    selection-color: #E74C3C;
+    background-color: #FFFFFF;
+}
+
+/* Stile per gli elementi nel menu a discesa */
+QComboBox QAbstractItemView::item {
+    min-height: 25px;
+}

@@ -1,0 +1,17 @@
+
+
+
+|---------------|
+|     PESATA    |
+|---------------|
+|  peso_totale  |    FLOAT
+|  peso_b1      |    FLOAT   
+|  peso_b2      |    FLOAT   
+|  peso_b3      |    FLOAT   
+|  peso_b4      |    FLOAT   
+|  peso_b5      |    FLOAT   
+|  peso_b6      |    FLOAT   
+|  desc         |    TEXT
+|  priority     |    INTEGER
+|  data         |    TEXT
+|---------------|

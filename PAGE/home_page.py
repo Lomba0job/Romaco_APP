@@ -1,9 +1,10 @@
 from PyQt6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QLabel, QComboBox, QPushButton, QSizePolicy
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QFile, QTextStream
 from PyQt6.QtGui import QColor, QPalette
+
+
 from CMP import rectangle as r
-
-
+from API import funzioni as f
 class Home_Page(QWidget):
 
     def __init__(self, master):
@@ -13,21 +14,41 @@ class Home_Page(QWidget):
         self.master.setWindowTitle("HomePage")
 
         self.glWidget = None
-        
-
-    def initUI(self):
-        main_layout = QHBoxLayout()
-
-        # Left side layout
-        left_layout = QVBoxLayout()
-        
-        print(f"DEBUG HOMEPAGE {len(self.master.lista_bilance)}")
-        numero = len(self.master.lista_bilance)
-        self.config_label = QLabel(f"CONFIGURAZIONE DA {numero} BILANCE")
-        left_layout.addWidget(self.config_label)
-        
+        self.main_layout = None
+        self.left_layout = None
+        self.config_label = None
+        self.preUI()
+        self.setAutoFillBackground(True)
+        self.set_background_color()
     
-        main_layout.addLayout(left_layout)
+    def set_background_color(self):
+        p = self.palette()
+        p.setColor(self.backgroundRole(), QColor.fromRgb(241,241,241))
+        self.setPalette(p)
+        # Load the stylesheet
+        self.load_stylesheet()
+
+    def load_stylesheet(self):
+        file = QFile(f.get_style("home.qss"))
+        if file.open(QFile.OpenModeFlag.ReadOnly | QFile.OpenModeFlag.Text):
+            stream = QTextStream(file)
+            style_sheet = stream.readAll()
+            file.close()
+            self.setStyleSheet(style_sheet)
+
+    
+    def preUI(self):
+        self.main_layout = QHBoxLayout()
+        self.left_layout = QVBoxLayout()
+        
+        push_config = QPushButton()
+        push_config.setText("ESEGUI LA CONFIGURAZIONE")
+        push_config.setObjectName("puls")
+        push_config.clicked.connect(self.master.launcher_call)
+        self.left_layout.addStretch()
+        self.left_layout.addWidget(push_config)
+        self.left_layout.addStretch()
+        self.main_layout.addLayout(self.left_layout)
         
         # Right side fixed area
         self.fixed_area = QWidget()
@@ -39,11 +60,124 @@ class Home_Page(QWidget):
         self.fixed_area.setPalette(palette)
         self.fixed_area.setAutoFillBackground(True)
         
-        main_layout.addWidget(self.fixed_area, alignment=Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+        self.main_layout.addWidget(self.fixed_area, alignment=Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
 
-        self.setLayout(main_layout)
+        self.setLayout(self.main_layout)
+        self.load_stylesheet()
+
+        
+
+    def initUI(self):
+        # Clear existing widgets from layouts
+        self.clearLayout(self.left_layout)
+        self.clearLayout(self.fixed_area.layout())
+
+        print(f"DEBUG HOMEPAGE {len(self.master.lista_bilance)}")
+        numero = len(self.master.lista_bilance)
+        
+        h1 = QHBoxLayout()
+        self.config_label = QLabel(f"Rilevata configurazione da {numero} bilance")
+        self.config_label.setObjectName("desc")
+        push_config = QPushButton()
+        push_config.setText("RIESEGUI LA CONFIGURAZIONE")
+        push_config.setObjectName("small")
+        push_config.clicked.connect(self.master.launcher_call)
+        h1.addWidget(self.config_label)
+        h1.addWidget(push_config)
+        
+        
+        push_weught = QPushButton()
+        push_weught.setText("ESEGUI UNA PESATA")
+        push_weught.setObjectName("puls")
+        push_weught.clicked.connect(self.pesata)
+        
+        self.left_layout.addLayout(h1)
+        self.left_layout.addStretch()
+        self.left_layout.addWidget(push_weught)
+        self.left_layout.addStretch()
+        self.load_stylesheet()
+
         if numero != 0:
             self.loadConfiguration()
+            
+    def finalUI(self):
+        self.clearLayout(self.left_layout)
+        
+        numero = len(self.master.lista_bilance)
+        h1 = QHBoxLayout()
+        self.config_label = QLabel(f"Rilevata configurazione da {numero} bilance")
+        self.config_label.setObjectName("desc")
+        push_config = QPushButton()
+        push_config.setText("RIESEGUI LA CONFIGURAZIONE")
+        push_config.setObjectName("small")
+        push_config.clicked.connect(self.master.launcher_call)
+        h1.addWidget(self.config_label)
+        h1.addWidget(push_config)
+        
+        
+        titolo = QLabel("PESO TOTALE RILEVATO: ")
+        titolo.setObjectName("titolo")
+        titolo.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        
+        peso = QLabel("136,75 Kg")
+        peso.setObjectName("peso")
+        peso.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        
+        
+        v = QVBoxLayout()
+        for i in range(numero):
+            h = QHBoxLayout()
+            numbi = QLabel(f"PESO BILANCIA {i+1}:")
+            numbi.setObjectName("passo")
+            numbi.setMinimumWidth(200)
+            numbi.setMaximumWidth(200)
+            pesobi = QLabel("33 kg")
+            pesobi.setObjectName("desc1")
+            pesobi.setMinimumWidth(60)
+            
+            h.addSpacing(50)
+            h.addWidget(numbi)
+            h.addSpacing(10)
+            h.addWidget(pesobi)
+            h.addStretch()
+            
+            v.addLayout(h)
+        
+        h2 = QHBoxLayout()
+        salva = QPushButton()
+        salva.setText("SALVA PESATA")
+        salva.setObjectName("puls")
+        salva.clicked.connect(self.salva_f)
+        riesegui = QPushButton()
+        riesegui.setText("ESEGUI PESATA")
+        riesegui.setObjectName("puls")
+        riesegui.clicked.connect(self.pesata)
+        
+        h2.addWidget(salva)
+        h2.addStretch()
+        h2.addWidget(riesegui)
+                
+        self.left_layout.addLayout(h1)
+        self.left_layout.addSpacing(int(self.master.screen_height * 0.2))
+        self.left_layout.addWidget(titolo)
+        self.left_layout.addWidget(peso)
+        self.left_layout.addSpacing(int(self.master.screen_height * 0.1))
+        self.left_layout.addLayout(v)
+        self.left_layout.addStretch()
+        self.left_layout.addLayout(h2)
+        self.left_layout.addSpacing(int(self.master.screen_height * 0.05))
+        self.load_stylesheet()
+
+
+    def clearLayout(self, layout):
+        if layout is not None:
+            while layout.count():
+                item = layout.takeAt(0)
+                widget = item.widget()
+                if widget is not None:
+                    widget.deleteLater()
+                else:
+                    self.clearLayout(item.layout())
 
     def loadConfiguration(self):
         num_rectangles = len(self.master.lista_bilance) 
@@ -67,3 +201,10 @@ class Home_Page(QWidget):
         
         self.fixed_area.setLayout(layout)
         self.fixed_area.setAutoFillBackground(False)
+        
+        
+    def pesata(self):
+        self.finalUI()
+        
+    def salva_f(self):
+        self.master.save_call()

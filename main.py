@@ -5,7 +5,7 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtGui import QPixmap, QAction
 
-from PAGE import home_page as h, launcher_page as l
+from PAGE import home_page as h, launcher_page as l, salva_peso_page as s, log_page as lo
 from CMP import navbar as nv
 
 
@@ -15,10 +15,10 @@ class MainWindow(QMainWindow):
         self.state = 0
         self.setWindowTitle("RESPONSE ANALYZE APP")
         screen_geometry = QApplication.primaryScreen().geometry()
-        screen_width = screen_geometry.width()
-        screen_height = screen_geometry.height()
+        self.screen_width = screen_geometry.width()
+        self.screen_height = screen_geometry.height()
 
-        self.setGeometry(0, 0, screen_width, screen_height)
+        self.setGeometry(0, 0, self.screen_width, self.screen_height)
 
         self.central_widget = QStackedWidget()
         self.setCentralWidget(self.central_widget)
@@ -27,17 +27,19 @@ class MainWindow(QMainWindow):
 
         self.navbar = nv.NavbarWidget(self)
         self.setMenuWidget(self.navbar)
-        self.navbar.setVisible(False)  # Nascondi la barra di navigazione all'avvio
+        self.navbar.setVisible(True)  # Nascondi la barra di navigazione all'avvio
 
         self.pages = {
-            self.navbar.home_button: 1
+            self.navbar.home_button: 1,
+            self.navbar.log_button: 3, 
+            self.navbar.diagno_button: 4
         }
         for button, index in self.pages.items():
             button.clicked.connect(lambda checked=True, index=index: self.change_page(index))
 
         self.navbar.settings_button_clicked.connect(lambda: self.change_page(4))
 
-        self.change_page(0)  # Initialize to the launcher page
+        self.change_page(1)  # Initialize to the launcher page
 
     def create_pages(self):
         # Launcher Page
@@ -49,6 +51,23 @@ class MainWindow(QMainWindow):
         # Rubrica Page
         self.rubrica_page = h.Home_Page(self)
         self.central_widget.addWidget(self.rubrica_page)
+        
+        self.salva_peso = s.SalvaPesoWidget(self)
+        self.central_widget.addWidget(self.salva_peso)
+        
+        self.log = lo.LogPage(self)
+        self.central_widget.addWidget(self.log)
+        
+        self.diagno = QWidget()
+        self.central_widget.addWidget(self.diagno)
+        
+    def launcher_call(self):
+        self.navbar.setVisible(False)   #Nascondi La navbar
+        self.change_page(0)  # Passa alla pagina rubrica
+        
+    def save_call(self):
+        self.navbar.setVisible(False)   #Nascondi La navbar
+        self.change_page(2)  # Passa alla pagina rubrica
 
     def on_launcher_finished(self):
         self.navbar.setVisible(True)  # Mostra la barra di navigazione
@@ -58,8 +77,7 @@ class MainWindow(QMainWindow):
         self.change_page(1)  # Passa alla pagina rubrica
 
     def change_page(self, index):
-        if self.state != 0 and index == 1:
-            self.rubrica_page.reload_data()
+        
 
         self.state = index
         self.central_widget.setCurrentIndex(index)

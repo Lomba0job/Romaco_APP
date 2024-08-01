@@ -21,3 +21,13 @@ def get_style(style):
     directory = get_resource_path("STYLE")
     ico_new = os.path.join(directory, style)
     return ico_new
+
+def get_db():
+    
+
+    # Usage
+    directory = get_resource_path(os.path.join("data", "db"))
+    file_name = "peso.db"
+    file_path = os.path.join(directory, file_name)
+    
+    return file_path

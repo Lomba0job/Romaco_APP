@@ -4,21 +4,27 @@
 }
 
 QLabel#companyName {
-    font-size: 24px;
+    font-size: 30px;
     color: #000000;
     font-weight: bold;
 }
 QLabel#companyName2 {
-    font-size: 24px;
+    font-size: 30px;
     color: rgb(220, 0, 0);
     font-weight: bold;
 }
+
+QLabel#isola {
+    font-size: 15px;
+    color: #898989;
+}
+
 
 QPushButton#navButton {
     color: #000000;
     border: none;
     padding: 10px 20px;
-    font-size: 16px;
+    font-size: 20px;
     border-radius: 0px;
     border-style: dotted;
 

@@ -1,0 +1,95 @@
+#filterTitle {
+    font-size: 30px;
+    font-weight: bold;
+    background-color: #f1f1f1;
+    color: #5D5D5D;
+}
+QCheckBox {
+    font-size: 20px;
+    color: #898989;
+}
+
+QCheckBox::indicator {
+    width: 17px;
+    height: 17px;
+}
+
+QCheckBox::indicator::unchecked {
+    border: 2px solid #5D5D5D;
+    background-color: white;
+    border-radius: 15px;
+}
+
+QCheckBox::indicator::checked {
+    border: 2px solid #5D5D5D;
+    background-color: #E74C3C;
+    border-radius: 15px;
+}
+
+
+QLineEdit {
+    background-color: #f1f1f1;
+    color: #5D5D5D;
+    font-size: 20px;
+}
+
+QLabel {
+    font-size: 20px;
+    background-color: #f1f1f1;
+    color: #898989;
+}
+
+#smallButton {
+    font-size: 16px;
+    color: #5D5D5D;
+    background-color: #f1f1f1;
+    border: 1px solid #898989;
+    border-radius: 7px;
+}
+
+#largeButton {
+    font-size: 30px;
+    color: #E74C3C;
+    background-color: #f1f1f1;
+    border: 1px solid #898989;
+    border-radius: 15px;
+}
+
+QWidget#wid {
+    background-color: #f1f1f1; /* Imposta lo sfondo interno dell'area su bianco */
+    border: none;
+}
+
+
+
+QScrollArea {
+    background-color: #f1f1f1; /* Imposta lo sfondo interno dell'area su bianco */
+    border: none;
+}
+
+QScrollBar:vertical {
+    border: none;
+    background: transparent; /* Imposta lo sfondo delle barre laterali su trasparente */
+    width: 10px; /* Larghezza della barra verticale */
+    margin: 0px 0px 0px 0px;
+}
+
+QScrollBar::handle:vertical {
+
+    background-color: #E74C3C; /* Imposta il colore dell'indicatore verticale su rosso */
+    /* border: 4px solid #cc5757; */
+    border-radius: 5px;
+    min-height: 10px; /* Altezza dell'indicatore verticale */
+}
+
+QScrollBar::add-line:vertical {
+    height: 0px;
+}
+
+QScrollBar::sub-line:vertical {
+    height: 0px;
+}
+
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+    background: none;
+}
