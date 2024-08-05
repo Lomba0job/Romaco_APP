@@ -1,257 +1,292 @@
 import sys
-from PyQt6.QtWidgets import QApplication, QDialog, QVBoxLayout, QPushButton
-from PyQt6.QtCore import Qt, QPointF, pyqtSignal, QTimer
-from PyQt6.QtGui import QVector3D
-from PyQt6.QtOpenGLWidgets import QOpenGLWidget
-from OpenGL.GL import *
-from OpenGL.GLUT import *
-from OpenGL.GLU import *
+from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
+from PyQt6.QtCore import Qt, QPointF, QTimer
+from vtkmodules.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
+import vtk
 import numpy as np
-
 from API import funzioni as f
 
-class GLWidget(QOpenGLWidget):
-    rectDoubleClicked = pyqtSignal(int)
 
+class VTKWidget(QWidget):
     def __init__(self, num_rectangles, parent=None):
         super().__init__(parent)
         self.num_rectangles = num_rectangles
-        if self.num_rectangles == 4:
-            self.rect_positions = [
-            QVector3D(-50, 0, 50),  # Top-left
-            QVector3D(50, 0, 50),   # Top-right
-            QVector3D(50, 0, -50),  # Bottom-left
-            QVector3D(-50, 0, -50)  # Bottom-right
-            ]
-            
-        elif self.num_rectangles == 3:
-            self.rect_positions = [
-            QVector3D(-50, 0, 50),  # Top-left
-            QVector3D(50, 0, 50),   # Top-right
-            QVector3D(0, 0, -50)  # Bottomcenter
-            ]
-            
-        elif self.num_rectangles == 2:
-            self.rect_positions = [
-            QVector3D(0, 0, 50),   # Top-center
-            QVector3D(0, 0, -50)  # Bottom-center
-            ]
-            
-        elif self.num_rectangles == 1:
-            self.rect_positions = [
-            QVector3D(0, 0, 0)  # center
-            ]
-            
-        elif self.num_rectangles == 6:
-            self.rect_positions = [
-            QVector3D(-50, 0, 60),  # Top-left
-            QVector3D(50, 0, 60),   # Top-right
-            QVector3D(50, 0, 0),  # Center-left
-            QVector3D(-50, 0, 0),  # Center-right
-            QVector3D(50, 0, -60),  # Bottom-left
-            QVector3D(-50, 0, -60)  # Bottom-right
-            ]
-            
-        elif self.num_rectangles == 5:
-            self.rect_positions = [
-            QVector3D(-50, 0, 60),  # Top-left
-            QVector3D(50, 0, 60),   # Top-right
-            QVector3D(50, 0, 0),  # Center-left
-            QVector3D(-50, 0, 0),  # Center-right
-            QVector3D(0, 0, -60)  # Bottom-center
-            ]
-        
-        self.rect_size = QVector3D(30.0, 10.0, 30.0)
+        self.rect_size = [35.0, 7.0, 35.0]
         self.selected_rect = None
         self.last_pos = QPointF()
         self.camera_angle_x = 0
-        self.camera_angle_y = 0
+        self.camera_angle_y = 20
         self.camera_position_x = 0
-        self.camera_position_y = 100
-        self.camera_position_z = 400
+        self.camera_position_y = 60  # Aumentato per una vista più alta
+        self.camera_position_z = 300  # Aumentato per una distanza maggiore
         self.rotating_camera = False
         self.moving_camera = False
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self.update)
-        self.timer.start(16)
 
-        self.model = self.load_obj(f.get_img("bilancia.obj"))
-        self.vbo_vertices = None
-        self.vbo_faces = None
-        self.model_scale = self.calculate_scale()
+        self.layout = QVBoxLayout(self)
+        self.vtkWidget = QVTKRenderWindowInteractor(self)
+        self.layout.addWidget(self.vtkWidget)
+
+        # Renderer and RenderWindow
+        self.renderer = vtk.vtkRenderer()
+        self.renderer.SetBackground(1, 1, 1)  # Set background color to white
+        self.render_window = self.vtkWidget.GetRenderWindow()
+        self.render_window.SetMultiSamples(0)  # Disable anti-aliasing
+        self.render_window.AddRenderer(self.renderer)
+        self.interactor = self.render_window.GetInteractor()
+
+        # Timer for animation
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.update_scene)
+        self.timer.start(30)
+
+        # Load material info and model
+        self.materials_info = self.load_mtl(f.get_img("mat.mtl"))
+        self.model, self.materials = self.load_obj(f.get_img("bilancia_def.obj"))
+
+        # Set up positions and create actors
+        self.setup_rect_positions()
+        self.create_actors()
+
+        # Add transparent base plane
+        self.add_base_plane()
+
+        # Camera setup
+        self.setup_camera()
+        
+        
+        # Forzare il calcolo del devicePixelRatio
+        print(self.devicePixelRatioF())
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        self.interactor.Initialize()
+        self.render_window.Render()
+        self.update_scene()
+        self.interactor.Start()
+
+        # Forza un aggiornamento esplicito del widget e della finestra di rendering
+        self.update()
+        self.render_window.Render()
+        self.render_window.Modified()
+        self.render_window.GetInteractor().Render()
+        print("Mostrato")
+
+    def setup_rect_positions(self):
+        if self.num_rectangles == 4:
+            self.rect_positions = [
+                (-50, 0, 50),  # Top-left
+                (50, 0, 50),   # Top-right
+                (50, 0, -50),  # Bottom-left
+                (-50, 0, -50)  # Bottom-right
+            ]
+        elif self.num_rectangles == 3:
+            self.rect_positions = [
+                (-50, 0, 50),  # Top-left
+                (50, 0, 50),   # Top-right
+                (0, 0, -50)    # Bottom-center
+            ]
+        elif self.num_rectangles == 2:
+            self.rect_positions = [
+                (0, 0, 50),    # Top-center
+                (0, 0, -50)    # Bottom-center
+            ]
+        elif self.num_rectangles == 1:
+            self.rect_positions = [
+                (0, 0, 0)      # Center
+            ]
+        elif self.num_rectangles == 6:
+            self.rect_positions = [
+                (-50, 0, 60),  # Top-left
+                (50, 0, 60),   # Top-right
+                (50, 0, 0),    # Center-left
+                (-50, 0, 0),   # Center-right
+                (50, 0, -60),  # Bottom-left
+                (-50, 0, -60)  # Bottom-right
+            ]
+        elif self.num_rectangles == 5:
+            self.rect_positions = [
+                (-50, 0, 60),  # Top-left
+                (50, 0, 60),   # Top-right
+                (50, 0, 0),    # Center-left
+                (-50, 0, 0),   # Center-right
+                (0, 0, -60)    # Bottom-center
+            ]
+
+    def load_mtl(self, filepath):
+        materials_info = {}
+        current_material = None
+
+        with open(filepath, 'r') as file:
+            for line in file:
+                line = line.strip()
+                if line.startswith('newmtl '):
+                    current_material = line.split()[1]
+                    materials_info[current_material] = {}
+                elif current_material:
+                    if line.startswith('Ka '):
+                        materials_info[current_material]['Ka'] = line.split()[1:]
+                    elif line.startswith('Kd '):
+                        materials_info[current_material]['Kd'] = line.split()[1:]
+                    elif line.startswith('Ks '):
+                        materials_info[current_material]['Ks'] = line.split()[1:]
+                    elif line.startswith('Ns '):
+                        materials_info[current_material]['Ns'] = line.split()[1]
+                    elif line.startswith('Tr '):
+                        materials_info[current_material]['Tr'] = line.split()[1]
+
+        return materials_info
 
     def load_obj(self, filepath):
         vertices = []
         faces = []
-        colors = []
+        face_materials = []
+        materials = {}
+        current_material = None
+
         with open(filepath, 'r') as file:
             for line in file:
+                line = line.strip()
                 if line.startswith('v '):
-                    vertex = [float(x) for x in line.strip().split()[1:]]
-                    # Adjust the axes
+                    vertex = [float(x) for x in line.split()[1:]]
                     vertices.append([vertex[0], vertex[2], -vertex[1]])
-                    colors.append([0.6, 0.6, 0.6])  # Default color
                 elif line.startswith('f '):
-                    face = [int(vertex.split('/')[0]) for vertex in line.strip().split()[1:]]
+                    face = [int(vertex.split('/')[0]) - 1 for vertex in line.split()[1:]]
                     faces.append(face)
-        print("Loaded model with", len(vertices), "vertices and", len(faces), "faces.")
-        return vertices, faces, colors
+                    face_materials.append(current_material)
+                elif line.startswith('usemtl '):
+                    current_material = line.split()[1]
+                    if current_material not in materials:
+                        materials[current_material] = self.get_material_color(current_material)
 
-    def calculate_scale(self):
-        vertices, _, _ = self.model
-        vertices = np.array(vertices)
-        print("Vertices array shape:", vertices.shape)
-        
-        if vertices.size == 0:
-            print("Vertices array is empty.")
-            return 1.0
+        print(f"Loaded model with {len(vertices)} vertices and {len(faces)} faces.")
+        return (vertices, faces, face_materials), materials
 
-        min_coords = vertices.min(axis=0)
-        max_coords = vertices.max(axis=0)
-        dimensions = max_coords - min_coords
-        print("Model dimensions:", dimensions)
+    def create_actors(self):
+        for position in self.rect_positions:
+            actor = self.create_actor(position)
+            self.renderer.AddActor(actor)
+            
+    def add_base_plane(self):
+        # Create a plane source
+        plane = vtk.vtkPlaneSource()
+        plane.SetOrigin(-100, 0, -100)
+        plane.SetPoint1(100, 0, -100)
+        plane.SetPoint2(-100, 0, 100)
 
-        scale_x = self.rect_size.x() / dimensions[0]
-        scale_y = self.rect_size.y() / dimensions[1]
-        scale_z = self.rect_size.z() / dimensions[2]
+        # Create a mapper and actor
+        mapper = vtk.vtkPolyDataMapper()
+        mapper.SetInputConnection(plane.GetOutputPort())
+        actor = vtk.vtkActor()
+        actor.SetMapper(mapper)
 
-        print(f"Calculated scales - X: {scale_x}, Y: {scale_y}, Z: {scale_z}")
-        return min(scale_x, scale_y, scale_z)
+        # Set the plane color and transparency
+        actor.GetProperty().SetColor(1, 1, 1)  # White color
+        actor.GetProperty().SetOpacity(0.2)    # 50% transparency
 
-    def initializeGL(self):
-        glClearColor(1.0, 1.0, 1.0, 1.0)
-        glEnable(GL_DEPTH_TEST)
-        glEnable(GL_COLOR_MATERIAL)
-        glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE)
+        # Add the plane actor to the renderer
+        self.renderer.AddActor(actor)
 
-        glDisable(GL_CULL_FACE)  # Ensure that both front and back faces are drawn
+    def create_actor(self, position):
+        vertices, faces, face_materials = self.model
+        points = vtk.vtkPoints()
+        polys = vtk.vtkCellArray()
+        colors = vtk.vtkUnsignedCharArray()
+        colors.SetNumberOfComponents(3)
+        colors.SetName("Colors")
 
-        self.init_vbo()
+        # Calculate the current bounding box
+        min_x = min(v[0] for v in vertices)
+        max_x = max(v[0] for v in vertices)
+        min_y = min(v[1] for v in vertices)
+        max_y = max(v[1] for v in vertices)
+        min_z = min(v[2] for v in vertices)
+        max_z = max(v[2] for v in vertices)
 
-    def init_vbo(self):
-        vertices, faces, colors = self.model
+        current_width = max_x - min_x
+        current_height = max_y - min_y
+        current_depth = max_z - min_z
 
-        vertices = np.array(vertices, dtype=np.float32)
-        faces = np.array(faces, dtype=np.uint32) - 1
-        colors = np.array(colors, dtype=np.float32)
+        # Calculate the scale factors needed to match rect_size
+        x_scale = self.rect_size[0] / current_width if current_width != 0 else 1
+        y_scale = self.rect_size[1] / current_height if current_height != 0 else 1
+        z_scale = self.rect_size[2] / current_depth if current_depth != 0 else 1
 
-        print("Vertices buffer size:", vertices.nbytes)
-        print("Faces buffer size:", faces.nbytes)
-        print("Colors buffer size:", colors.nbytes)
+        for v in vertices:
+            points.InsertNextPoint(v[0] * x_scale, v[1] * y_scale, v[2] * z_scale)
 
-        self.vbo_vertices = glGenBuffers(1)
-        glBindBuffer(GL_ARRAY_BUFFER, self.vbo_vertices)
-        glBufferData(GL_ARRAY_BUFFER, vertices.nbytes, vertices, GL_STATIC_DRAW)
-        print("Vertices VBO initialized.")
+        for i, face in enumerate(faces):
+            triangle = vtk.vtkTriangle()
+            for j, vertex in enumerate(face):
+                triangle.GetPointIds().SetId(j, vertex)
+            polys.InsertNextCell(triangle)
 
-        self.vbo_faces = glGenBuffers(1)
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self.vbo_faces)
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, faces.nbytes, faces, GL_STATIC_DRAW)
-        print("Faces VBO initialized.")
+            material_name = face_materials[i]
+            color = self.get_material_color(material_name)
+            colors.InsertNextTuple3(*[int(c * 255) for c in color])
 
-        self.vbo_colors = glGenBuffers(1)
-        glBindBuffer(GL_ARRAY_BUFFER, self.vbo_colors)
-        glBufferData(GL_ARRAY_BUFFER, colors.nbytes, colors, GL_STATIC_DRAW)
-        print("Colors VBO initialized.")
+        polydata = vtk.vtkPolyData()
+        polydata.SetPoints(points)
+        polydata.SetPolys(polys)
+        polydata.GetCellData().SetScalars(colors)
 
-    def resizeGL(self, w, h):
-        glViewport(0, 0, w, h)
-        glMatrixMode(GL_PROJECTION)
-        glLoadIdentity()
-        gluPerspective(45, w / h, 1, 1000)
-        glMatrixMode(GL_MODELVIEW)
-        glLoadIdentity()
+        mapper = vtk.vtkPolyDataMapper()
+        mapper.SetInputData(polydata)
 
-    def paintGL(self):
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-        glLoadIdentity()
-        gluLookAt(self.camera_position_x, self.camera_position_y, self.camera_position_z, 0, 0, 0, 0, 1, 0)
-        glRotatef(self.camera_angle_x, 1, 0, 0)
-        glRotatef(self.camera_angle_y, 0, 1, 0)
+        actor = vtk.vtkActor()
+        actor.SetMapper(mapper)
 
-        self.drawPlane()
+        # Set the actor's position
+        actor.SetPosition(*position)
+        return actor
 
-        for i in range(self.num_rectangles):
-            self.drawModel(self.rect_positions[i])
+    def get_material_color(self, material_name):
+        material_info = self.materials_info.get(material_name, {})
+        kd = material_info.get('Kd', ['0.3', '0.3', '0.3'])
+        return [float(c) for c in kd]
 
-    def drawPlane(self):
-        glColor3f(0, 0, 0)
-        glBegin(GL_LINES)
-        grid_size = 100
-        step = 5
-        for i in range(-grid_size, grid_size + step, step):
-            # Horizontal lines
-            glVertex3f(i, -5, -grid_size)
-            glVertex3f(i, -5, grid_size)
-            # Vertical lines
-            glVertex3f(-grid_size, -5, i)
-            glVertex3f(grid_size, -5, i)
-        glEnd()
+    def setup_camera(self):
+        self.camera = vtk.vtkCamera()
+        self.camera.SetPosition(self.camera_position_x, self.camera_position_y, self.camera_position_z)
+        self.camera.SetFocalPoint(0, 0, 0)
+        self.camera.SetViewUp(0, 1, 0)
+        self.camera.Zoom(1.2)  # Aumentato leggermente lo zoom per una visione migliore
+        self.renderer.SetActiveCamera(self.camera)
 
-    def drawModel(self, position):
-        glPushMatrix()
-        glTranslatef(position.x(), position.y(), position.z())
-        glScalef(self.model_scale, self.model_scale, self.model_scale)
-
-        # Draw the wireframe in black
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
-        glColor3f(0.0, 0.0, 0.0)  # Set color to black
-        glEnableClientState(GL_VERTEX_ARRAY)
-        glBindBuffer(GL_ARRAY_BUFFER, self.vbo_vertices)
-        glVertexPointer(3, GL_FLOAT, 0, None)
-
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self.vbo_faces)
-        glDrawElements(GL_TRIANGLES, len(self.model[1]) * 3, GL_UNSIGNED_INT, None)
-
-        glDisableClientState(GL_VERTEX_ARRAY)
-
-        # Draw the solid model with colors
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
-        glEnableClientState(GL_VERTEX_ARRAY)
-        glBindBuffer(GL_ARRAY_BUFFER, self.vbo_vertices)
-        glVertexPointer(3, GL_FLOAT, 0, None)
-
-        glEnableClientState(GL_COLOR_ARRAY)
-        glBindBuffer(GL_ARRAY_BUFFER, self.vbo_colors)
-        glColorPointer(3, GL_FLOAT, 0, None)
-
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self.vbo_faces)
-        glDrawElements(GL_TRIANGLES, len(self.model[1]) * 3, GL_UNSIGNED_INT, None)
-
-        glDisableClientState(GL_COLOR_ARRAY)
-        glDisableClientState(GL_VERTEX_ARRAY)
-        glPopMatrix()
+    def update_scene(self):
+        self.renderer.Render()
 
     def mousePressEvent(self, event):
-        self.makeCurrent()
         self.last_pos = event.position()
         if event.buttons() == Qt.MouseButton.LeftButton:
             self.moving_camera = True
         elif event.buttons() == Qt.MouseButton.RightButton:
             self.rotating_camera = True
 
-
     def mouseMoveEvent(self, event):
         if self.moving_camera:
-            dx = (event.position().x() - self.last_pos.x()) / 5.0
-            dy = (event.position().y() - self.last_pos.y()) / 5.0
+            dx = (event.position().x() - self.last_pos.x()) / 0.05
+            dy = (event.position().y() - self.last_pos.y()) / 0.05
             self.camera_position_x -= dx
             self.camera_position_y += dy
+            self.camera.SetPosition(self.camera_position_x, self.camera_position_y, self.camera_position_z)
             self.last_pos = event.position()
         elif self.rotating_camera:
-            dx = (event.position().x() - self.last_pos.x()) / 5.0
-            dy = (event.position().y() - self.last_pos.y()) / 5.0
+            dx = (event.position().x() - self.last_pos.x()) / 0.05
+            dy = (event.position().y() - self.last_pos.y()) / 0.05
             self.camera_angle_y += dx
             self.camera_angle_x += dy
+            self.camera.Elevation(dy)
+            self.camera.Azimuth(dx)
             self.last_pos = event.position()
-        self.update()
+        self.update_scene()
 
     def mouseReleaseEvent(self, event):
         self.moving_camera = False
         self.rotating_camera = False
-
+        
     def wheelEvent(self, event):
         delta = event.angleDelta().y() / 120
         self.camera_position_z -= delta * 10
         self.camera_position_z = max(100, min(self.camera_position_z, 1000))
-        self.update()
+        self.camera.SetPosition(self.camera_position_x, self.camera_position_y, self.camera_position_z)
+        self.update_scene()
