@@ -189,7 +189,7 @@ class Home_Page(QWidget):
             self.glWidget.deleteLater()
         
         # Create and add the new widget
-        self.glWidget = r.GLWidget(num_rectangles=num_rectangles)
+        self.glWidget = r.VTKWidget(num_rectangles=num_rectangles)
         
         # Clear any existing layout in the fixed area
         if self.fixed_area.layout() is not None:
