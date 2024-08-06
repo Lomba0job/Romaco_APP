@@ -13,14 +13,17 @@ from API import funzioni as f
 
 class Bilancia(QWidget):
 
-    def __init__(self, numero_bilancia: int, screen_width):
+    def __init__(self, numero_bilancia: int, screen_width, screen_height):
         super().__init__()
         
+        self.setMaximumWidth(int(screen_width / 6.1))
+        self.setMaximumHeight(int(screen_height * 0.5))
         layout = QVBoxLayout()
         
         print(numero_bilancia)
         #PRIMO LAYOUT 
         h0 = QHBoxLayout()
+        h0.setSpacing(0)
         v0 = QVBoxLayout()
         
         logo_label = QLabel()
@@ -44,31 +47,35 @@ class Bilancia(QWidget):
         h0.addLayout(v0)
         
         layout.addLayout(h0)
-        layout.addStretch()
+        #layout.addStretch()
         
         #SECONDO LAYOUT 
         v1 = QVBoxLayout()
+        v1.setSpacing(0)
         
-        stato_adc = QLabel("STATO ")
+        stato_adc = QLabel("STATO ADC: ")
         stato_adc.setObjectName("stato_label")
         self.stato_adc_valore = QLabel("OK")
         self.stato_adc_valore.setObjectName("stato_value")
+        self.stato_adc_valore.setAlignment(Qt.AlignmentFlag.AlignRight)
         h1 = QHBoxLayout()
         h1.addWidget(stato_adc)
         h1.addWidget(self.stato_adc_valore)
 
-        stato_elet = QLabel("STATO ")
+        stato_elet = QLabel("STATO ELETTRONICA: ")
         stato_elet.setObjectName("stato_label")
         self.stato_elet_valore = QLabel("OK")
         self.stato_elet_valore.setObjectName("stato_value")
+        self.stato_elet_valore.setAlignment(Qt.AlignmentFlag.AlignRight)
         h2 = QHBoxLayout()
         h2.addWidget(stato_elet)
         h2.addWidget(self.stato_elet_valore)
 
-        stato_celle = QLabel("STATO ")
+        stato_celle = QLabel("STATO CELLE: ")
         stato_celle.setObjectName("stato_label")
         self.stato_celle_valore = QLabel("OK")
         self.stato_celle_valore.setObjectName("stato_value")
+        self.stato_celle_valore.setAlignment(Qt.AlignmentFlag.AlignRight)
         h3 = QHBoxLayout()
         h3.addWidget(stato_celle)
         h3.addWidget(self.stato_celle_valore)
@@ -78,22 +85,28 @@ class Bilancia(QWidget):
         v1.addLayout(h3)
         
         layout.addLayout(v1)
-        layout.addStretch()
+        #layout.addStretch()
         
         #TERZO LAYOUT 
         tara_singola = QPushButton("TARA")
         tara_singola.setObjectName("tara")
         
         layout.addWidget(tara_singola)
-        layout.setSpacing(70)
+        layout.setSpacing(int(screen_height * 0.05))
         
+        
+        #QUARTO LAYOUT 
         v3 = QVBoxLayout()
+        v3.setSpacing(4)
         
         calib_label = QLabel("PESO DI CALIBRAZIONE")
         calib_label.setObjectName("stato_label")
+        calib_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         v3.addWidget(calib_label)
         
         h4 = QHBoxLayout()
+        h4.setSpacing(0)
+        
         self.peso_calib = QDoubleSpinBox(self)
         self.peso_calib.setRange(0.0, 100.0)  # Imposta il range minimo e massimo
         self.peso_calib.setDecimals(2)        # Imposta il numero di decimali
@@ -101,9 +114,12 @@ class Bilancia(QWidget):
         self.peso_calib.setSingleStep(0.1)    # Imposta l'incremento per ogni passo
         
         indice = QLabel("Kg")
+        indice.setMaximumWidth(20)
         indice.setObjectName("indice")
+        h4.addSpacing(10)
         h4.addWidget(self.peso_calib)
         h4.addWidget(indice)
+        h4.addSpacing(10)
         v3.addLayout(h4)
         
         calib_singola = QPushButton("CALIBRAZIONE")
@@ -119,7 +135,7 @@ class Bilancia(QWidget):
     
     def set_background_color(self):
         p = self.palette()
-        p.setColor(self.backgroundRole(), QColor.fromRgb(241,241,241))
+        p.setColor(self.backgroundRole(), QColor.fromRgb(254,254,254))
         self.setPalette(p)
         # Load the stylesheet
         self.load_stylesheet()

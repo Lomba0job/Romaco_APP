@@ -6,7 +6,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtGui import QPixmap, QAction, QGuiApplication, QColor
 
 
-from API import
+from API import funzioni as f 
 from PAGE import home_page as h, launcher_page as l, salva_peso_page as s, log_page as lo
 from CMP import navbar as nv, Bilancia_diagno as b
 
@@ -36,12 +36,14 @@ class MainWindow(QMainWindow):
             l0 = QHBoxLayout()
             l0.setSpacing(0)
             
-            home_page = b.Bilancia(i, self.screen_width-20)
-            home_page.setMinimumHeight(int(self.screen_height * 0.4))
-            home_page.setMaximumWidth(int(self.screen_width / 6.1))
+            home_page = b.Bilancia(i, self.screen_width-10, self.screen_height-10)
+            home_page.setObjectName("weed")
+            
             l0.addWidget(home_page)
             l0.setContentsMargins(2,2,2,2)
             raggruppa.setLayout(l0)
+            
+            
             raggruppa.setObjectName("bil")
             raggruppa.setContentsMargins(1,1,1,1)
             
@@ -49,7 +51,7 @@ class MainWindow(QMainWindow):
             
             
         self.setStyleSheet("""
-            QWidget#bil{
+            QWidget#weed{
                 border: 1px solid grey;
                 border-radius: 9px;
             }
