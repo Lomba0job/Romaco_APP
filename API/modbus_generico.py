@@ -161,6 +161,7 @@ def calib_command(weight_kg,  instrument):
     
 def get_totWeight( instrument):
     try:
+        instrument.write_bit(st.COIL_PESO_COMMAND, 1)
         return instrument.read_register(st.HOLDING_PESO_TOT_MS, functioncode=3)*65536 + instrument.read_register(st.HOLDING_PESO_TOT_LS, functioncode=3)
     except:
         return -1

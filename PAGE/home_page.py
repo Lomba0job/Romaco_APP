@@ -4,7 +4,7 @@ from PyQt6.QtGui import QColor, QPalette
 
 
 from CMP import rectangle as r
-from API import funzioni as f
+from API import funzioni as f, modbus_generico as mb
 class Home_Page(QWidget):
 
     def __init__(self, master):
@@ -12,7 +12,7 @@ class Home_Page(QWidget):
 
         self.master = master
         self.master.setWindowTitle("HomePage")
-
+        
         self.glWidget = None
         self.main_layout = None
         self.left_layout = None
@@ -109,7 +109,7 @@ class Home_Page(QWidget):
         if numero != 0:
             self.loadConfiguration()
             
-    def finalUI(self):
+    def finalUI(self, lista_pesi):
         self.clearLayout(self.left_layout)
         
         numero = len(self.master.lista_bilance)
@@ -128,7 +128,11 @@ class Home_Page(QWidget):
         titolo.setObjectName("titolo")
         titolo.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
-        peso = QLabel("136,75 Kg")
+        pes = 0
+        for peso in lista_pesi:
+            pes += peso
+        peso_v = str(pes / 1000) + " Kg"
+        peso = QLabel(peso_v)
         peso.setObjectName("peso")
         peso.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
@@ -140,7 +144,8 @@ class Home_Page(QWidget):
             numbi.setObjectName("passo")
             numbi.setMinimumWidth(200)
             numbi.setMaximumWidth(200)
-            pesobi = QLabel("33 kg")
+            peso_v = str(lista_pesi[i] / 1000) + " Kg"
+            pesobi = QLabel(peso_v)
             pesobi.setObjectName("desc1")
             pesobi.setMinimumWidth(60)
             
@@ -204,7 +209,22 @@ class Home_Page(QWidget):
         
         
     def pesata(self):
-        self.finalUI()
+        pesi_bilance = []
+        for b in self.master.lista_bilance:
+            pesotot = mb.get_totWeight(b.modbusI)
+            if pesotot != -1:
+                peso = mb.get_cellWeight(b.modbusI)
+                s = peso[0]
+                warn = False
+                for p in peso: 
+                    if abs(p-s) > 20000: #SOTTOCHIAVE IMPOSTAZIONE 
+                        warn = True
+                if not warn:
+                    pesi_bilance.append(pesotot)
+        
+        
+        
+        self.finalUI(pesi_bilance)
         
     def salva_f(self):
         self.master.save_call()
