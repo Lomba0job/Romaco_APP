@@ -159,18 +159,37 @@ class Bilancia(QWidget):
         else:
             self.stato_celle_valore.setText("NOT OK")
             self.stato_celle_valore.setObjectName("stato_value_not")
+        self.load_stylesheet()
+            
+    def update(self):
+        ele = True
+        ris = mg.get_adcs_status(self.bilancia.modbusI)
+        if ris == 1: 
+            adc = True
+        elif ris == 0: 
+            adc = False
+        else: 
+            ele = False
+        ris = mg.get_cells_status(self.bilancia.modbusI)
+        if ris == 1: 
+            celle = True
+        elif ris == 0: 
+            celle = False
+        else: 
+            ele = False
+        self.laod_status(adc, ele, celle)
     
     def effettua_calibrazione(self):
-        print(f"avvio calibrazione {self.numero}")
-        risult = mg.calib_command(self.peso_calib, self.bilancia.modbusI)
+        print(f"avvio calibrazione {self.bilancia.modbusI.address}")
+        risult = mg.calib_command(self.peso_calib.value(), self.bilancia.modbusI)
         if risult == 0: 
             print("all ok")
         else: 
             print("error")
             
     def effettua_tara(self):
-        print(f"avvio calibrazione {self.numero}")
-        risult = mg.tare_command(self.peso_calib, self.bilancia.modbusI)
+        print(f"avvio calibrazione {self.bilancia.modbusI.address}")
+        risult = mg.tare_command(self.bilancia.modbusI)
         if risult == 0: 
             print("all ok")
         else: 

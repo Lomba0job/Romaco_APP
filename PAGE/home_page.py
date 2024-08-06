@@ -66,6 +66,15 @@ class Home_Page(QWidget):
         self.load_stylesheet()
 
         
+    def clearLayout(self, layout):
+        if layout is not None:
+            while layout.count():
+                item = layout.takeAt(0)
+                widget = item.widget()
+                if widget is not None:
+                    widget.deleteLater()
+                else:
+                    self.clearLayout(item.layout())
 
     def initUI(self):
         # Clear existing widgets from layouts
@@ -169,16 +178,7 @@ class Home_Page(QWidget):
         self.load_stylesheet()
 
 
-    def clearLayout(self, layout):
-        if layout is not None:
-            while layout.count():
-                item = layout.takeAt(0)
-                widget = item.widget()
-                if widget is not None:
-                    widget.deleteLater()
-                else:
-                    self.clearLayout(item.layout())
-
+    
     def loadConfiguration(self):
         num_rectangles = len(self.master.lista_bilance) 
         for b in self.master.lista_bilance:

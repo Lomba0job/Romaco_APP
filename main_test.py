@@ -16,6 +16,14 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle("Pagina di TEST")
         
+        wid = QWidget()
+        wid.setContentsMargins(0,0,0,0)
+        v0 = QVBoxLayout(wid)
+        v0.setSpacing(0)
+        v0.setContentsMargins(0,0,0,0)
+        
+        nav = nv.NavbarWidget()
+        
         screen_geometry = QApplication.primaryScreen().geometry()
         self.screen_width = screen_geometry.width()
         self.screen_height = screen_geometry.height()
@@ -24,7 +32,10 @@ class MainWindow(QMainWindow):
         self.lista_bilance = []
         ogg = d.DiagnosticWidget(self)
         
-        self.setCentralWidget(ogg)
+        v0.addWidget(nav)
+        v0.addWidget(ogg)
+        
+        self.setCentralWidget(wid)
         
         
     

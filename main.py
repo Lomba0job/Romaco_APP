@@ -5,7 +5,7 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtGui import QPixmap, QAction
 
-from PAGE import home_page as h, launcher_page as l, salva_peso_page as s, log_page as lo
+from PAGE import home_page as h, launcher_page as l, salva_peso_page as s, log_page as lo, diagnostic_page as d
 from CMP import navbar as nv
 
 
@@ -58,7 +58,7 @@ class MainWindow(QMainWindow):
         self.log = lo.LogPage(self)
         self.central_widget.addWidget(self.log)
         
-        self.diagno = QWidget()
+        self.diagno = d.DiagnosticWidget(self)
         self.central_widget.addWidget(self.diagno)
         
     def launcher_call(self):
@@ -74,6 +74,7 @@ class MainWindow(QMainWindow):
         self.lista_bilance = self.launcher_page.lista_bilance
         print(f"DEBUG MAIN {len(self.lista_bilance)}")
         self.rubrica_page.initUI()
+        self.diagno.update()
         self.change_page(1)  # Passa alla pagina rubrica
 
     def change_page(self, index):

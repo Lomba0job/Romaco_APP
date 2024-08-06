@@ -4,6 +4,7 @@ import concurrent.futures
 import time
 
 from OBJ import bilancia as b
+from API import modbus
 from API import modbus_strutture as st
 
 timeout_duration = 10
@@ -93,19 +94,19 @@ def scan_modbus_network(port):
 
 
 
-def tare_command( instrument):
+def tare_command(instrument: modbus.Instrument):
     print("Tare command launched")
     start_time = time.time()
     try:
         
         tareCoil = instrument.read_bit(st.COIL_TARE_COMMAND, functioncode=1)
         while(tareCoil==0 and (time.time()-start_time < timeout_duration)):
-            instrument.write_bit(0, 1)
+            instrument.write_bit(st.COIL_TARE_COMMAND, 1)
             tareCoil = instrument.read_bit(st.COIL_TARE_COMMAND, functioncode=1)
         if(tareCoil==0):
             print("Timeout exceeded!")
             return -1
-        time.sleep(2)   #BRUTTO: last command succeed
+        time.sleep(1)   #BRUTTO: last command succeed
         #Here tare takes place
         tareCoil = instrument.read_bit(st.COIL_TARE_COMMAND, functioncode=1)
         while(tareCoil==1 and (time.time()-start_time < timeout_duration)):
@@ -119,8 +120,9 @@ def tare_command( instrument):
         print(e)
         return -1
     
-def calib_command(weight,  instrument):
+def calib_command(weight_kg,  instrument):
     start_time = time.time()
+    weight = int(weight_kg * 1000)
     try:
         #Setting the weight
         calibWeight = instrument.read_register(st.HOLDING_PESO_CALIB_MS, functioncode=3)*65536 + instrument.read_register(st.HOLDING_PESO_CALIB_LS, functioncode=3)
@@ -137,10 +139,10 @@ def calib_command(weight,  instrument):
             t2 = instrument.read_register(st.HOLDING_PESO_CALIB_LS, functioncode=3)
         if(calibWeight!=weight):
             return -1
-        calibCoil = instrument.read_bit(8, functioncode=1)
+        calibCoil = instrument.read_bit(st.COIL_CALIB_COMMAND, functioncode=1)
         while(calibCoil==0 and (time.time()-start_time < timeout_duration)):
-            instrument.write_bit(8, 1)
-            calibCoil = instrument.read_bit(8, functioncode=1)
+            instrument.write_bit(st.COIL_CALIB_COMMAND, 1)
+            calibCoil = instrument.read_bit(st.COIL_CALIB_COMMAND, functioncode=1)
         if(calibCoil==0):
             return -1
         time.sleep(2)   #BRUTTO: last command succeed
