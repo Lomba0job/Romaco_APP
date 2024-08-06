@@ -11,22 +11,22 @@ import os
 from CMP import rectangle as r
 from API import funzioni as f
 
-class Bilancia(QWidget):
+class Bilancia_deactive(QWidget):
 
     def __init__(self, numero_bilancia: int, screen_width):
         super().__init__()
         
         layout = QVBoxLayout()
         
-        print(numero_bilancia)
+        
         #PRIMO LAYOUT 
         h0 = QHBoxLayout()
-        v0 = QVBoxLayout()
+        v0 = QHBoxLayout()
         
         logo_label = QLabel()
-        ico = f.get_img("bilancia_chiara.png")
-        larghezza = int(screen_width / 12)
-        altezza = int(larghezza / 2)
+        ico = f.get_img("logo.jpg")
+        larghezza = screen_width / 12
+        altezza = larghezza / 2
         logo_label.setPixmap(QPixmap(ico).scaled(larghezza, altezza, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
         
         h0.addWidget(logo_label)
@@ -47,37 +47,10 @@ class Bilancia(QWidget):
         layout.addStretch()
         
         #SECONDO LAYOUT 
-        v1 = QVBoxLayout()
+        deactive = QLabel("NON COLLEGATA")
+        deactive.setObjectName("no")
         
-        stato_adc = QLabel("STATO ")
-        stato_adc.setObjectName("stato_label")
-        self.stato_adc_valore = QLabel("OK")
-        self.stato_adc_valore.setObjectName("stato_value")
-        h1 = QHBoxLayout()
-        h1.addWidget(stato_adc)
-        h1.addWidget(self.stato_adc_valore)
-
-        stato_elet = QLabel("STATO ")
-        stato_elet.setObjectName("stato_label")
-        self.stato_elet_valore = QLabel("OK")
-        self.stato_elet_valore.setObjectName("stato_value")
-        h2 = QHBoxLayout()
-        h2.addWidget(stato_elet)
-        h2.addWidget(self.stato_elet_valore)
-
-        stato_celle = QLabel("STATO ")
-        stato_celle.setObjectName("stato_label")
-        self.stato_celle_valore = QLabel("OK")
-        self.stato_celle_valore.setObjectName("stato_value")
-        h3 = QHBoxLayout()
-        h3.addWidget(stato_celle)
-        h3.addWidget(self.stato_celle_valore)
-
-        v1.addLayout(h1)
-        v1.addLayout(h2)
-        v1.addLayout(h3)
-        
-        layout.addLayout(v1)
+        layout.addWidget(deactive)
         layout.addStretch()
         
         #TERZO LAYOUT 
@@ -111,12 +84,7 @@ class Bilancia(QWidget):
         v3.addWidget(calib_singola)
         
         layout.addLayout(v3)
-        
-        self.setLayout(layout)
-        
-        self.setAutoFillBackground(True)
-        self.set_background_color()
-    
+            
     def set_background_color(self):
         p = self.palette()
         p.setColor(self.backgroundRole(), QColor.fromRgb(241,241,241))
@@ -131,6 +99,10 @@ class Bilancia(QWidget):
             style_sheet = stream.readAll()
             file.close()
             self.setStyleSheet(style_sheet)
+        
+        
+        
+        
         
         
         
