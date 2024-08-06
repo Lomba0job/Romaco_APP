@@ -93,7 +93,7 @@ def scan_modbus_network(port):
 
 
 
-def tare_command(self, instrument):
+def tare_command( instrument):
     print("Tare command launched")
     start_time = time.time()
     try:
@@ -119,11 +119,11 @@ def tare_command(self, instrument):
         print(e)
         return -1
     
-def calib_command(self, weight,  instrument):
+def calib_command(weight,  instrument):
     start_time = time.time()
     try:
         #Setting the weight
-        calibWeight = instrument.read_register(st.HOLDING_PESO_CALIB_MS, functioncode=3)*65536 + self.instrument.read_register(st.HOLDING_PESO_CALIB_LS, functioncode=3)
+        calibWeight = instrument.read_register(st.HOLDING_PESO_CALIB_MS, functioncode=3)*65536 + instrument.read_register(st.HOLDING_PESO_CALIB_LS, functioncode=3)
         while(calibWeight!=weight and (time.time()-start_time < timeout_duration)):
             LS16bit = weight & 0xffff
             MS16bit = (weight >> 16) & 0xffff
@@ -131,7 +131,7 @@ def calib_command(self, weight,  instrument):
             instrument.write_register(st.HOLDING_PESO_CALIB_MS, MS16bit, functioncode=6)  
             instrument.write_register(st.HOLDING_PESO_CALIB_LS, LS16bit, functioncode=6)  
             
-            calibWeight = instrument.read_register(st.HOLDING_PESO_CALIB_MS)* 65536 + self.instrument.read_register(st.HOLDING_PESO_CALIB_LS, functioncode=3)
+            calibWeight = instrument.read_register(st.HOLDING_PESO_CALIB_MS)* 65536 + instrument.read_register(st.HOLDING_PESO_CALIB_LS, functioncode=3)
             
             t1 = instrument.read_register(st.HOLDING_PESO_CALIB_MS, functioncode=3)* 65536 
             t2 = instrument.read_register(st.HOLDING_PESO_CALIB_LS, functioncode=3)
@@ -157,19 +157,19 @@ def calib_command(self, weight,  instrument):
         return -1
     
     
-def get_totWeight(self, instrument):
+def get_totWeight( instrument):
     try:
-        return instrument.read_register(st.HOLDING_PESO_TOT_MS, functioncode=3)*65536 + self.instrument.read_register(st.HOLDING_PESO_TOT_LS, functioncode=3)
+        return instrument.read_register(st.HOLDING_PESO_TOT_MS, functioncode=3)*65536 + instrument.read_register(st.HOLDING_PESO_TOT_LS, functioncode=3)
     except:
         return -1
     
-def get_cellWeight(self, instrument):
+def get_cellWeight( instrument):
     cells = []
     try:
-        b1 = instrument.read_register(st.HOLDING_CELL1_MS, functioncode=3)*65536 + self.instrument.read_register(st.HOLDING_CELL1_LS, functioncode=3)
-        b2 = instrument.read_register(st.HOLDING_CELL2_MS, functioncode=3)*65536 + self.instrument.read_register(st.HOLDING_CELL2_LS, functioncode=3)
-        b3 = instrument.read_register(st.HOLDING_CELL3_MS, functioncode=3)*65536 + self.instrument.read_register(st.HOLDING_CELL3_LS, functioncode=3)
-        b4 = instrument.read_register(st.HOLDING_CELL4_MS, functioncode=3)*65536 + self.instrument.read_register(st.HOLDING_CELL4_LS, functioncode=3)
+        b1 = instrument.read_register(st.HOLDING_CELL1_MS, functioncode=3)*65536 + instrument.read_register(st.HOLDING_CELL1_LS, functioncode=3)
+        b2 = instrument.read_register(st.HOLDING_CELL2_MS, functioncode=3)*65536 + instrument.read_register(st.HOLDING_CELL2_LS, functioncode=3)
+        b3 = instrument.read_register(st.HOLDING_CELL3_MS, functioncode=3)*65536 + instrument.read_register(st.HOLDING_CELL3_LS, functioncode=3)
+        b4 = instrument.read_register(st.HOLDING_CELL4_MS, functioncode=3)*65536 + instrument.read_register(st.HOLDING_CELL4_LS, functioncode=3)
         cells.append(b1)
         cells.append(b2)
         cells.append(b3)
@@ -178,14 +178,14 @@ def get_cellWeight(self, instrument):
     except:
         return -1
     
-def get_cells_status(self):
+def get_cells_status(instrument):
     try:
-        return self.instrument.read_bit(st.COIL_CELL_STATUS, functioncode=1)
+        return instrument.read_bit(st.COIL_CELL_STATUS, functioncode=1)
     except:
         return -1
     
-def get_adcs_status(self):
+def get_adcs_status(instrument):
     try:
-        return self.instrument.read_bit(st.COIL_ADCS_STATUS, functioncode=1)
+        return instrument.read_bit(st.COIL_ADCS_STATUS, functioncode=1)
     except:
         return -1

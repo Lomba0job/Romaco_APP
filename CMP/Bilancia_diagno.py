@@ -8,19 +8,22 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtGui import QPixmap, QAction, QIcon, QColor
 import os 
 
+from OBJ import bilancia as b
 from CMP import rectangle as r
-from API import funzioni as f
+from API import funzioni as f, modbus_generico as mg
 
 class Bilancia(QWidget):
 
-    def __init__(self, numero_bilancia: int, screen_width, screen_height):
+    def __init__(self, numero_bilancia: int, screen_width, screen_height, bilancia: b.Bilancia):
         super().__init__()
         
         self.setMaximumWidth(int(screen_width / 6.1))
         self.setMaximumHeight(int(screen_height * 0.5))
         layout = QVBoxLayout()
         
+        self.numero = numero_bilancia
         print(numero_bilancia)
+        self.bilancia = bilancia
         #PRIMO LAYOUT 
         h0 = QHBoxLayout()
         h0.setSpacing(0)
@@ -90,6 +93,7 @@ class Bilancia(QWidget):
         #TERZO LAYOUT 
         tara_singola = QPushButton("TARA")
         tara_singola.setObjectName("tara")
+        tara_singola.clicked.connect(self.effettua_tara)
         
         layout.addWidget(tara_singola)
         layout.setSpacing(int(screen_height * 0.05))
@@ -114,7 +118,7 @@ class Bilancia(QWidget):
         self.peso_calib.setSingleStep(0.1)    # Imposta l'incremento per ogni passo
         
         indice = QLabel("Kg")
-        indice.setMaximumWidth(20)
+        indice.setMaximumWidth(25)
         indice.setObjectName("indice")
         h4.addSpacing(10)
         h4.addWidget(self.peso_calib)
@@ -124,6 +128,7 @@ class Bilancia(QWidget):
         
         calib_singola = QPushButton("CALIBRAZIONE")
         calib_singola.setObjectName("calibrazione")
+        calib_singola.clicked.connect(self.effettua_calibrazione)
         v3.addWidget(calib_singola)
         
         layout.addLayout(v3)
@@ -154,8 +159,23 @@ class Bilancia(QWidget):
         else:
             self.stato_celle_valore.setText("NOT OK")
             self.stato_celle_valore.setObjectName("stato_value_not")
+    
+    def effettua_calibrazione(self):
+        print(f"avvio calibrazione {self.numero}")
+        risult = mg.calib_command(self.peso_calib, self.bilancia.modbusI)
+        if risult == 0: 
+            print("all ok")
+        else: 
+            print("error")
             
-            
+    def effettua_tara(self):
+        print(f"avvio calibrazione {self.numero}")
+        risult = mg.tare_command(self.peso_calib, self.bilancia.modbusI)
+        if risult == 0: 
+            print("all ok")
+        else: 
+            print("error")
+        
     def set_background_color(self):
         p = self.palette()
         p.setColor(self.backgroundRole(), QColor.fromRgb(254,254,254))

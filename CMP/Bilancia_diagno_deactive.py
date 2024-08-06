@@ -84,7 +84,7 @@ class Bilancia(QWidget):
         self.peso_calib.setSingleStep(0.1)    # Imposta l'incremento per ogni passo
         self.peso_calib.setDisabled(True)
         indice = QLabel("Kg")
-        indice.setMaximumWidth(20)
+        indice.setMaximumWidth(25)
         indice.setObjectName("indice")
         h4.addSpacing(10)
         h4.addWidget(self.peso_calib)
