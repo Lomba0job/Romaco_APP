@@ -56,7 +56,7 @@ class Bilancia(QWidget):
         stato_adc = QLabel("STATO ADC: ")
         stato_adc.setObjectName("stato_label")
         self.stato_adc_valore = QLabel("OK")
-        self.stato_adc_valore.setObjectName("stato_value")
+        self.stato_adc_valore.setObjectName("stato_value_ok")
         self.stato_adc_valore.setAlignment(Qt.AlignmentFlag.AlignRight)
         h1 = QHBoxLayout()
         h1.addWidget(stato_adc)
@@ -65,7 +65,7 @@ class Bilancia(QWidget):
         stato_elet = QLabel("STATO ELETTRONICA: ")
         stato_elet.setObjectName("stato_label")
         self.stato_elet_valore = QLabel("OK")
-        self.stato_elet_valore.setObjectName("stato_value")
+        self.stato_elet_valore.setObjectName("stato_value_ok")
         self.stato_elet_valore.setAlignment(Qt.AlignmentFlag.AlignRight)
         h2 = QHBoxLayout()
         h2.addWidget(stato_elet)
@@ -74,7 +74,7 @@ class Bilancia(QWidget):
         stato_celle = QLabel("STATO CELLE: ")
         stato_celle.setObjectName("stato_label")
         self.stato_celle_valore = QLabel("OK")
-        self.stato_celle_valore.setObjectName("stato_value")
+        self.stato_celle_valore.setObjectName("stato_value_ok")
         self.stato_celle_valore.setAlignment(Qt.AlignmentFlag.AlignRight)
         h3 = QHBoxLayout()
         h3.addWidget(stato_celle)
@@ -132,7 +132,30 @@ class Bilancia(QWidget):
         
         self.setAutoFillBackground(True)
         self.set_background_color()
-    
+        
+    def laod_status(self, adc, elettronica, celle):
+        if adc: 
+            self.stato_adc_valore.setText("OK")
+            self.stato_adc_valore.setObjectName("stato_value_ok")
+        else:
+            self.stato_adc_valore.setText("NOT OK")
+            self.stato_adc_valore.setObjectName("stato_value_not")
+            
+        if elettronica: 
+            self.stato_elet_valore.setText("OK")
+            self.stato_elet_valore.setObjectName("stato_value_ok")
+        else:
+            self.stato_elet_valore.setText("NOT OK")
+            self.stato_elet_valore.setObjectName("stato_value_not")
+            
+        if celle: 
+            self.stato_celle_valore.setText("OK")
+            self.stato_celle_valore.setObjectName("stato_value_ok")
+        else:
+            self.stato_celle_valore.setText("NOT OK")
+            self.stato_celle_valore.setObjectName("stato_value_not")
+            
+            
     def set_background_color(self):
         p = self.palette()
         p.setColor(self.backgroundRole(), QColor.fromRgb(254,254,254))

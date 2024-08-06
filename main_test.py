@@ -8,7 +8,7 @@ from PyQt6.QtGui import QPixmap, QAction, QGuiApplication, QColor
 
 from API import funzioni as f 
 from PAGE import home_page as h, launcher_page as l, salva_peso_page as s, log_page as lo
-from CMP import navbar as nv, Bilancia_diagno as b
+from CMP import navbar as nv, Bilancia_diagno as b, Bilancia_diagno_deactive as bd
 
 
 class MainWindow(QMainWindow):
@@ -32,13 +32,16 @@ class MainWindow(QMainWindow):
 
         # Create and add 6 instances of Home_Page
         for i in range(1, 7):
+            if i < 5:
+                home_page = b.Bilancia(i, self.screen_width-10, self.screen_height-10)
+                home_page.setObjectName("weed")
+            else:
+                home_page = bd.Bilancia(i, self.screen_width-10, self.screen_height-10)
+                home_page.setObjectName("weed")
+                
             raggruppa = QWidget()
             l0 = QHBoxLayout()
             l0.setSpacing(0)
-            
-            home_page = b.Bilancia(i, self.screen_width-10, self.screen_height-10)
-            home_page.setObjectName("weed")
-            
             l0.addWidget(home_page)
             l0.setContentsMargins(2,2,2,2)
             raggruppa.setLayout(l0)
