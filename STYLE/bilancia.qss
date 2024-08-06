@@ -1,0 +1,44 @@
+
+
+QLabel#numero {
+    background-color: #ffffff;
+    font-size: 60px;
+    color: #e74c3c;
+    font-weight: bold;
+}
+QLabel#bilancia {
+    background-color: #ffffff;
+    font-size: 30px;
+    color: #7f8c8d;
+}
+QLabel#stato_label {
+    background-color: #ffffff;
+    font-size: 16px;
+    color: #7f8c8d;
+}
+QLabel#stato_value {
+    background-color: #ffffff;
+    font-size: 16px;
+    font-weight: bold;
+    color: #27ae60;
+}
+QPushButton#tara, QPushButton#calibrazione {
+
+    background-color: #ecf0f1;
+    border: 1px solid #bdc3c7;
+    border-radius: 4px;
+    color: #5D5D5D;
+    font-size: 25px;
+    padding: 10px;
+}
+QLabel#indice {
+    background-color: #ffffff;
+    color: #7f8c8d;
+    font-size: 20px;
+}
+
+QDoubleSpinBox {
+    background-color: #ffffff;
+    font-size: 20px;
+    color: #7f8c8d;
+}
