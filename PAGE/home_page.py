@@ -65,6 +65,33 @@ class Home_Page(QWidget):
         self.setLayout(self.main_layout)
         self.load_stylesheet()
 
+    def reinitUI(self):
+        self.clearLayout(self.left_layout)
+        self.clearLayout(self.fixed_area.layout())
+        
+        push_config = QPushButton()
+        push_config.setText("ESEGUI LA CONFIGURAZIONE")
+        push_config.setObjectName("puls")
+        push_config.clicked.connect(self.master.launcher_call)
+        self.left_layout.addStretch()
+        self.left_layout.addWidget(push_config)
+        self.left_layout.addStretch()
+        self.main_layout.addLayout(self.left_layout)
+        
+        # Right side fixed area
+        self.fixed_area = QWidget()
+        self.fixed_area.setFixedSize(int(self.master.width() * 0.45), int(self.master.height() * 0.8))
+        self.fixed_area.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        
+        palette = self.fixed_area.palette()
+        palette.setColor(QPalette.ColorRole.Window, QColor('white'))
+        self.fixed_area.setPalette(palette)
+        self.fixed_area.setAutoFillBackground(True)
+        
+        self.main_layout.addWidget(self.fixed_area, alignment=Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+
+        self.setLayout(self.main_layout)
+        self.load_stylesheet()
         
     def clearLayout(self, layout):
         if layout is not None:
@@ -144,6 +171,7 @@ class Home_Page(QWidget):
             numbi.setObjectName("passo")
             numbi.setMinimumWidth(200)
             numbi.setMaximumWidth(200)
+            print(f"DEBUG | Pesata {i}, {lista_pesi}")
             peso_v = str(lista_pesi[i] / 1000) + " Kg"
             pesobi = QLabel(peso_v)
             pesobi.setObjectName("desc1")
@@ -210,21 +238,24 @@ class Home_Page(QWidget):
         
     def pesata(self):
         pesi_bilance = []
+        print(f"DEBUG PESATA | bilance {len(self.master.lista_bilance)}")
         for b in self.master.lista_bilance:
             pesotot = mb.get_totWeight(b.modbusI)
+            print(f"DEBUG PESATA | peso TOT {pesotot} {b.modbusI.address}")
             if pesotot != -1:
                 peso = mb.get_cellWeight(b.modbusI)
+                print(f"DEBUG PESATA check | pesi {peso}")
                 s = peso[0]
+                print(f"DEBUG PESATA check | pesi {peso}, primo {s}")
                 warn = False
                 for p in peso: 
                     if abs(p-s) > 20000: #SOTTOCHIAVE IMPOSTAZIONE 
-                        warn = True
+                        warn = True #! AGIUNGERE ERRORE
+                print(f"DEBUG PESATA check | war {warn}")
                 if not warn:
                     pesi_bilance.append(pesotot)
-        
-        
-        
-        self.finalUI(pesi_bilance)
+        if len(pesi_bilance) != 0:  
+            self.finalUI(pesi_bilance)
         
     def salva_f(self):
         self.master.save_call()

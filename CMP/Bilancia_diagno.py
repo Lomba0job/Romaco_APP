@@ -7,6 +7,7 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtGui import QPixmap, QAction, QIcon, QColor
 import os 
+import time 
 
 from OBJ import bilancia as b
 from CMP import rectangle as r
@@ -16,7 +17,7 @@ class Bilancia(QWidget):
 
     def __init__(self, numero_bilancia: int, screen_width, screen_height, bilancia: b.Bilancia):
         super().__init__()
-        
+        self.trigger_warning = False
         self.setMaximumWidth(int(screen_width / 6.1))
         self.setMaximumHeight(int(screen_height * 0.5))
         layout = QVBoxLayout()
@@ -163,22 +164,44 @@ class Bilancia(QWidget):
             
     def update(self):
         ele = True
+        
         ris = mg.get_adcs_status(self.bilancia.modbusI)
-        if ris == 1: 
+        if ris == 0: 
             adc = True
-        elif ris == 0: 
+        elif ris == 1: 
             adc = False
         else: 
+            adc = False
             ele = False
         ris = mg.get_cells_status(self.bilancia.modbusI)
-        if ris == 1: 
+        if ris == 0: 
             celle = True
-        elif ris == 0: 
+        elif ris == 1: 
             celle = False
         else: 
+            celle = False
             ele = False
+        print(f"DEBUG UPDATE | adc{adc}, ele{ele}, celle{celle}")
         self.laod_status(adc, ele, celle)
-    
+        if not ele:
+            if self.elettronica:
+                self.elettronica_false_since = time.time()
+            self.elettronica = False
+            self.check_ele()
+        else:
+            self.elettronica = True
+            self.elettronica_false_since = None
+            self.trigger_warning = False
+
+    def check_ele(self):
+        if self.elettronica_false_since is not None:
+            elapsed_time = time.time() - self.elettronica_false_since
+            print(f"DEBUG CHECK | tempo : {elapsed_time}, warnign {self.trigger_warning}")
+            if elapsed_time > 10:
+                self.trigger_warning = True
+                print("trigger change")
+        
+        
     def effettua_calibrazione(self):
         print(f"avvio calibrazione {self.bilancia.modbusI.address}")
         risult = mg.calib_command(self.peso_calib.value(), self.bilancia.modbusI)

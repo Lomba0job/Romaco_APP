@@ -120,7 +120,7 @@ def tare_command(instrument: modbus.Instrument):
         print(e)
         return -1
     
-def calib_command(weight_kg,  instrument):
+def calib_command(weight_kg,  instrument: modbus.Instrument):
     start_time = time.time()
     weight = int(weight_kg * 1000)
     try:
@@ -159,35 +159,73 @@ def calib_command(weight_kg,  instrument):
         return -1
     
     
-def get_totWeight( instrument):
+def get_totWeight( instrument: modbus.Instrument):
     try:
-        instrument.write_bit(st.COIL_PESO_COMMAND, 1)
+        instrument.write_bit(st.COIL_PESO_COMMAND, 1, functioncode=5)
+        stato = True
+        while stato:
+            modbus.serial.timeout = 0.5
+            ris = instrument.read_bit(st.COIL_LAST_COMMAND_SUCCESS, functioncode=1)
+            if ris == 1:
+                stato = False
         return instrument.read_register(st.HOLDING_PESO_TOT_MS, functioncode=3)*65536 + instrument.read_register(st.HOLDING_PESO_TOT_LS, functioncode=3)
     except:
         return -1
     
-def get_cellWeight( instrument):
+def twos_complement_inverse(x, bits):
+    if bits <= 0:
+        raise ValueError("Number of bits must be greater than 0")
+
+    max_value = 2**bits
+    if x >= max_value:
+        raise ValueError(f"Value out of range for {bits}-bit number")
+    
+    if x < 0:
+        raise ValueError("Input must be a non-negative integer")
+
+    # Check if the number is in the negative range in two's complement
+    if x >= 2**(bits - 1):
+        x -= 2**bits
+
+    return x
+    
+def get_cellWeight( instrument: modbus.Instrument):
     cells = []
     try:
+        modbus.serial.timeout = 1
         b1 = instrument.read_register(st.HOLDING_CELL1_MS, functioncode=3)*65536 + instrument.read_register(st.HOLDING_CELL1_LS, functioncode=3)
         b2 = instrument.read_register(st.HOLDING_CELL2_MS, functioncode=3)*65536 + instrument.read_register(st.HOLDING_CELL2_LS, functioncode=3)
         b3 = instrument.read_register(st.HOLDING_CELL3_MS, functioncode=3)*65536 + instrument.read_register(st.HOLDING_CELL3_LS, functioncode=3)
         b4 = instrument.read_register(st.HOLDING_CELL4_MS, functioncode=3)*65536 + instrument.read_register(st.HOLDING_CELL4_LS, functioncode=3)
-        cells.append(b1)
-        cells.append(b2)
-        cells.append(b3)
-        cells.append(b4)
+        
+        
+        b1_int = twos_complement_inverse(b1, 32)
+        b2_int = twos_complement_inverse(b2, 32)
+        b3_int = twos_complement_inverse(b3, 32)
+        b4_int = twos_complement_inverse(b4, 32)
+        
+        print(f"DEBUG MODBUS API | {b1} -> {b1_int} ")
+        print(f"DEBUG MODBUS API | {b2} -> {b2_int} ")
+        print(f"DEBUG MODBUS API | {b3} -> {b3_int} ")
+        print(f"DEBUG MODBUS API | {b4} -> {b4_int} ")
+        
+        cells.append(b1_int)
+        cells.append(b2_int)
+        cells.append(b3_int)
+        cells.append(b4_int)
+        modbus.serial.timeout = 0.4
         return cells
+        
     except:
         return -1
     
-def get_cells_status(instrument):
+def get_cells_status(instrument: modbus.Instrument):
     try:
         return instrument.read_bit(st.COIL_CELL_STATUS, functioncode=1)
     except:
         return -1
     
-def get_adcs_status(instrument):
+def get_adcs_status(instrument: modbus.Instrument):
     try:
         return instrument.read_bit(st.COIL_ADCS_STATUS, functioncode=1)
     except:

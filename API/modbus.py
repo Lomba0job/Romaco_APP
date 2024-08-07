@@ -2918,6 +2918,48 @@ def _twos_complement(x: int, bits: int = 16) -> int:
     return int(x + 2**bits)
 
 
+def from_twos_complement(x: int, bits: int = 16) -> int:
+    """Calculate the inverse(?) of a two's complement of an integer.
+
+    Args:
+        * x: Input integer.
+        * bits: Number of bits, must be > 0.
+
+    Returns:
+        The inverse(?) of two's complement of the input.
+
+     Example for *bits* = 8:
+
+    === =======
+    x   returns
+    === =======
+    0   0
+    1   1
+    127 127
+    128 -128
+    129 -127
+    255 -1
+    === =======
+    """
+    _check_int(bits, minvalue=0, description="number of bits")
+
+    _check_int(x, description="input")
+    upperlimit = 2 ** (bits) - 1
+    lowerlimit = 0
+    if x > upperlimit or x < lowerlimit:
+        raise ValueError(
+            "The input value is out of range. Given value is "
+            + "{0}, but allowed range is {1} to {2} when using {3} bits.".format(
+                x, lowerlimit, upperlimit, bits
+            )
+        )
+
+    # Calculate inverse(?) of two'2 complement
+    limit = 2 ** (bits - 1) - 1
+    if x <= limit:
+        return x
+    return int(x - 2**bits)
+
 def _from_twos_complement(x: int, bits: int = 16) -> int:
     """Calculate the inverse(?) of a two's complement of an integer.
 

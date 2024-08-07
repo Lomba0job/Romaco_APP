@@ -76,10 +76,12 @@ class MainWindow(QMainWindow):
         self.rubrica_page.initUI()
         self.diagno.update()
         self.change_page(1)  # Passa alla pagina rubrica
+        
+    def disconnect(self):
+        self.lista_bilance = []
+        self.rubrica_page.reinitUI()
 
     def change_page(self, index):
-        
-
         self.state = index
         self.central_widget.setCurrentIndex(index)
         for button, button_index in self.pages.items():

@@ -130,8 +130,14 @@ class DiagnosticWidget(QWidget):
         if len(self.lista_ogg_attivi) != 0:
             for ogg in self.lista_ogg_attivi:
                 ogg.update() 
-        
-        
+                if ogg.trigger_warning:
+                    self.status_thread.timer.stop()
+                    self.status_thread.quit()
+                    self.status_thread.wait()
+                    print("DISTRUTTO")
+
+                    self.master.disconnect()
+                    self.update()
        
     
     def set_background_color(self):
