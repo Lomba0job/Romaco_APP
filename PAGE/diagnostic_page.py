@@ -18,7 +18,11 @@ class StatusUpdateThread(QThread):
     def run(self):
         self.timer.start(self.update_interval)
         self.exec()  # Inizia il loop degli eventi per il thread
-        
+    
+    def stop(self):
+        self.timer.stop()
+        self.quit()
+        self.wait()    
         
 class DiagnosticWidget(QWidget):
 
@@ -131,9 +135,7 @@ class DiagnosticWidget(QWidget):
             for ogg in self.lista_ogg_attivi:
                 ogg.update() 
                 if ogg.trigger_warning:
-                    self.status_thread.timer.stop()
-                    self.status_thread.quit()
-                    self.status_thread.wait()
+                    self.status_thread.stop()
                     print("DISTRUTTO")
 
                     self.master.disconnect()

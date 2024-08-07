@@ -87,6 +87,15 @@ QTextEdit {
     font-size: 17px;
 }
 
+QLineEdit {
+    background-color: #FFFFFF;
+    color: #5D5D5D;
+    border: 1px solid #CCCCCC;
+    border-radius: 4px;
+    padding: 5px;
+    font-size: 17px;
+}
+
 QRadioButton {
     font-size: 22px;
     color: #5D5D5D;

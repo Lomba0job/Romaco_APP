@@ -8,12 +8,14 @@ from PyQt6.QtGui import QPixmap, QAction
 from PAGE import home_page as h, launcher_page as l, salva_peso_page as s, log_page as lo, diagnostic_page as d
 from CMP import navbar as nv
 
+from API import API_db as db
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        db.crea_db()
         self.state = 0
-        self.setWindowTitle("RESPONSE ANALYZE APP")
+        self.setWindowTitle("Sistema ad isola NANOLEVERAPP")
         screen_geometry = QApplication.primaryScreen().geometry()
         self.screen_width = screen_geometry.width()
         self.screen_height = screen_geometry.height()
@@ -65,7 +67,20 @@ class MainWindow(QMainWindow):
         self.navbar.setVisible(False)   #Nascondi La navbar
         self.change_page(0)  # Passa alla pagina rubrica
         
-    def save_call(self):
+    def save_call(self, pesoTot, peso_bilance):
+        if len(peso_bilance) == 1:
+            self.salva_peso.initUI(pesoTot, peso_bilance[0])
+        elif len(peso_bilance) == 2:
+            self.salva_peso.initUI(pesoTot, peso_bilance[0], peso_bilance[1])
+        elif len(peso_bilance) == 3:
+            self.salva_peso.initUI(pesoTot, peso_bilance[0], peso_bilance[1], peso_bilance[2])
+        elif len(peso_bilance) == 4:
+            self.salva_peso.initUI(pesoTot, peso_bilance[0], peso_bilance[1], peso_bilance[2], peso_bilance[3])
+        elif len(peso_bilance) == 5:
+            self.salva_peso.initUI(pesoTot, peso_bilance[0], peso_bilance[1], peso_bilance[2], peso_bilance[3], peso_bilance[4])
+        elif len(peso_bilance) == 6:
+            self.salva_peso.initUI(pesoTot, peso_bilance[0], peso_bilance[1], peso_bilance[2], peso_bilance[3], peso_bilance[4], peso_bilance[5])
+            
         self.navbar.setVisible(False)   #Nascondi La navbar
         self.change_page(2)  # Passa alla pagina rubrica
 

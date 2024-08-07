@@ -35,8 +35,10 @@ def connect_modbus(port, address, baud):
         0: connessione stabilita
         -1: connessione non stabilita
     """
+    instrument = None
     try:
-        instrument = modbus.Instrument(port, address)  # port name, slave address (in decimal)
+        print(f"DEBUG| {port} {address}")
+        instrument = modbus.Instrument(port, address)  # nome porta, indirizzo slave (in decimale)
         instrument.serial.baudrate = baud
         instrument.serial.timeout = 0.3
         instrument.mode = modbus.MODE_RTU
@@ -50,22 +52,24 @@ def connect_modbus(port, address, baud):
     except Exception as e:
         print(f"Errore generico: {e}")
         return -1
+    finally:
+        if instrument is not None:
+            instrument.serial.close()
 
-def test_connection(instrument: modbus.Instrument):
-    instrument.serial.timeout = 0.3
+def test_connection(instrument):
     try:
-        register = instrument.read_register(12 , functioncode=3)  # Legge 15 registri a partire dal registro HOLDING_CELL1_MS
-        
-        connection_dummy = register
-        print(connection_dummy)
         instrument.serial.timeout = 0.3
-        if connection_dummy != 0:
+        register = instrument.read_register(12, functioncode=3)  # Legge registri
+        print(register)
+        if register != 0:
             return 0
         else:
             return -1
     except Exception as e:
         print(f"Errore nel test di connessione: {e}, indirizzo {instrument.address}")
         return -2
+    finally:
+        instrument.serial.close()
 
 def check_address(port, address):
     try:
@@ -79,19 +83,14 @@ def check_address(port, address):
 def scan_modbus_network(port):
     connected_ids = []
     print(port)
-    
-    
     for i in range(1, 8):
-        r = check_address(port=port, address=i)
+        print(i)
+        r = check_address(port, i)
         if r is not None:
             connected_ids.append(r)
-    
-        
     for id in connected_ids:
         print(id)
-    
     return connected_ids
-
 
 
 def tare_command(instrument: modbus.Instrument):

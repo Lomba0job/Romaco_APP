@@ -68,7 +68,8 @@ class Home_Page(QWidget):
     def reinitUI(self):
         self.clearLayout(self.left_layout)
         self.clearLayout(self.fixed_area.layout())
-        
+
+        # Ricrea il contenuto di left_layout senza ricreare il layout stesso
         push_config = QPushButton()
         push_config.setText("ESEGUI LA CONFIGURAZIONE")
         push_config.setObjectName("puls")
@@ -76,10 +77,8 @@ class Home_Page(QWidget):
         self.left_layout.addStretch()
         self.left_layout.addWidget(push_config)
         self.left_layout.addStretch()
-        self.main_layout.addLayout(self.left_layout)
-        
-        # Right side fixed area
-        self.fixed_area = QWidget()
+
+        # Reutilizza la fixed_area esistente
         self.fixed_area.setFixedSize(int(self.master.width() * 0.45), int(self.master.height() * 0.8))
         self.fixed_area.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         
@@ -87,10 +86,9 @@ class Home_Page(QWidget):
         palette.setColor(QPalette.ColorRole.Window, QColor('white'))
         self.fixed_area.setPalette(palette)
         self.fixed_area.setAutoFillBackground(True)
-        
+
         self.main_layout.addWidget(self.fixed_area, alignment=Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
 
-        self.setLayout(self.main_layout)
         self.load_stylesheet()
         
     def clearLayout(self, layout):
@@ -107,7 +105,7 @@ class Home_Page(QWidget):
         # Clear existing widgets from layouts
         self.clearLayout(self.left_layout)
         self.clearLayout(self.fixed_area.layout())
-
+        self.glWidget = None
         print(f"DEBUG HOMEPAGE {len(self.master.lista_bilance)}")
         numero = len(self.master.lista_bilance)
         
@@ -209,6 +207,9 @@ class Home_Page(QWidget):
         self.left_layout.addLayout(h2)
         self.left_layout.addSpacing(int(self.master.screen_height * 0.05))
         self.load_stylesheet()
+        
+        self.pesoTotale = pes
+        self.peso_bilance = lista_pesi
 
 
     
@@ -258,4 +259,4 @@ class Home_Page(QWidget):
             self.finalUI(pesi_bilance)
         
     def salva_f(self):
-        self.master.save_call()
+        self.master.save_call(self.pesoTotale, self.peso_bilance)
