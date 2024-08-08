@@ -180,11 +180,40 @@ class SalvaPesoWidget(QWidget):
         self.clearLayout(self.main_layout)
 
         peso = str(peso / 1000)
+        self.peso_tot = peso
+        
         b1 = str(b1/1000)
-        if b2 != None: b2 = str(b2/1000)
-        if b3 != None: b3 = str(b2/1000)
-        if b4 != None: b4 = str(b2/1000)
-        if b5 != None: b5 = str(b2/1000)
+        self.peso_b1 = b1
+        
+        if b2 != None: 
+            b2 = str(b2/1000)
+            self.peso_b2 = b2 
+        else:
+            self.peso_b2 = 0.0
+            
+        if b3 != None: 
+            b3 = str(b3/1000)
+            self.peso_b3 = b3 
+        else:
+            self.peso_b3 = 0.0
+            
+        if b4 != None: 
+            b4 = str(b4/1000)
+            self.peso_b4 = b4 
+        else:
+            self.peso_b4 = 0.0
+            
+        if b5 != None: 
+            b5 = str(b5/1000)
+            self.peso_b5 = b5
+        else:
+            self.peso_b5 = 0.0
+            
+        if b6 != None: 
+            b6 = str(b6/1000)
+            self.peso_b6 = b6
+        else:
+            self.peso_b6 = 0.0
         
         # Header
         header_layout = QHBoxLayout()
@@ -301,8 +330,8 @@ class SalvaPesoWidget(QWidget):
         description_label.setObjectName("label")
         grid_layout.addWidget(description_label, 8, 0, 1, 3)
 
-        description_input = QTextEdit()
-        grid_layout.addWidget(description_input, 8, 4, 2, 17)
+        self.description_input = QTextEdit()
+        grid_layout.addWidget(self.description_input, 8, 4, 2, 17)
 
         # Priority
         priority_label = QLabel("PRIORITÁ PESATA:")
@@ -310,16 +339,16 @@ class SalvaPesoWidget(QWidget):
         grid_layout.addWidget(priority_label, 11, 0, 1, 3)
 
         priority_layout = QHBoxLayout()
-        test_radio = QRadioButton("TEST")
-        intermediate_radio = QRadioButton("INTERMEDIA")
-        intermediate_radio.setChecked(True)
-        definitive_radio = QRadioButton("DEFINITIVA")
+        self.test_radio = QRadioButton("TEST")
+        self.intermediate_radio = QRadioButton("INTERMEDIA")
+        self.intermediate_radio.setChecked(True)
+        self.definitive_radio = QRadioButton("DEFINITIVA")
 
-        priority_layout.addWidget(test_radio)
+        priority_layout.addWidget(self.test_radio)
         priority_layout.addStretch()
-        priority_layout.addWidget(intermediate_radio)
+        priority_layout.addWidget(self.intermediate_radio)
         priority_layout.addStretch()
-        priority_layout.addWidget(definitive_radio)
+        priority_layout.addWidget(self.definitive_radio)
         
 
         grid_layout.addLayout(priority_layout, 11, 4, 1, 17)
@@ -358,6 +387,8 @@ class SalvaPesoWidget(QWidget):
 
     
     def save(self):
+        nome = self.description_input.toPlainText()
+        self.peso_tot, self.peso_b1, self.peso_b2, self.peso_b3, self.peso_b4, self.peso_b5, self.peso_b6, nome
         print("salva")
         
     def back(self):

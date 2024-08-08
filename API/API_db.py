@@ -21,7 +21,8 @@ def crea_db():
         peso_b6 FLOAT,
         desc TEXT,
         priority INTEGER,
-        data TEXT
+        data TEXT, 
+        name TEXT
     )
     ''')
     
@@ -30,19 +31,19 @@ def crea_db():
     conn.close()
 import sqlite3
 
-def put(peso_tot, b1, b2, b3, b4, b5, b6, desc, prio, data):
+def put(peso_tot, b1, b2, b3, b4, b5, b6, desc, prio, data, nome):
     # Connessione al database (crea il database se non esiste)
     conn = sqlite3.connect(f.get_db())
     
     # Creazione di un cursore per eseguire i comandi SQL
     cursor = conn.cursor()
     
-    Value = (peso_tot, b1, b2, b3, b4, b5, b6, desc, prio, data)
+    Value = (peso_tot, b1, b2, b3, b4, b5, b6, desc, prio, data, nome)
     
     # Inserimento dei dati nella tabella PESATA
     query = '''
-        INSERT INTO PESATA (peso_totale, peso_b1, peso_b2, peso_b3, peso_b4, peso_b5, peso_b6, desc, priority, data)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO PESATA (peso_totale, peso_b1, peso_b2, peso_b3, peso_b4, peso_b5, peso_b6, desc, priority, data, name)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     '''
     
     # Esecuzione della query con i dati
@@ -79,7 +80,7 @@ def get(page_number):
         conn.close()
         
         # Nomi delle colonne come chiavi del dizionario
-        column_names = ['peso_totale', 'peso_b1', 'peso_b2', 'peso_b3', 'peso_b4', 'peso_b5', 'peso_b6', 'desc', 'priority', 'data']
+        column_names = ['peso_totale', 'peso_b1', 'peso_b2', 'peso_b3', 'peso_b4', 'peso_b5', 'peso_b6', 'desc', 'priority', 'data', 'name']
         
         # Conversione delle righe in una lista di dizionari
         results = [dict(zip(column_names, row)) for row in rows]
@@ -113,7 +114,7 @@ def get_priority(page_number, priority):
         conn.close()
         
         # Nomi delle colonne come chiavi del dizionario
-        column_names = ['peso_totale', 'peso_b1', 'peso_b2', 'peso_b3', 'peso_b4', 'peso_b5', 'peso_b6', 'desc', 'priority', 'data']
+        column_names = ['peso_totale', 'peso_b1', 'peso_b2', 'peso_b3', 'peso_b4', 'peso_b5', 'peso_b6', 'desc', 'priority', 'data', 'name']
         
         # Conversione delle righe in una lista di dizionari
         results = [dict(zip(column_names, row)) for row in rows]
