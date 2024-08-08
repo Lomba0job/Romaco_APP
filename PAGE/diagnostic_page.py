@@ -2,7 +2,7 @@ from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QComboBox, QPushButton
 from PyQt6.QtCore import Qt, pyqtSignal, QThread, pyqtSlot, QFile, QTextStream, QPropertyAnimation, QEasingCurve, QParallelAnimationGroup, QTimer, QThread
 from PyQt6.QtGui import QFontDatabase, QPixmap, QPalette, QColor
 
-from API import funzioni as f
+from API import funzioni as f, modbus_generico as mg
 import time
 from CMP import Bilancia_diagno as b, Bilancia_diagno_deactive as bd
 
@@ -42,6 +42,7 @@ class DiagnosticWidget(QWidget):
         v1 = QVBoxLayout()
         push = QPushButton()
         push.setText("ESEGUI LA TARA COMPLETA")
+        push.clicked.connect(self.calib_all)
         push.setObjectName("pls")
         
         
@@ -147,4 +148,12 @@ class DiagnosticWidget(QWidget):
         p.setColor(self.backgroundRole(), QColor.fromRgb(241,241,241))
         self.setPalette(p)
         # Load the stylesheet
-        
+    
+    def calib_all(self):
+        for b in self.master.lista_bilance:
+            print(f"avvio calibrazione {b.modbusI.address}")
+            risult = mg.tare_command(b.modbusI)
+            if risult == 0: 
+                print("all ok")
+            else: 
+                print("error")
