@@ -255,7 +255,7 @@ class Home_Page(QWidget):
                 print(f"DEBUG PESATA check | war {warn}")
                 if not warn:
                     pesi_bilance.append(pesotot)
-        if len(pesi_bilance) != 0:  
+        if len(pesi_bilance) != 0 and len(pesi_bilance) == len(self.master.lista_bilance):  
             self.finalUI(pesi_bilance)
         
     def salva_f(self):

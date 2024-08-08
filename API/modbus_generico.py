@@ -160,6 +160,7 @@ def calib_command(weight_kg,  instrument: modbus.Instrument):
     
 def get_totWeight( instrument: modbus.Instrument):
     try:
+        #time.sleep(0.3)
         instrument.write_bit(st.COIL_PESO_COMMAND, 1, functioncode=5)
         stato = True
         while stato:
@@ -167,7 +168,9 @@ def get_totWeight( instrument: modbus.Instrument):
             ris = instrument.read_bit(st.COIL_LAST_COMMAND_SUCCESS, functioncode=1)
             if ris == 1:
                 stato = False
-        return instrument.read_register(st.HOLDING_PESO_TOT_MS, functioncode=3)*65536 + instrument.read_register(st.HOLDING_PESO_TOT_LS, functioncode=3)
+                
+        peso = twos_complement_inverse(instrument.read_register(st.HOLDING_PESO_TOT_MS, functioncode=3)*65536 + instrument.read_register(st.HOLDING_PESO_TOT_LS, functioncode=3), 32)
+        return peso
     except:
         return -1
     
