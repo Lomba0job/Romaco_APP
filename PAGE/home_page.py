@@ -1,10 +1,41 @@
-from PyQt6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QLabel, QComboBox, QPushButton, QSizePolicy
-from PyQt6.QtCore import Qt, QFile, QTextStream
+from PyQt6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QLabel, QComboBox, QPushButton, QSizePolicy, QProgressBar
+from PyQt6.QtCore import Qt, QFile, QTextStream, QThread, pyqtSignal, pyqtSlot, QTimer
 from PyQt6.QtGui import QColor, QPalette
 
 
 from CMP import rectangle as r
 from API import funzioni as f, modbus_generico as mb
+
+class PesataThread(QThread):
+    pesata_completata = pyqtSignal(list)  # Signal to emit when the pesata is completed
+
+    def __init__(self, master):
+        super().__init__()
+        self.master = master
+
+    def run(self):
+        QThread.msleep(500)  # Aspetta 500 millisecondi prima di iniziare il ciclo di pesatura
+        
+        pesi_bilance = []
+        print(f"DEBUG PESATA | bilance {len(self.master.lista_bilance)}")
+        for b in self.master.lista_bilance:
+            pesotot = mb.get_totWeight(b.modbusI)
+            print(f"DEBUG PESATA | peso TOT {pesotot} {b.modbusI.address}")
+            if pesotot != -1:
+                peso = mb.get_cellWeight(b.modbusI)
+                print(f"DEBUG PESATA check | pesi {peso}")
+                s = peso[0]
+                print(f"DEBUG PESATA check | pesi {peso}, primo {s}")
+                warn = False
+                for p in peso: 
+                    if abs(p-s) > 20000:  # SOTTOCHIAVE IMPOSTAZIONE 
+                        warn = True  # ! AGGIUNGERE ERRORE
+                print(f"DEBUG PESATA check | war {warn}")
+                if not warn:
+                    pesi_bilance.append(pesotot)
+        if len(pesi_bilance) != 0 and len(pesi_bilance) == len(self.master.lista_bilance):  
+            self.pesata_completata.emit(pesi_bilance)  # Emit the signal with the result
+
 class Home_Page(QWidget):
 
     def __init__(self, master):
@@ -17,6 +48,9 @@ class Home_Page(QWidget):
         self.main_layout = None
         self.left_layout = None
         self.config_label = None
+        self.pesata_thread = None  # To hold the reference to the thread
+        self.progress_bar = None  # To hold the reference to the progress bar
+        self.timer = None  # Timer for updating the progress bar
         self.preUI()
         self.setAutoFillBackground(True)
         self.set_background_color()
@@ -238,25 +272,31 @@ class Home_Page(QWidget):
         
         
     def pesata(self):
-        pesi_bilance = []
-        print(f"DEBUG PESATA | bilance {len(self.master.lista_bilance)}")
-        for b in self.master.lista_bilance:
-            pesotot = mb.get_totWeight(b.modbusI)
-            print(f"DEBUG PESATA | peso TOT {pesotot} {b.modbusI.address}")
-            if pesotot != -1:
-                peso = mb.get_cellWeight(b.modbusI)
-                print(f"DEBUG PESATA check | pesi {peso}")
-                s = peso[0]
-                print(f"DEBUG PESATA check | pesi {peso}, primo {s}")
-                warn = False
-                for p in peso: 
-                    if abs(p-s) > 20000: #SOTTOCHIAVE IMPOSTAZIONE 
-                        warn = True #! AGIUNGERE ERRORE
-                print(f"DEBUG PESATA check | war {warn}")
-                if not warn:
-                    pesi_bilance.append(pesotot)
-        if len(pesi_bilance) != 0 and len(pesi_bilance) == len(self.master.lista_bilance):  
-            self.finalUI(pesi_bilance)
+        # Clear the existing UI
+        self.clearLayout(self.left_layout)
+
+        # Create a bouncing progress bar
+        self.progress_bar = QProgressBar(self)
+        self.progress_bar.setRange(0, 0)  # Range 0, 0 makes it an infinite progress bar
+        self.progress_bar.setTextVisible(False)
+        self.left_layout.addStretch()
+        self.left_layout.addWidget(self.progress_bar)
+        self.left_layout.addStretch()
+
+        # Start the thread
+        self.pesata_thread = PesataThread(self.master)
+        self.pesata_thread.pesata_completata.connect(self.on_pesata_completata)
+        self.pesata_thread.start()
+
+    @pyqtSlot(list)
+    def on_pesata_completata(self, pesi_bilance):
+        # Stop the thread and the progress bar
+        self.pesata_thread.quit()
+        self.progress_bar.hide()
+        self.left_layout.removeWidget(self.progress_bar)
+
+        # Display the final UI with the pesata results
+        self.finalUI(pesi_bilance)
         
     def salva_f(self):
         self.master.save_call(self.pesoTotale, self.peso_bilance)

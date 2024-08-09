@@ -2,7 +2,8 @@ from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QCheckBox, QHBox
 from PyQt6.QtGui import QColor, QFont, QPalette
 from PyQt6.QtCore import Qt
 from OBJ import log_ogg as l 
-from API import funzioni as f 
+from API import funzioni as f
+from API import API_db as db  # Importa le funzioni del database
 
 class LogPage(QWidget):
     def __init__(self, master):
@@ -10,6 +11,8 @@ class LogPage(QWidget):
         self.setWindowTitle("Log Page")
         
         self.master = master
+        self.page_number = 1  # Inizia dalla prima pagina
+        
         # Main Layout
         main_layout = QVBoxLayout()
         
@@ -18,7 +21,8 @@ class LogPage(QWidget):
         filters_layout.setContentsMargins(10, 10, 10, 10)
         filters_layout.setSpacing(15)
         
-        # Filter by Date
+        # (Resto del codice per la creazione del layout dei filtri...)
+                # Filter by Date
         date_filter_layout = QVBoxLayout()
         date_label = QLabel("FILTRA PER DATA")
         date_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -94,99 +98,57 @@ class LogPage(QWidget):
         priority_filter_layout.addWidget(priority_label)
         
         priority_buttons_layout = QVBoxLayout()
-        test_radio = QCheckBox("test")
-        test_radio.setChecked(True)
-        intermedio_radio = QCheckBox("intermedio")
-        intermedio_radio.setChecked(True)
-        definitivo_radio = QCheckBox("definitivo")
-        definitivo_radio.setChecked(True)
+        self.test_radio = QCheckBox("test")
+        self.test_radio.setChecked(True)
+        self.intermedio_radio = QCheckBox("intermedio")
+        self.intermedio_radio.setChecked(True)
+        self.definitivo_radio = QCheckBox("definitivo")
+        self.definitivo_radio.setChecked(True)
         
-        priority_buttons_layout.addWidget(test_radio)
-        priority_buttons_layout.addWidget(intermedio_radio)
-        priority_buttons_layout.addWidget(definitivo_radio)
+        priority_buttons_layout.addWidget(self.test_radio)
+        priority_buttons_layout.addWidget(self.intermedio_radio)
+        priority_buttons_layout.addWidget(self.definitivo_radio)
         priority_buttons_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         priority_filter_layout.addLayout(priority_buttons_layout)
         
         priority_filter_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         filters_layout.addLayout(priority_filter_layout)
         filters_layout.addStretch()
-        
+
         # Filter Buttons
         filter_buttons_layout = QVBoxLayout()
-        small_button = QPushButton("RIPRISTINA FILTRI")
-        small_button.setObjectName("smallButton")
-        small_button.setMaximumWidth(150)
-        filter_buttons_layout.addWidget(small_button)
+        reset_button = QPushButton("RIPRISTINA FILTRI")
+        reset_button.setObjectName("smallButton")
+        reset_button.setMaximumWidth(150)
+        reset_button.clicked.connect(self.reset_filters)  # Aggiungi azione per il reset
+        filter_buttons_layout.addWidget(reset_button)
         
-        large_button = QPushButton("CARICA FILTRI")
-        large_button.setObjectName("largeButton")
-        large_button.setMinimumWidth(250)
-        filter_buttons_layout.addWidget(large_button)
+        apply_button = QPushButton("CARICA FILTRI")
+        apply_button.setObjectName("largeButton")
+        apply_button.setMinimumWidth(250)
+        apply_button.clicked.connect(self.load_filtered_data)  # Aggiungi azione per caricare i dati
+        filter_buttons_layout.addWidget(apply_button)
         
         filters_layout.addLayout(filter_buttons_layout)
         
         main_layout.addLayout(filters_layout)
         
         # Scroll Area for Log Entries
-        scroll_area = QScrollArea()
-        scroll_area.setWidgetResizable(True)
-        scroll_widget = QWidget()
-        scroll_widget.setObjectName("wid")
-        scroll_layout = QVBoxLayout(scroll_widget)
-        
-        # Example Log Entries
-        log_entries = [
-            ("12 - 07 - 2024", "136,24", "DEFINTIVA", 2),
-            ("12 - 07 - 2024", "136,24", "INTERMEDIA", 1),
-            ("12 - 07 - 2024", "136,24", "TEST", 0),
-            ("12 - 07 - 2024", "136,24", "INTERMEDIA", 1),
-            ("12 - 07 - 2024", "136,24", "DEFINTIVA", 2),
-            ("12 - 07 - 2024", "136,24", "INTERMEDIA", 1),
-            ("12 - 07 - 2024", "136,24", "TEST", 0),
-            ("12 - 07 - 2024", "136,24", "INTERMEDIA", 1),
-            ("12 - 07 - 2024", "136,24", "DEFINTIVA", 2),
-            ("12 - 07 - 2024", "136,24", "INTERMEDIA", 1),
-            ("12 - 07 - 2024", "136,24", "TEST", 0),
-            ("12 - 07 - 2024", "136,24", "INTERMEDIA", 1),
-            ("12 - 07 - 2024", "136,24", "DEFINTIVA", 2),
-            ("12 - 07 - 2024", "136,24", "INTERMEDIA", 1),
-            ("12 - 07 - 2024", "136,24", "TEST", 0),
-            ("12 - 07 - 2024", "136,24", "INTERMEDIA", 1),
-            ("12 - 07 - 2024", "136,24", "DEFINTIVA", 2),
-            ("12 - 07 - 2024", "136,24", "INTERMEDIA", 1),
-            ("12 - 07 - 2024", "136,24", "TEST", 0),
-            ("12 - 07 - 2024", "136,24", "INTERMEDIA", 1),
-            ("12 - 07 - 2024", "136,24", "DEFINTIVA", 2),
-            ("12 - 07 - 2024", "136,24", "INTERMEDIA", 1),
-            ("12 - 07 - 2024", "136,24", "TEST", 0),
-            ("12 - 07 - 2024", "136,24", "INTERMEDIA", 1),
-            ("12 - 07 - 2024", "136,24", "DEFINTIVA", 2),
-            ("12 - 07 - 2024", "136,24", "INTERMEDIA", 1),
-            ("12 - 07 - 2024", "136,24", "TEST", 0),
-            ("12 - 07 - 2024", "136,24", "INTERMEDIA", 1),
-            ("12 - 07 - 2024", "136,24", "DEFINTIVA", 2),
-            ("12 - 07 - 2024", "136,24", "INTERMEDIA", 1),
-            ("12 - 07 - 2024", "136,24", "TEST", 0),
-            ("12 - 07 - 2024", "136,24", "INTERMEDIA", 1),
-            ("12 - 07 - 2024", "136,24", "DEFINTIVA", 2),
-            ("12 - 07 - 2024", "136,24", "INTERMEDIA", 1),
-            ("12 - 07 - 2024", "136,24", "TEST", 0),
-            ("12 - 07 - 2024", "136,24", "INTERMEDIA", 1),
-        ]
-        
-        for entry in log_entries:
-            log_widget = l.LogEntryWidget(*entry)
-            scroll_layout.addWidget(log_widget)
-        
-        scroll_area.setWidget(scroll_widget)
-        main_layout.addWidget(scroll_area)
-        
+        self.scroll_area = QScrollArea()
+        self.scroll_area.setWidgetResizable(True)
+        self.scroll_widget = QWidget()
+        self.scroll_widget.setObjectName("wid")
+        self.scroll_layout = QVBoxLayout(self.scroll_widget)
+        self.scroll_area.setWidget(self.scroll_widget)
+        main_layout.addWidget(self.scroll_area)
         
         self.setLayout(main_layout)
         
         self.setAutoFillBackground(True)
         self.set_background_color()
         self.load_stylesheet()
+
+        self.load_data()  # Carica i dati iniziali dal database
 
     def set_background_color(self):
         p = self.palette()
@@ -196,3 +158,64 @@ class LogPage(QWidget):
     def load_stylesheet(self):
         with open(f.get_style("log.qss"), "r") as file:
             self.setStyleSheet(file.read())
+
+    def load_data(self):
+        log_entries = db.get(self.page_number)  # Recupera i dati dal database
+        print(log_entries)
+        self.populate_log_entries(log_entries)
+        
+    def load_filtered_data(self):
+        # Qui applichi i filtri e carichi i dati filtrati dal database
+        date_from = f"{self.aad.text()}-{self.mmd.text()}-{self.ggd.text()}"
+        date_to = f"{self.aaa.text()}-{self.mma.text()}-{self.gga.text()}"
+        priority = None  # Aggiungi logica per filtrare per priorità, se necessario
+        
+        # Usa la logica di filtraggio che preferisci, per esempio:
+        log_entries = db.get_filtered(self.page_number, date_from, date_to, priority)
+        self.populate_log_entries(log_entries)
+        
+    def populate_log_entries(self, log_entries):
+        # Rimuove i vecchi widget
+        for i in reversed(range(self.scroll_layout.count())): 
+            widget = self.scroll_layout.itemAt(i).widget()
+            if widget:
+                widget.setParent(None)
+
+        # Aggiunge i nuovi widget
+        for entry in log_entries:
+            date_str = str(entry['data'])  # Converti il valore di data in una stringa
+            print(f"Creating LogEntryWidget with date: {date_str}, peso_totale: {entry['peso_totale']}, name: {entry['name']}, priority: {entry['priority']}")
+           
+            log_widget = l.LogEntryWidget(date=date_str, peso_totale=entry['peso_totale'], name=entry['name'], priority=entry['priority'])
+            self.scroll_layout.addWidget(log_widget)
+            
+    def reset_filters(self):
+        # Resetta tutti i campi dei filtri
+        self.ggd.clear()
+        self.mmd.clear()
+        self.aad.clear()
+        self.gga.clear()
+        self.mma.clear()
+        self.aaa.clear()
+        self.pesod.clear()
+        self.pesoa.clear()
+        # Carica tutti i dati dal database
+        self.load_data()
+        
+    def load_filtered_data(self):
+        # Qui applichi i filtri e carichi i dati filtrati dal database
+        date_from = f"{self.aad.text()}-{self.mmd.text()}-{self.ggd.text()}"
+        date_to = f"{self.aaa.text()}-{self.mma.text()}-{self.gga.text()}"
+        
+        # Filtra per priorità
+        priority = []
+        if self.test_radio.isChecked():
+            priority.append(0)  # Priorità TEST
+        if self.intermedio_radio.isChecked():
+            priority.append(1)  # Priorità INTERMEDIO
+        if self.definitivo_radio.isChecked():
+            priority.append(2)  # Priorità DEFINITIVO
+
+        # Usa la logica di filtraggio per ottenere i dati dal database
+        log_entries = db.get_filtered(self.page_number, date_from, date_to, priority)
+        self.populate_log_entries(log_entries)

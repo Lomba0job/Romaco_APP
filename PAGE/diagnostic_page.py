@@ -14,7 +14,7 @@ class StatusUpdateThread(QThread):
         self.timer = QTimer()
         self.timer.moveToThread(self)
         self.timer.timeout.connect(parent.update_status)
-        self.update_interval = 2000  # 1 secondo
+        self.update_interval = 5000  # 5 secondo
 
     def run(self):
         self.timer.start(self.update_interval)

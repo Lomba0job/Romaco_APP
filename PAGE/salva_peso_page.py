@@ -325,8 +325,8 @@ class SalvaPesoWidget(QWidget):
         front_label.setObjectName("label")
         grid_layout.addWidget(front_label, 6, 0, 1, 3)
 
-        front_combo = QLineEdit()
-        grid_layout.addWidget(front_combo, 6, 4, 1, 4)
+        self.front_combo = QLineEdit()
+        grid_layout.addWidget(self.front_combo, 6, 4, 1, 4)
 
         # Description
         description_label = QLabel("DESCRIZIONE PESATA:")
@@ -390,7 +390,7 @@ class SalvaPesoWidget(QWidget):
 
     
     def save(self):
-        nome = self.description_input.toPlainText()
+        nome = self.front_combo.text()
         decs = self.description_input.toPlainText()
         stato = 0
         if self.test_radio.isChecked():
@@ -414,7 +414,8 @@ class SalvaPesoWidget(QWidget):
             print("error")
         else:
             print("salva")
-            self.master.change_page(1)
+            self.master.change_page(1) 
+            self.master.navbar.setVisible(True)
         
     def back(self):
         self.master.change_page(1)
