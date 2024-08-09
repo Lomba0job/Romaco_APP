@@ -3,7 +3,7 @@ from PyQt6.QtWidgets import (
     QGridLayout, QFrame, QLineEdit
 )
 from PyQt6.QtGui import QPixmap, QColor, QFont
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, pyqtSignal
 import locale
 from datetime import datetime
 
@@ -11,6 +11,8 @@ from datetime import datetime
 from API import funzioni as f, API_db as db
 
 class SalvaPesoWidget(QWidget):
+    peso_salvato = pyqtSignal()  # Signal emitted when the weight is saved
+
     def __init__(self, master):
         super().__init__()
         
@@ -416,6 +418,7 @@ class SalvaPesoWidget(QWidget):
             print("salva")
             self.master.change_page(1) 
             self.master.navbar.setVisible(True)
+            self.peso_salvato.emit()
         
     def back(self):
         self.master.change_page(1)
