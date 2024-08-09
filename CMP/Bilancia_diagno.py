@@ -161,6 +161,22 @@ class Bilancia(QWidget):
             self.stato_celle_valore.setText("NOT OK")
             self.stato_celle_valore.setObjectName("stato_value_not")
         self.load_stylesheet()
+        
+    def get_status(self):
+        if self.stato_adc_valore.text() == "OK":
+            adc = True
+        else:
+            adc = False
+        if self.stato_elet_valore.text() == "OK":
+            ele = True
+        else:
+            ele = False
+        if self.stato_celle_valore.text() == "OK":
+            cell = True
+        else:
+            cell = False
+            
+        return adc, ele, cell
             
     def update(self):
         ele = True
@@ -181,8 +197,13 @@ class Bilancia(QWidget):
         else: 
             celle = False
             ele = False
-        print(f"DEBUG UPDATE | adc{adc}, ele{ele}, celle{celle}")
-        self.laod_status(adc, ele, celle)
+        
+        adc_v, ele_v, cel_v = self.get_status()
+        if adc_v != adc or ele_v != ele or celle != cel_v: 
+            print(f"DEBUG UPDATE | adc{adc}, ele{ele}, celle{celle}")
+
+            self.laod_status(adc, ele, celle)
+            
         if not ele:
             if self.elettronica:
                 self.elettronica_false_since = time.time()

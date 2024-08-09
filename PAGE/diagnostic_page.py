@@ -13,7 +13,7 @@ class StatusUpdateThread(QThread):
         super().__init__(parent)
         self.timer = QTimer()
         self.timer.moveToThread(self)
-        self.timer.timeout.connect(self.emit_update_status)
+        self.timer.timeout.connect(parent.update_status)
         self.update_interval = 2000  # 1 secondo
 
     def run(self):
@@ -24,6 +24,8 @@ class StatusUpdateThread(QThread):
         self.timer.stop()
         self.quit()
         self.wait()    
+
+
         
 class DiagnosticWidget(QWidget):
 
@@ -83,9 +85,8 @@ class DiagnosticWidget(QWidget):
         
          # Inizializza il thread di aggiornamento dello stato
         self.status_thread = StatusUpdateThread(parent=self)
-        self.status_thread.status_updated.connect(self.update_status)  # Collegare il segnale al metodo di aggiornamento della UI
-        self.status_thread.start()
-
+        #self.status_thread.status_updated.connect(self.update_status)  # Collegare il segnale al metodo di aggiornamento della UI
+        
         
     def clearLayout(self, layout):
         if layout is not None:
@@ -104,6 +105,9 @@ class DiagnosticWidget(QWidget):
         self.clearLayout(current_layout)  # Pulisci il layout corrente
         # self.setLayout(None)  # Rimuovi il layout precedente dal widget
         self.UI()  # Ricrea l'interfaccia utente
+        if not self.status_thread.isRunning() and len(self.master.lista_bilance) > 0:
+            self.status_thread.start()
+
 
 
     def UI(self):
