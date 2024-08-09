@@ -8,11 +8,12 @@ from CMP import Bilancia_diagno as b, Bilancia_diagno_deactive as bd
 
 
 class StatusUpdateThread(QThread):
+    status_updated = pyqtSignal()  # Segnale per aggiornare la UI
     def __init__(self, parent=None):
         super().__init__(parent)
         self.timer = QTimer()
         self.timer.moveToThread(self)
-        self.timer.timeout.connect(parent.update_status)
+        self.timer.timeout.connect(self.emit_update_status)
         self.update_interval = 2000  # 1 secondo
 
     def run(self):
@@ -82,6 +83,7 @@ class DiagnosticWidget(QWidget):
         
          # Inizializza il thread di aggiornamento dello stato
         self.status_thread = StatusUpdateThread(parent=self)
+        self.status_thread.status_updated.connect(self.update_status)  # Collegare il segnale al metodo di aggiornamento della UI
         self.status_thread.start()
 
         

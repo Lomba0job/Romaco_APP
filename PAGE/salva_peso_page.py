@@ -4,6 +4,9 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtGui import QPixmap, QColor, QFont
 from PyQt6.QtCore import Qt
+import locale
+from datetime import datetime
+
 
 from API import funzioni as f, API_db as db
 
@@ -388,8 +391,30 @@ class SalvaPesoWidget(QWidget):
     
     def save(self):
         nome = self.description_input.toPlainText()
-        self.peso_tot, self.peso_b1, self.peso_b2, self.peso_b3, self.peso_b4, self.peso_b5, self.peso_b6, nome
-        print("salva")
+        decs = self.description_input.toPlainText()
+        stato = 0
+        if self.test_radio.isChecked():
+            stato = 0
+        elif self.intermediate_radio.isChecked():
+            stato = 1
+        elif self.definitive_radio.isChecked():
+            stato = 2
+            
+        # Ottieni la data odierna
+        oggi = datetime.now()
+
+        # Formatala secondo la lingua di sistema
+        data_formattata = oggi.strftime('%d-%m-%Y')
+
+        print("Data odierna:", data_formattata)
+
+        self.peso_tot, self.peso_b1, self.peso_b2, self.peso_b3, self.peso_b4, self.peso_b5, self.peso_b6, nome, decs, stato, data_formattata
+        ris = db.put(peso_tot=self.peso_tot, b1=self.peso_b1, b2=self.peso_b2, b3=self.peso_b3, b4=self.peso_b4, b5=self.peso_b5, b6=self.peso_b6, desc=decs, prio=stato, data=data_formattata, nome=nome)
+        if ris == 1:
+            print("error")
+        else:
+            print("salva")
+            self.master.change_page(1)
         
     def back(self):
         self.master.change_page(1)
