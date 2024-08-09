@@ -6,9 +6,31 @@ QLabel#numero {
     color: #e74c3c;
     font-weight: bold;
 }
+<<<<<<< HEAD
+
+QLabel#numero_basso {
+    background-color: #ffffff;
+    font-size: 60px;
+    color: #e07468;
+    font-weight: bold;
+}
+
+QLabel#no {
+    background-color: #ffffff;
+    font-size: 25px;
+    color: #e74c3c;
+    font-weight: bold;
+}
+
+
+QLabel#bilancia {
+    background-color: #ffffff;
+    font-size: 25px;
+=======
 QLabel#bilancia {
     background-color: #ffffff;
     font-size: 30px;
+>>>>>>> origin/master
     color: #7f8c8d;
 }
 QLabel#stato_label {
@@ -16,12 +38,27 @@ QLabel#stato_label {
     font-size: 16px;
     color: #7f8c8d;
 }
+<<<<<<< HEAD
+QLabel#stato_value_ok {
+=======
 QLabel#stato_value {
+>>>>>>> origin/master
     background-color: #ffffff;
     font-size: 16px;
     font-weight: bold;
     color: #27ae60;
 }
+<<<<<<< HEAD
+
+QLabel#stato_value_not {
+    background-color: #ffffff;
+    font-size: 16px;
+    font-weight: bold;
+    color: #e74c3c;
+}
+
+=======
+>>>>>>> origin/master
 QPushButton#tara, QPushButton#calibrazione {
 
     background-color: #ecf0f1;
@@ -31,6 +68,20 @@ QPushButton#tara, QPushButton#calibrazione {
     font-size: 25px;
     padding: 10px;
 }
+<<<<<<< HEAD
+
+QPushButton#tara_bassa, QPushButton#calibrazione_bassa {
+
+    background-color: #ffffff;
+    border: 1px solid #bdc3c7;
+    border-radius: 4px;
+    color: #c9c9c9;
+    font-size: 25px;
+    padding: 10px;
+}
+
+=======
+>>>>>>> origin/master
 QLabel#indice {
     background-color: #ffffff;
     color: #7f8c8d;

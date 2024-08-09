@@ -1,34 +1,41 @@
 # Project Structure
 
-spam_mail/
-| requirements.txt
+romaco_APP/
 | README.md
-| .gitignore
-| struct.txt
-| struct_db.txt
 | main.py
 |
 |-- API/
-
+|   |-- API_db.py
+|   |-- funzioni.py
+|   |-- modbus_generico.py
+|   |-- modbus_unico.py 
+|   |-- modbus.py 
 |
 |-- OBJ/
-
+|   |-- bilancia.py
+|   |-- log_ogg.py
 |
 |-- CMP/
 |   |-- navbar.py
+|   |-- Bilancia_diagno.py
+|   |-- Bilancia_diagno_deactive.py
+|   |-- rectangle.py
 |
 |-- risorse/
 |   |-- resources_rc.py
 |   |-- resources.qrc
 |
 |-- PAGE/
+|   |-- diagnostic_page.py
+|   |-- graph_page.py
+|   |-- home_page.py
+|   |-- launcher_page.py
+|   |-- log_page.py
+|   |-- salva_peso_page.py
 |
 |-- data/
-|   |-- bin/
-|   |   |-- impostazioni.txt
 |
 |-- ico/
-|   |-- tante foto .png
 |
 |-- spec/
 |   |-- main_linux.spec

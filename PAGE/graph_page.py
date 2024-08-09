@@ -11,12 +11,12 @@ class Graph_page(QWidget):
         w = QHBoxLayout()
         self.mast = master
         self.mast.setWindowTitle("Graph_page")
-        self.glWidget = r.GLWidget(num_rectangles=6)
+        self.glWidget = r.VTKWidget(num_rectangles=6)
         
         w.addWidget(self.glWidget)
         
         self.setLayout(w)
 
     def openDialog(self, rect_index):
-        dialog = r.RectDialog(self)
+        dialog = r.VTKWidget(self)
         dialog.exec()

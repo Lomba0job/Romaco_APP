@@ -4,7 +4,9 @@ from PyQt6.QtGui import QColor, QFont, QPalette
 from API import funzioni as f
 
 class LogEntryWidget(QWidget):
-    def __init__(self, date, weight, priority, priority_level):
+    def __init__(self, date, peso_totale, name, priority, parent=None):
+        date_str = str(date)  # Assicurati che date sia una stringa
+        print(f"{date}, {peso_totale}, {name}, {priority}")
         super().__init__()
         self.setFixedHeight(40)
         self.setContentsMargins(0, 0, 0, 0)
@@ -24,7 +26,7 @@ class LogEntryWidget(QWidget):
         content_layout.addWidget(date_label)
         content_layout.addSpacing(10)
         
-        date_value = QLabel(date)
+        date_value = QLabel(date_str)
         date_value.setObjectName("value")
         content_layout.addWidget(date_value)
         
@@ -36,20 +38,20 @@ class LogEntryWidget(QWidget):
         content_layout.addWidget(weight_label)
         content_layout.addSpacing(10)
         
-        weight_value = QLabel(weight)
+        weight_value = QLabel(str(peso_totale))
         weight_value.setObjectName("value")
         content_layout.addWidget(weight_value)
         
         content_layout.addStretch()
         
         # PRIORITÁ Label and Value
-        priority_label = QLabel("PRIORITÁ:")
+        priority_label = QLabel("NOME:")
         priority_label.setObjectName("label")
         content_layout.addWidget(priority_label)
         content_layout.addSpacing(10)
         
-        priority_value = QLabel(priority)
-        self.set_fixed_length_text(priority_value, priority, 20)
+        priority_value = QLabel(name)
+        self.set_fixed_length_text(priority_value, name, 25)
         priority_value.setObjectName("value")
         priority_value.setMinimumWidth(120)
         priority_value.setMaximumWidth(120)
@@ -68,7 +70,7 @@ class LogEntryWidget(QWidget):
         self.setLayout(layout)
         self.setAutoFillBackground(True)
         self.set_background_color(QColor(255, 255, 255))
-        self.set_priority_color(color_widget, priority_level)
+        self.set_priority_color(color_widget, priority)
     
     
     def set_priority_color(self, widget, priority_level):
