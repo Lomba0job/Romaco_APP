@@ -1,6 +1,8 @@
 import threading
 from API import modbus
+from queue import Queue
 import serial
+import functools
 import concurrent.futures
 import time
 
@@ -11,8 +13,25 @@ from API import modbus_strutture as st
 # Durata timeout
 timeout_duration = 10
 
-# Crea un oggetto Lock per garantire la mutua esclusione
+# Mantieni il lock esistente
 _modbus_lock = threading.Lock()
+
+# Crea una coda per le richieste in sospeso
+_request_queue = Queue()
+
+# Crea un ThreadPoolExecutor per gestire le richieste
+_thread_pool = concurrent.futures.ThreadPoolExecutor(max_workers=5)
+
+def async_modbus_operation(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        future = _thread_pool.submit(_execute_modbus_operation, func, *args, **kwargs)
+        return future
+    return wrapper
+
+def _execute_modbus_operation(func, *args, **kwargs):
+    with _modbus_lock:
+        return func(*args, **kwargs)
 
 def configure(port, list_add):
     """
@@ -136,6 +155,7 @@ def scan_modbus_network(port):
         print(id)
     return connected_ids
 
+@async_modbus_operation
 def tare_command(instrument: modbus.Instrument):
     """
     Invia il comando di tara al dispositivo Modbus e attende il completamento.
@@ -170,7 +190,8 @@ def tare_command(instrument: modbus.Instrument):
     except Exception as e:
         print(e)
         return -1
-    
+   
+@async_modbus_operation 
 def calib_command(weight_kg, instrument: modbus.Instrument):
     """
     Esegue il comando di calibrazione impostando un peso specifico e attende il completamento.
@@ -221,7 +242,7 @@ def calib_command(weight_kg, instrument: modbus.Instrument):
         return -1
 
     
-    
+@async_modbus_operation    
 def get_totWeight(instrument: modbus.Instrument):
     """
     Ottiene il peso totale dal dispositivo Modbus.
@@ -272,7 +293,7 @@ def twos_complement_inverse(x, bits):
 
     return x
     
-    
+@async_modbus_operation   
 def get_cellWeight(instrument: modbus.Instrument):
     """
     Ottiene i pesi delle celle dal dispositivo Modbus.    
@@ -323,7 +344,8 @@ def get_cells_status(instrument: modbus.Instrument):
             return instrument.read_bit(st.COIL_CELL_STATUS, functioncode=1)
     except:
         return -1
-    
+
+@async_modbus_operation  
 def get_adcs_status(instrument: modbus.Instrument):
     """
     Ottiene lo stato degli ADC dal dispositivo Modbus.
