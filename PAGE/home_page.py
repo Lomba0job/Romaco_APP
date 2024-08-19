@@ -2,11 +2,11 @@ import concurrent.futures
 from PyQt6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QLabel, QComboBox, QPushButton, QSizePolicy, QProgressBar
 from PyQt6.QtCore import Qt, QFile, QTextStream, QThread, pyqtSignal, pyqtSlot, QTimer
 from PyQt6.QtGui import QColor, QPalette
+import time 
 
 
 from CMP import rectangle as r
 from API import funzioni as f, modbus_generico as mb
-
 class PesataThread(QThread):
     pesata_completata = pyqtSignal(list)  # Signal to emit when the pesata is completed
 
@@ -15,17 +15,22 @@ class PesataThread(QThread):
         self.master = master
 
     def run(self):
+        start_time = time.time()
         QThread.msleep(500)  # Aspetta 500 millisecondi prima di iniziare il ciclo di pesatura
 
         pesi_bilance = []
         print(f"DEBUG PESATA | bilance {len(self.master.lista_bilance)}")
 
         def get_weight_for_bilancia(bilancia):
+            start_bilancia_time = time.time()
+
             pesotot = mb.get_totWeight(bilancia.modbusI)
-            print(f"DEBUG PESATA | peso TOT {pesotot} {bilancia.modbusI.address}")
+            end_peso_tot = time.time()
+            print(f"DEBUG PESATA | peso TOT {pesotot} {bilancia.modbusI.address}  completed in {end_peso_tot - start_bilancia_time:.4f} seconds ")
             if pesotot != -1:
                 peso = mb.get_cellWeight(bilancia.modbusI)
-                print(f"DEBUG PESATA check | pesi {peso}")
+                end_cell_time = time.time()
+                print(f"DEBUG PESATA check | pesi {peso} completed in {end_cell_time - start_bilancia_time:.4f} seconds ")
                 s = peso[0]
                 print(f"DEBUG PESATA check | pesi {peso}, primo {s}")
                 warn = False
@@ -34,7 +39,11 @@ class PesataThread(QThread):
                         warn = True  # ! AGGIUNGERE ERRORE
                 print(f"DEBUG PESATA check | war {warn}")
                 if not warn:
+                    end_bilancia_time = time.time()
+                    print(f"DEBUG PESATA TIME | Bilancia {bilancia.modbusI.address} completed in {end_bilancia_time - start_bilancia_time:.4f} seconds")
                     return pesotot
+            end_bilancia_time = time.time()
+            print(f"DEBUG PESATA TIME | Bilancia {bilancia.modbusI.address} completed in {end_bilancia_time - start_bilancia_time:.4f} seconds (failed or warning)")
             return None
 
         with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -44,6 +53,9 @@ class PesataThread(QThread):
                 result = future.result()
                 if result is not None:
                     pesi_bilance.append(result)
+
+        end_time = time.time()
+        print(f"DEBUG PESATA TIME | Total pesata process completed in {end_time - start_time:.4f} seconds")
 
         self.pesata_completata.emit(pesi_bilance)  # Emit the signal with the result
 class Home_Page(QWidget):

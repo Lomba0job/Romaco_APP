@@ -1,54 +1,37 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QComboBox, QPushButton, QMessageBox, QFormLayout, QProgressBar, QHBoxLayout, QGroupBox, QGraphicsEffect
-from PyQt6.QtCore import Qt, pyqtSignal, QThread, pyqtSlot, QFile, QTextStream, QPropertyAnimation, QEasingCurve, QParallelAnimationGroup, QTimer, QThread
+from PyQt6.QtCore import Qt, pyqtSignal, QThreadPool, QRunnable, pyqtSlot, QMetaObject, Qt, QTimer
 from PyQt6.QtGui import QFontDatabase, QPixmap, QPalette, QColor
 
 from API import funzioni as f, modbus_generico as mg
 import time
 from CMP import Bilancia_diagno as b, Bilancia_diagno_deactive as bd
 
+class StatusUpdateTask(QRunnable):
+    def __init__(self, widget):
+        super().__init__()
+        self.widget = widget
 
-class StatusUpdateThread(QThread):
-    status_updated = pyqtSignal()  # Segnale per aggiornare la UI
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.timer = QTimer()
-        self.timer.moveToThread(self)
-        self.timer.timeout.connect(parent.update_status)
-        self.update_interval = 5000  # 5 secondo
-
+    @pyqtSlot()
     def run(self):
-        self.timer.start(self.update_interval)
-        self.exec()  # Inizia il loop degli eventi per il thread
-    
-    def stop(self):
-        self.timer.stop()
-        self.quit()
-        self.wait()    
+        self.widget.update_status()
 
-
-        
 class DiagnosticWidget(QWidget):
-
-   
     def __init__(self, master):
         super().__init__()
         self.master = master
-        # Set the window title
         self.setWindowTitle("Diagnostica")
         self.setWindowTitle("RESPONSE ANALYZE APP")
         
-        self.screen_width =  self.master.screen_width 
+        self.screen_width = self.master.screen_width 
         self.screen_height = self.master.screen_height
         self.main_layout = QHBoxLayout()
         self.main_layout.setSpacing(0)
         self.UI()
+        
         v1 = QVBoxLayout()
-        push = QPushButton()
-        push.setText("ESEGUI LA TARA COMPLETA")
+        push = QPushButton("ESEGUI LA TARA COMPLETA")
         push.clicked.connect(self.calib_all)
         push.setObjectName("pls")
-        
-        
         push.setMinimumWidth(int(self.screen_width * 0.5))
         push.setMaximumWidth(int(self.screen_width * 0.5))
         push.setMinimumHeight(int(self.screen_height * 0.1))
@@ -62,15 +45,15 @@ class DiagnosticWidget(QWidget):
         v1.addSpacing(70)
         v1.addLayout(h0)
         v1.addStretch()
-        v1.setContentsMargins(0,0,0,0)
+        v1.setContentsMargins(0, 0, 0, 0)
         v1.addLayout(self.main_layout)
         v1.addSpacing(10)
         self.setStyleSheet("""
-            QWidget#bil{
+            QWidget#bil {
                 border: 1px solid grey;
                 border-radius: 9px;
             }
-            QPushButton#pls{
+            QPushButton#pls {
                 border: 1px solid grey;
                 background-color: #FFFFFF;
                 color: #FD6363;
@@ -79,15 +62,12 @@ class DiagnosticWidget(QWidget):
             }
         """)
         self.setLayout(v1)
-       
         self.setAutoFillBackground(True)
         self.set_background_color()
         
-         # Inizializza il thread di aggiornamento dello stato
-        self.status_thread = StatusUpdateThread(parent=self)
-        #self.status_thread.status_updated.connect(self.update_status)  # Collegare il segnale al metodo di aggiornamento della UI
-        
-        
+        # Inizializza il thread pool
+        self.thread_pool = QThreadPool()
+
     def clearLayout(self, layout):
         if layout is not None:
             while layout.count():
@@ -101,18 +81,13 @@ class DiagnosticWidget(QWidget):
                         self.clearLayout(sub_layout)
 
     def update(self):
-        current_layout = self.main_layout  # Ottieni il layout corrente del widget
-        self.clearLayout(current_layout)  # Pulisci il layout corrente
-        # self.setLayout(None)  # Rimuovi il layout precedente dal widget
-        self.UI()  # Ricrea l'interfaccia utente
-        if not self.status_thread.isRunning() and len(self.master.lista_bilance) > 0:
-            self.status_thread.start()
-
-
+        current_layout = self.main_layout
+        self.clearLayout(current_layout)
+        self.UI()
+        if len(self.master.lista_bilance) > 0:
+            self.start_status_update()
 
     def UI(self):
-        # Set the central widget
-        # Create and add 6 instances of Home_Page
         self.lista_ogg_attivi = []
         print(f"DEBUG DIAGNO| {len(self.master.lista_bilance)}")
         for i in range(1, 7):
@@ -128,33 +103,30 @@ class DiagnosticWidget(QWidget):
             l0 = QHBoxLayout()
             l0.setSpacing(0)
             l0.addWidget(home_page)
-            l0.setContentsMargins(2,2,2,2)
+            l0.setContentsMargins(2, 2, 2, 2)
             raggruppa.setLayout(l0)
-            
-            
             raggruppa.setObjectName("bil")
-            raggruppa.setContentsMargins(1,1,1,1)
-            
+            raggruppa.setContentsMargins(1, 1, 1, 1)
             self.main_layout.addWidget(raggruppa)
             
+    def start_status_update(self):
+        task = StatusUpdateTask(self)
+        self.thread_pool.start(task)
+
     def update_status(self):
         if len(self.lista_ogg_attivi) != 0:
             for ogg in self.lista_ogg_attivi:
-                ogg.update() 
+                QMetaObject.invokeMethod(ogg, "update", Qt.QueuedConnection)
                 if ogg.trigger_warning:
-                    self.status_thread.stop()
                     print("DISTRUTTO")
-
-                    self.master.disconnect()
+                    QMetaObject.invokeMethod(self.master, "disconnect", Qt.QueuedConnection)
                     self.update()
-       
-    
+
     def set_background_color(self):
         p = self.palette()
-        p.setColor(self.backgroundRole(), QColor.fromRgb(241,241,241))
+        p.setColor(self.backgroundRole(), QColor.fromRgb(241, 241, 241))
         self.setPalette(p)
-        # Load the stylesheet
-    
+
     def calib_all(self):
         for b in self.master.lista_bilance:
             print(f"avvio calibrazione {b.modbusI.address}")
