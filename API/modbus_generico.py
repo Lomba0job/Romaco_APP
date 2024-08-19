@@ -219,6 +219,8 @@ def calib_command(weight_kg, instrument: modbus.Instrument):
     except Exception as e:
         print(e)
         return -1
+
+    
     
 def get_totWeight(instrument: modbus.Instrument):
     """
@@ -235,7 +237,7 @@ def get_totWeight(instrument: modbus.Instrument):
             instrument.write_bit(st.COIL_PESO_COMMAND, 1, functioncode=5)
             stato = True
             while stato:
-                modbus.serial.timeout = 0.5
+                modbus.serial.timeout = 0.2
                 ris = instrument.read_bit(st.COIL_LAST_COMMAND_SUCCESS, functioncode=1)
                 if ris == 1:
                     stato = False
@@ -284,28 +286,26 @@ def get_cellWeight(instrument: modbus.Instrument):
     cells = []
     try:
         with _modbus_lock:
-            modbus.serial.timeout = 1
+            modbus.serial.timeout = 0.2
             b1 = instrument.read_register(st.HOLDING_CELL1_MS, functioncode=3)*65536 + instrument.read_register(st.HOLDING_CELL1_LS, functioncode=3)
             b2 = instrument.read_register(st.HOLDING_CELL2_MS, functioncode=3)*65536 + instrument.read_register(st.HOLDING_CELL2_LS, functioncode=3)
             b3 = instrument.read_register(st.HOLDING_CELL3_MS, functioncode=3)*65536 + instrument.read_register(st.HOLDING_CELL3_LS, functioncode=3)
             b4 = instrument.read_register(st.HOLDING_CELL4_MS, functioncode=3)*65536 + instrument.read_register(st.HOLDING_CELL4_LS, functioncode=3)
 
-            b1_int = twos_complement_inverse(b1, 32)
-            b2_int = twos_complement_inverse(b2, 32)
-            b3_int = twos_complement_inverse(b3, 32)
-            b4_int = twos_complement_inverse(b4, 32)
-
-            print(f"DEBUG MODBUS API | {b1} -> {b1_int} ")
-            print(f"DEBUG MODBUS API | {b2} -> {b2_int} ")
-            print(f"DEBUG MODBUS API | {b3} -> {b3_int} ")
-            print(f"DEBUG MODBUS API | {b4} -> {b4_int} ")
-
-            cells.append(b1_int)
-            cells.append(b2_int)
-            cells.append(b3_int)
-            cells.append(b4_int)
-            modbus.serial.timeout = 0.4
-            return cells
+        b1_int = twos_complement_inverse(b1, 32)
+        b2_int = twos_complement_inverse(b2, 32)
+        b3_int = twos_complement_inverse(b3, 32)
+        b4_int = twos_complement_inverse(b4, 32)
+        print(f"DEBUG MODBUS API | {b1} -> {b1_int} ")
+        print(f"DEBUG MODBUS API | {b2} -> {b2_int} ")
+        print(f"DEBUG MODBUS API | {b3} -> {b3_int} ")
+        print(f"DEBUG MODBUS API | {b4} -> {b4_int} ")
+        cells.append(b1_int)
+        cells.append(b2_int)
+        cells.append(b3_int)
+        cells.append(b4_int)
+        modbus.serial.timeout = 0.2
+        return cells
     except:
         return -1
 
