@@ -10,150 +10,57 @@ from OBJ import bilancia as b
 from API import modbus
 from API import modbus_strutture as st
 
+
+from concurrent.futures import ThreadPoolExecutor
+
+class QueueProcessor:
+    def __init__(self):
+        self.executor = ThreadPoolExecutor(max_workers=4)  # Puoi regolare il numero di worker in base alle tue esigenze
+        self.lock = threading.Lock()
+    
+    def submit_task(self, func, *args, **kwargs):
+        future = self.executor.submit(func, *args, **kwargs)
+        future.add_done_callback(self.handle_task_completion)
+        return future
+
+    def handle_task_completion(self, future):
+        try:
+            result = future.result()
+            print(f"Task completato con risultato: {result}")
+        except Exception as e:
+            print(f"Errore durante l'esecuzione del task: {e}")
+
+    def shutdown(self):
+        self.executor.shutdown(wait=True)
+
 # Durata timeout
 timeout_duration = 10
 
 # Mantieni il lock esistente
 _modbus_lock = threading.Lock()
 
-# Crea una coda per le richieste in sospeso
-_request_queue = Queue()
-
-# Crea un ThreadPoolExecutor per gestire le richieste
-_thread_pool = concurrent.futures.ThreadPoolExecutor(max_workers=5)
+_queue_processor = QueueProcessor()
 
 def async_modbus_operation(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        future = _thread_pool.submit(_execute_modbus_operation, func, *args, **kwargs)
+        future = None
+        try:
+            print(f"DEBUG DECORATOR | {func.__name__} chiamato con args: {args}, kwargs: {kwargs}")
+            # Usa QueueProcessor per inviare il task
+            future = _queue_processor.submit_task(func, *args, **kwargs)
+            print(f"DEBUG DECORATOR | {func.__name__} messo in coda con Future: {future}")
+        except Exception as e:
+            print(f"ERROR DECORATOR | Errore nel mettere in coda {func.__name__}: {str(e)}")
+            if future:
+                future.set_exception(e)
+            return None
         return future
     return wrapper
 
-def _execute_modbus_operation(func, *args, **kwargs):
-    with _modbus_lock:
-        return func(*args, **kwargs)
+queue_lock = threading.Lock()
 
-def configure(port, list_add):
-    """
-    Configura e inizializza una lista di bilance collegate via Modbus.
 
-    Args:
-        port (str): La porta seriale a cui sono collegate le bilance.
-        list_add (list): Lista di indirizzi Modbus delle bilance.
-
-    Returns:
-        list: Una lista di oggetti Bilancia configurati.
-    """
-    lista_bilance = []
-    for add in list_add:
-        print(f"Inizializzando ID {add}")
-        instrument = modbus.Instrument(port, add)
-        instrument.serial.baudrate = 9600
-        instrument.serial.timeout = 0.5
-        ogg = b.Bilancia(instrument)
-        ogg.set_coil_config()
-        lista_bilance.append(ogg)
-    
-    print(f"Bilance create {len(list_add)} / {len(lista_bilance)}")
-    return lista_bilance
-
-def connect_modbus(port, address, baud):
-    """
-    Stabilisce una connessione Modbus con un dispositivo.
-
-    Args:
-        port (str): La porta seriale.
-        address (int): L'indirizzo del dispositivo Modbus.
-        baud (int): Il baud rate per la connessione.
-
-    Returns:
-        int: 0 se la connessione è stabilita correttamente, -1 in caso di errore.
-    """
-    instrument = None
-    try:
-        print(f"DEBUG| {port} {address}")
-        instrument = modbus.Instrument(port, address)  # Nome porta, indirizzo slave (in decimale)
-        instrument.serial.baudrate = baud
-        instrument.serial.timeout = 0.3
-        instrument.mode = modbus.MODE_RTU
-        if test_connection(instrument) == 0:
-            return 0
-        else:
-            return -1
-    except serial.SerialException as e:
-        print(f"Errore di connessione seriale: {e}")
-        return -1
-    except Exception as e:
-        print(f"Errore generico: {e}")
-        return -1
-    finally:
-        if instrument is not None:
-            instrument.serial.close()
-
-def test_connection(instrument):
-    """
-    Testa la connessione con un dispositivo Modbus leggendo un registro.
-
-    Args:
-        instrument (modbus.Instrument): Il dispositivo Modbus da testare.
-
-    Returns:
-        int: 0 se il test ha successo, -1 o -2 in caso di errore.
-    """
-    try:
-        with _modbus_lock:
-            instrument.serial.timeout = 0.3
-            register = instrument.read_register(12, functioncode=3)  # Legge registri
-            print(register)
-            if register != 0:
-                return 0
-            else:
-                return -1
-    except Exception as e:
-        print(f"Errore nel test di connessione: {e}, indirizzo {instrument.address}")
-        return -2
-    finally:
-        instrument.serial.close()
-
-def check_address(port, address):
-    """
-    Controlla se un dispositivo Modbus è presente all'indirizzo specificato.
-
-    Args:
-        port (str): La porta seriale.
-        address (int): L'indirizzo Modbus da controllare.
-
-    Returns:
-        int: L'indirizzo se il dispositivo risponde, None altrimenti.
-    """
-    try:
-        response = connect_modbus(port, address, 9600)
-        if response == 0:
-            return address
-    except Exception as e:
-        print(f"Errore di comunicazione Modbus con ID {address}: {e}")
-    return None
-
-def scan_modbus_network(port):
-    """
-    Scansiona una rete Modbus per identificare dispositivi attivi.
-
-    Args:
-        port (str): La porta seriale da scansionare.
-
-    Returns:
-        list: Una lista di ID Modbus di dispositivi attivi.
-    """
-    connected_ids = []
-    print(port)
-    for i in range(1, 8):
-        print(i)
-        r = check_address(port, i)
-        if r is not None:
-            connected_ids.append(r)
-    for id in connected_ids:
-        print(id)
-    return connected_ids
 
 @async_modbus_operation
 def tare_command(instrument: modbus.Instrument):
@@ -330,6 +237,7 @@ def get_cellWeight(instrument: modbus.Instrument):
     except:
         return -1
 
+@async_modbus_operation  
 def get_cells_status(instrument: modbus.Instrument):
     """
     Ottiene lo stato delle celle dal dispositivo Modbus.
@@ -341,7 +249,10 @@ def get_cells_status(instrument: modbus.Instrument):
     """
     try:
         with _modbus_lock:
-            return instrument.read_bit(st.COIL_CELL_STATUS, functioncode=1)
+            val = instrument.read_bit(st.COIL_CELL_STATUS, functioncode=1)
+            print(val)
+            return val
+        
     except:
         return -1
 
@@ -357,6 +268,131 @@ def get_adcs_status(instrument: modbus.Instrument):
     """
     try:
         with _modbus_lock:
-            return instrument.read_bit(st.COIL_ADCS_STATUS, functioncode=1)
+            val = instrument.read_bit(st.COIL_ADCS_STATUS, functioncode=1)
+            print(val)
+            return val
     except:
         return -1
+
+
+def configure(port, list_add):
+    """
+    Configura e inizializza una lista di bilance collegate via Modbus.
+
+    Args:
+        port (str): La porta seriale a cui sono collegate le bilance.
+        list_add (list): Lista di indirizzi Modbus delle bilance.
+
+    Returns:
+        list: Una lista di oggetti Bilancia configurati.
+    """
+    lista_bilance = []
+    for add in list_add:
+        print(f"Inizializzando ID {add}")
+        instrument = modbus.Instrument(port, add)
+        instrument.serial.baudrate = 9600
+        instrument.serial.timeout = 0.5
+        ogg = b.Bilancia(instrument)
+        ogg.set_coil_config()
+        lista_bilance.append(ogg)
+    
+    print(f"Bilance create {len(list_add)} / {len(lista_bilance)}")
+    return lista_bilance
+
+def connect_modbus(port, address, baud):
+    """
+    Stabilisce una connessione Modbus con un dispositivo.
+
+    Args:
+        port (str): La porta seriale.
+        address (int): L'indirizzo del dispositivo Modbus.
+        baud (int): Il baud rate per la connessione.
+
+    Returns:
+        int: 0 se la connessione è stabilita correttamente, -1 in caso di errore.
+    """
+    instrument = None
+    try:
+        print(f"DEBUG| {port} {address}")
+        instrument = modbus.Instrument(port, address)  # Nome porta, indirizzo slave (in decimale)
+        instrument.serial.baudrate = baud
+        instrument.serial.timeout = 0.3
+        instrument.mode = modbus.MODE_RTU
+        if test_connection(instrument) == 0:
+            return 0
+        else:
+            return -1
+    except serial.SerialException as e:
+        print(f"Errore di connessione seriale: {e}")
+        return -1
+    except Exception as e:
+        print(f"Errore generico: {e}")
+        return -1
+    finally:
+        if instrument is not None:
+            instrument.serial.close()
+
+def test_connection(instrument):
+    """
+    Testa la connessione con un dispositivo Modbus leggendo un registro.
+
+    Args:
+        instrument (modbus.Instrument): Il dispositivo Modbus da testare.
+
+    Returns:
+        int: 0 se il test ha successo, -1 o -2 in caso di errore.
+    """
+    try:
+        with _modbus_lock:
+            instrument.serial.timeout = 0.3
+            register = instrument.read_register(12, functioncode=3)  # Legge registri
+            print(register)
+            if register != 0:
+                return 0
+            else:
+                return -1
+    except Exception as e:
+        print(f"Errore nel test di connessione: {e}, indirizzo {instrument.address}")
+        return -2
+    finally:
+        instrument.serial.close()
+
+def check_address(port, address):
+    """
+    Controlla se un dispositivo Modbus è presente all'indirizzo specificato.
+
+    Args:
+        port (str): La porta seriale.
+        address (int): L'indirizzo Modbus da controllare.
+
+    Returns:
+        int: L'indirizzo se il dispositivo risponde, None altrimenti.
+    """
+    try:
+        response = connect_modbus(port, address, 9600)
+        if response == 0:
+            return address
+    except Exception as e:
+        print(f"Errore di comunicazione Modbus con ID {address}: {e}")
+    return None
+
+def scan_modbus_network(port):
+    """
+    Scansiona una rete Modbus per identificare dispositivi attivi.
+
+    Args:
+        port (str): La porta seriale da scansionare.
+
+    Returns:
+        list: Una lista di ID Modbus di dispositivi attivi.
+    """
+    connected_ids = []
+    print(port)
+    for i in range(1, 8):
+        print(i)
+        r = check_address(port, i)
+        if r is not None:
+            connected_ids.append(r)
+    for id in connected_ids:
+        print(id)
+    return connected_ids

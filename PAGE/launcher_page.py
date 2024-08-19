@@ -276,8 +276,8 @@ class LauncherWidget(QWidget):
 
     def update_progress(self, value):
         # Assuming each bilancia corresponds to an equal percentage of the progress bar
-        print(value)
-        print(len(self.lista_bilance))
+        # print(value)
+        # print(len(self.lista_bilance))
         percentage = (value / len(self.lista_bilance)) * 1000
         next_percentage =  (value+1 / len(self.lista_bilance)) * 1000
         soglia = (1 /len(self.lista_bilance) * 1000) / 3
@@ -296,7 +296,7 @@ class LauncherWidget(QWidget):
             self.label.setText(f"Ordinamento bilance (Ricerca della bilancia collegata per sesta)")
             
             
-        print(f"DEBUG PROGRESSBAR | percentage: {percentage}, value: {self.progress_bar.value()}, next_percentage: {next_percentage}. ")
+        # print(f"DEBUG PROGRESSBAR | percentage: {percentage}, value: {self.progress_bar.value()}, next_percentage: {next_percentage}. ")
         if(int(percentage) <= self.progress_bar.value()):
             if self.progress_bar.value()+1 < int(next_percentage):
                 if(int(next_percentage) - self.progress_bar.value()) > int(soglia): 
