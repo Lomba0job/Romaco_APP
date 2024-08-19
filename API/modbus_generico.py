@@ -219,27 +219,25 @@ def calib_command(weight_kg, instrument: modbus.Instrument):
     except Exception as e:
         print(e)
         return -1
-    
 def get_totWeight(instrument: modbus.Instrument):
-    """
-    Ottiene il peso totale dal dispositivo Modbus.
-
-    Args:
-        instrument (modbus.Instrument): Il dispositivo Modbus da cui leggere il peso.
-
-    Returns:
-        float: Il peso totale letto, -1 in caso di errore.
-    """
     try:
         with _modbus_lock:
             instrument.write_bit(st.COIL_PESO_COMMAND, 1, functioncode=5)
-            stato = True
-            while stato:
-                modbus.serial.timeout = 0.5
-                ris = instrument.read_bit(st.COIL_LAST_COMMAND_SUCCESS, functioncode=1)
-                if ris == 1:
-                    stato = False
-            peso = twos_complement_inverse(instrument.read_register(st.HOLDING_PESO_TOT_MS, functioncode=3)*65536 + instrument.read_register(st.HOLDING_PESO_TOT_LS, functioncode=3), 32)
+
+        stato = True
+        while stato:
+            modbus.serial.timeout = 0.5
+            ris = instrument.read_bit(st.COIL_LAST_COMMAND_SUCCESS, functioncode=1)
+            if ris == 1:
+                stato = False
+        
+        with _modbus_lock:
+            peso = twos_complement_inverse(
+                instrument.read_register(st.HOLDING_PESO_TOT_MS, functioncode=3) * 65536 +
+                instrument.read_register(st.HOLDING_PESO_TOT_LS, functioncode=3),
+                32
+            )
+
         return peso
     except:
         return -1

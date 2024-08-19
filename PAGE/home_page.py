@@ -1,3 +1,4 @@
+import concurrent.futures
 from PyQt6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QLabel, QComboBox, QPushButton, QSizePolicy, QProgressBar
 from PyQt6.QtCore import Qt, QFile, QTextStream, QThread, pyqtSignal, pyqtSlot, QTimer
 from PyQt6.QtGui import QColor, QPalette
@@ -15,27 +16,36 @@ class PesataThread(QThread):
 
     def run(self):
         QThread.msleep(500)  # Aspetta 500 millisecondi prima di iniziare il ciclo di pesatura
-        
+
         pesi_bilance = []
         print(f"DEBUG PESATA | bilance {len(self.master.lista_bilance)}")
-        for b in self.master.lista_bilance:
-            pesotot = mb.get_totWeight(b.modbusI)
-            print(f"DEBUG PESATA | peso TOT {pesotot} {b.modbusI.address}")
+
+        def get_weight_for_bilancia(bilancia):
+            pesotot = mb.get_totWeight(bilancia.modbusI)
+            print(f"DEBUG PESATA | peso TOT {pesotot} {bilancia.modbusI.address}")
             if pesotot != -1:
-                peso = mb.get_cellWeight(b.modbusI)
+                peso = mb.get_cellWeight(bilancia.modbusI)
                 print(f"DEBUG PESATA check | pesi {peso}")
                 s = peso[0]
                 print(f"DEBUG PESATA check | pesi {peso}, primo {s}")
                 warn = False
-                for p in peso: 
-                    if abs(p-s) > 20000:  # SOTTOCHIAVE IMPOSTAZIONE 
+                for p in peso:
+                    if abs(p - s) > 20000:  # SOTTOCHIAVE IMPOSTAZIONE
                         warn = True  # ! AGGIUNGERE ERRORE
                 print(f"DEBUG PESATA check | war {warn}")
                 if not warn:
-                    pesi_bilance.append(pesotot)
-        if len(pesi_bilance) != 0 and len(pesi_bilance) == len(self.master.lista_bilance):  
-            self.pesata_completata.emit(pesi_bilance)  # Emit the signal with the result
+                    return pesotot
+            return None
 
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            # Avvia le chiamate in thread separati per ogni bilancia
+            future_to_bilancia = {executor.submit(get_weight_for_bilancia, b): b for b in self.master.lista_bilance}
+            for future in concurrent.futures.as_completed(future_to_bilancia):
+                result = future.result()
+                if result is not None:
+                    pesi_bilance.append(result)
+
+        self.pesata_completata.emit(pesi_bilance)  # Emit the signal with the result
 class Home_Page(QWidget):
 
     def __init__(self, master):
@@ -283,20 +293,34 @@ class Home_Page(QWidget):
         self.left_layout.addWidget(self.progress_bar)
         self.left_layout.addStretch()
 
+        # Start the timer to update the progress bar
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.update_progress_bar)
+        self.timer.start(100)  # Update the progress bar every 100 ms
+
         # Start the thread
         self.pesata_thread = PesataThread(self.master)
         self.pesata_thread.pesata_completata.connect(self.on_pesata_completata)
         self.pesata_thread.start()
 
+    def update_progress_bar(self):
+        # This method is called by the timer to update the progress bar
+        value = self.progress_bar.value()
+        self.progress_bar.setValue((value + 1) % 100)
+
     @pyqtSlot(list)
     def on_pesata_completata(self, pesi_bilance):
         # Stop the thread and the progress bar
         self.pesata_thread.quit()
+        self.timer.stop()
         self.progress_bar.hide()
         self.left_layout.removeWidget(self.progress_bar)
 
-        # Display the final UI with the pesata results
-        self.finalUI(pesi_bilance)
-        
+        if len(pesi_bilance) != 0 and len(pesi_bilance) == len(self.master.lista_bilance):  
+            # Display the final UI with the pesata results
+            self.finalUI(pesi_bilance)
+        else: 
+            self.initUI()
+
     def salva_f(self):
         self.master.save_call(self.pesoTotale, self.peso_bilance)
