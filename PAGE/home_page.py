@@ -349,6 +349,7 @@ class Home_Page(QWidget):
         h0.addStretch()
         self.left_layout.addStretch()
         self.left_layout.addLayout(h0)
+        self.left_layout.addSpacing(30)
         self.left_layout.addWidget(testo)
         self.left_layout.addStretch()
 
