@@ -36,14 +36,12 @@ class DiagnosticWidget(QWidget):
         self.master = master
         self.setWindowTitle("RESPONSE ANALYZE APP")
         
-        self.screen_width =  self.master.screen_width 
+        self.screen_width = self.master.screen_width 
         self.screen_height = self.master.screen_height
         self.main_layout = QHBoxLayout()
         self.main_layout.setSpacing(0)
         self.UI()
         v1 = QVBoxLayout()
-        push = QPushButton()
-        push.setText("ESEGUI LA TARA COMPLETA")
         push = QPushButton()
         push.setText("ESEGUI LA TARA COMPLETA")
         push.clicked.connect(self.calib_all)
@@ -62,16 +60,14 @@ class DiagnosticWidget(QWidget):
         v1.addSpacing(70)
         v1.addLayout(h0)
         v1.addStretch()
-        v1.setContentsMargins(0,0,0,0)
+        v1.setContentsMargins(0, 0, 0, 0)
         v1.addLayout(self.main_layout)
         v1.addSpacing(10)
         self.setStyleSheet("""
             QWidget#bil{
-            QWidget#bil{
                 border: 1px solid grey;
                 border-radius: 9px;
             }
-            QPushButton#pls{
             QPushButton#pls{
                 border: 1px solid grey;
                 background-color: #FFFFFF;
@@ -81,7 +77,6 @@ class DiagnosticWidget(QWidget):
             }
         """)
         self.setLayout(v1)
-       
        
         self.setAutoFillBackground(True)
         self.set_background_color()
@@ -114,8 +109,6 @@ class DiagnosticWidget(QWidget):
             self.status_thread.start()
 
     def UI(self):
-        # Set the central widget
-        # Create and add 6 instances of Home_Page
         self.lista_ogg_attivi = []
         print(f"DEBUG DIAGNO| {len(self.master.lista_bilance)}")
         for i in range(1, 7):
@@ -131,7 +124,7 @@ class DiagnosticWidget(QWidget):
             l0 = QHBoxLayout()
             l0.setSpacing(0)
             l0.addWidget(home_page)
-            l0.setContentsMargins(2,2,2,2)
+            l0.setContentsMargins(2, 2, 2, 2)
             raggruppa.setLayout(l0)
             
             raggruppa.setObjectName("bil")
@@ -143,20 +136,15 @@ class DiagnosticWidget(QWidget):
     def update_status(self):
         if len(self.lista_ogg_attivi) != 0:
             for ogg in self.lista_ogg_attivi:
-                ogg.update() 
                 ogg.update()
                 if ogg.trigger_warning:
                     self.status_thread.stop()
-                    self.status_thread.stop()
                     print("DISTRUTTO")
-
-                    self.master.disconnect()
                     self.master.disconnect()
                     self.update()
     
     def set_background_color(self):
         p = self.palette()
-        p.setColor(self.backgroundRole(), QColor.fromRgb(241,241,241))
         p.setColor(self.backgroundRole(), QColor.fromRgb(241,241,241))
         self.setPalette(p)
     
