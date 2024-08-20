@@ -84,7 +84,7 @@ class Settings(QWidget):
         # Imposta la dimensione dell'icona sul pulsante (se necessario)
         exit.setIconSize(logo_pixmap.scaledToHeight(50).size())
         exit.setMaximumWidth(70)
-        exit.clicked.connect(self.master.back_home)
+        exit.clicked.connect(self.back_home)
         if( livello == 0):
             self.main_layout.addWidget(exit)
         elif livello == 1: 
@@ -107,9 +107,8 @@ class Settings(QWidget):
             self.main_layout.addLayout(h1)
             
         self.main_layout.addStretch()
+        
     def log(self):
-        
-        
         
         wid = QWidget()
         ve = QVBoxLayout()
@@ -205,3 +204,10 @@ class Settings(QWidget):
                     widget.deleteLater()
                 else:
                     self.clearLayout(item.layout())
+                    
+    def back_home(self):
+        self.clearLayout(self.main_layout)
+        self.preUI()
+        self.master.back_home()
+        
+        
