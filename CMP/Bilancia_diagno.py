@@ -22,7 +22,7 @@ class Bilancia(QWidget):
     adc = False
     ele = False
     celle = False
-    elettronica = False
+    elettronica = True
 
     def __init__(self, numero_bilancia: int, screen_width, screen_height, bilancia: b.Bilancia):
         super().__init__()
@@ -233,19 +233,24 @@ class Bilancia(QWidget):
     
     def update_status(self):
         self._log_thread_info("update_status")
+        if not self.celle and not self.adc: 
+            self.ele = False
+        else:
+            self.ele = True
         adc_v, ele_v, cel_v = self.get_status()
         if self.adc != adc_v or self.ele != ele_v or self.celle != cel_v:
             print(f"DEBUG UPDATE | adc{self.adc}, ele{self.ele}, celle{self.celle}")
             self.laod_status(self.adc, self.ele, self.celle)
         if not self.ele:
+            print(f"DEBUG UPDATE | elettronica False")
             if self.elettronica:
                 self.elettronica_false_since = time.time()
                 self.elettronica = False
-                self.check_ele()
-            else:
-                self.elettronica = True
-                self.elettronica_false_since = None
-                self.trigger_warning = False
+            self.check_ele()
+        else:
+            self.elettronica = True
+            self.elettronica_false_since = None
+            self.trigger_warning = False
     
     def check_ele(self):
         self._log_thread_info("check_ele")
