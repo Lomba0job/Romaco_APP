@@ -16,11 +16,18 @@ QLabel#passo {
 }
 
 
-QLabel#titolo {
-    font-size: 30px;
+QLabel#titoloi {
+    font-size: 40px;
     color: #5D5D5D;
     font-weight: bold;
 }
+
+QLabel#pass {
+    font-size: 20px;
+    color: #E74C3C;
+    ;
+}
+
 
 QLabel#peso {
     font-size: 35px;
@@ -44,6 +51,17 @@ QPushButton#puls:hover{
     padding: 10px;
     border-radius: 9px;
 }
+
+
+QLineEdit {
+    background-color: #f1f1f1;
+    color: #5D5D5D;
+    border: 1px solid #CCCCCC;
+    border-radius: 4px;
+    padding: 5px;
+    font-size: 17px;
+}
+
 
 
 
@@ -129,21 +147,14 @@ QLabel#progress_label, QLabel#usage_steps {
 }
 
 QPushButton {
-    background-color: #f1f3f4;
-    border: 2px solid #E74C3C;
-    color: #E74C3C;
+    background-color: #ffffff;
+    border: 0px solid #ffffff;
+    color: #ffffff;
     font-size: 20px;
     padding: 10px;
     border-radius: 9px;
 }
 
-QPushButton:hover{
-    background-color: #E74C3C;
-    color: #FFFFFF;
-    font-size: 20px;
-    padding: 10px;
-    border-radius: 9px;
-}
 
 
 
