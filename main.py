@@ -1,4 +1,5 @@
 import sys
+import threading
 from PyQt6.QtCore import Qt, QEvent, QFile, QTextStream, QDateTime, pyqtSignal
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QLabel, QVBoxLayout, QWidget, QScrollArea, QHBoxLayout, QDialog, QGridLayout, QStackedWidget, QMenuBar
@@ -9,11 +10,15 @@ from PAGE import home_page as h, launcher_page as l, salva_peso_page as s, log_p
 from CMP import navbar as nv
 
 from API import API_db as db
+from API.modbus_generico import QueueProcessor
 
+queue_processor = QueueProcessor()
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         db.crea_db()
+        # Avvia il thread per processare la coda prima di qualsiasi altra operazione
+       
         self.state = 0
         self.setWindowTitle("Sistema ad isola NANOLEVERAPP")
         screen_geometry = QApplication.primaryScreen().geometry()
@@ -118,3 +123,4 @@ if __name__ == "__main__":
     main_window = MainWindow()
     main_window.show()
     sys.exit(app.exec())
+    queue_processor.shutdown()

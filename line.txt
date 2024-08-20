@@ -12,20 +12,22 @@ Skipping entry /Users/lavoro/Documents/PROGETTI_LAVORO/Romaco_4/05_software/Roma
  |==================================================================================================|
  |                               Counting Lines 	                                                |
  |OBJ/__init__.py                                                                  |	          0 |
- |OBJ/log_ogg.py                                                                   |	        116 |
+ |OBJ/log_ogg.py                                                                   |	        118 |
  |OBJ/bilancia.py                                                                  |	         27 |
- |CMP/Bilancia_diagno.py                                                           |	        230 |
+ |CMP/loading.py                                                                   |	        111 |
+ |CMP/Bilancia_diagno.py                                                           |	        288 |
  |CMP/Bilancia_diagno_deactive.py                                                  |	        120 |
  |CMP/navbar.py                                                                    |	         97 |
  |CMP/__init__.py                                                                  |	          0 |
  |CMP/rectangle.py                                                                 |	        253 |
+ |CMP/loading2.py                                                                  |	        167 |
  |PAGE/launcher_page.py                                                            |	        280 |
- |PAGE/salva_peso_page.py                                                          |	        317 |
- |PAGE/log_page.py                                                                 |	        195 |
+ |PAGE/salva_peso_page.py                                                          |	        372 |
+ |PAGE/log_page.py                                                                 |	        213 |
  |PAGE/__init__.py                                                                 |	          0 |
  |PAGE/graph_page.py                                                               |	         18 |
- |PAGE/home_page.py                                                                |	        245 |
- |PAGE/diagnostic_page.py                                                          |	        140 |
+ |PAGE/home_page.py                                                                |	        326 |
+ |PAGE/diagnostic_page.py                                                          |	        166 |
  |risorse/__init__.py                                                              |	          0 |
  |risorse/resources_rc.py                                                          |	       1175 |
  |TEST/__init__.py                                                                 |	          0 |
@@ -44,12 +46,12 @@ Skipping entry /Users/lavoro/Documents/PROGETTI_LAVORO/Romaco_4/05_software/Roma
  |API/modbus_unico.py                                                              |	         24 |
  |API/__init__.py                                                                  |	          0 |
  |API/modbus.py                                                                    |	       3383 |
- |API/modbus_generico.py                                                           |	        209 |
- |API/API_db.py                                                                    |	        118 |
+ |API/modbus_generico.py                                                           |	        351 |
+ |API/API_db.py                                                                    |	        170 |
  |API/funzioni.py                                                                  |	         27 |
  |.ipynb_checkpoints/untitled-checkpoint.py                                        |	         56 |
- |main_test.py                                                                     |	         41 |
- |main.py                                                                          |	        100 |
+ |main_test.py                                                                     |	         70 |
+ |main.py                                                                          |	        111 |
  |untitled.py                                                                      |	        105 |
  |==================================================================================================| 
- |Total lines                                                                      |	       8013 |
+ |Total lines                                                                      |	       8765 |
