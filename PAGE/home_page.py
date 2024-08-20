@@ -1,11 +1,11 @@
 import concurrent.futures
 import threading
 from PyQt6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QLabel, QComboBox, QPushButton, QSizePolicy, QProgressBar
-from PyQt6.QtCore import Qt, QFile, QTextStream, QThread, pyqtSignal, pyqtSlot, QTimer
+from PyQt6.QtCore import Qt, QFile, QTextStream, QThread, pyqtSignal, pyqtSlot, QTimer, QSize
 from PyQt6.QtGui import QColor, QPalette
 import time 
 
-from CMP import rectangle as r
+from CMP import rectangle as r, loading2 as carica
 from API import funzioni as f, modbus_generico as mb
 
 class PesataThread(QThread):
@@ -336,28 +336,29 @@ class Home_Page(QWidget):
         # Pulisci l'UI esistente
         self.clearLayout(self.left_layout)
 
-        # Crea una barra di progresso animata
-        self.progress_bar = QProgressBar(self)
-        self.progress_bar.setRange(0, 0)  # Range 0, 0 rende la barra infinita
-        self.progress_bar.setTextVisible(False)
+        # Crea una barra di progresso animata\
+        h0 = QHBoxLayout()
+        
+        self.progress_bar = carica.QCustom3CirclesLoader(size=200)
+        testo = QLabel("CARICAMENTO")
+        testo.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        testo.setObjectName("titolo")
+
+        h0.addStretch()
+        h0.addWidget(self.progress_bar)
+        h0.addStretch()
         self.left_layout.addStretch()
-        self.left_layout.addWidget(self.progress_bar)
+        self.left_layout.addLayout(h0)
+        self.left_layout.addWidget(testo)
         self.left_layout.addStretch()
 
-        # Avvia il timer per aggiornare la barra di progresso
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self.update_progress_bar)
-        self.timer.start(100)  # Aggiorna la barra di progresso ogni 100 ms
-
+       
         # Avvia il thread
         self.pesata_thread = PesataThread(self.master)
         self.pesata_thread.pesata_completata.connect(self.on_pesata_completata)
         self.pesata_thread.start()
 
-    def update_progress_bar(self):
-        # Questo metodo viene chiamato dal timer per aggiornare la barra di progresso
-        value = self.progress_bar.value()
-        self.progress_bar.setValue((value + 1) % 100)
+
 
     @pyqtSlot(list)
     def on_pesata_completata(self, pesi_bilance):
@@ -365,9 +366,8 @@ class Home_Page(QWidget):
         self._log_thread_info("on_pesata_completata")
         # Ferma il thread e la barra di progresso
         self.pesata_thread.quit()
-        self.timer.stop()
-        self.progress_bar.hide()
-        self.left_layout.removeWidget(self.progress_bar)
+        #self.progress_bar.hide()
+        self.clearLayout(self.left_layout)
 
         if len(pesi_bilance) != 0 and len(pesi_bilance) == len(self.master.lista_bilance):  
             # Visualizza l'UI finale con i risultati della pesata

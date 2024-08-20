@@ -1,16 +1,16 @@
 import sys
-from PyQt6.QtCore import Qt, QEvent, QFile, QTextStream, QDateTime, pyqtSignal, QRect, QTimer
+from PyQt6.QtCore import Qt, QEvent, QFile, QTextStream, QSize,  QDateTime, pyqtSignal, QRect, QTimer
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QLabel, QVBoxLayout, QWidget, QScrollArea, QHBoxLayout, QDialog, QGridLayout, QStackedWidget, QMenuBar
 )
-from PyQt6.QtGui import QPixmap, QAction, QGuiApplication, QColor
-
+from PyQt6.QtGui import QPixmap, QAction, QColor
 
 from API import funzioni as f 
 from PAGE import home_page as h, launcher_page as l, salva_peso_page as s, log_page as lo, diagnostic_page as d
-from CMP import navbar as nv, Bilancia_diagno as b, Bilancia_diagno_deactive as bd
+from CMP import navbar as nv, Bilancia_diagno as b, Bilancia_diagno_deactive as bd, loading as carica, loading2 as carica2
 
 
+import time
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -30,12 +30,40 @@ class MainWindow(QMainWindow):
 
         self.setGeometry(0, 0, self.screen_width, self.screen_height)
         self.lista_bilance = []
-        ogg = d.DiagnosticWidget(self)
+        ogg = carica.QCustomPerlinLoader(
+                                parent=self,
+                                size=QSize(700, 400),
+                                message="Caricamento...",
+                                color=QColor("#000000"),
+                                fontFamily="Ebrima",
+                                fontSize=30,
+                                rayon=200,
+                                duration=60 * 1000,
+                                noiseOctaves=0.8,
+                                noiseSeed=int(time.time()),
+                                backgroundColor=QColor("transparent"),
+                                circleColor1=QColor("#E74C3C"),
+                                circleColor2=QColor("#FD6363"),
+                                circleColor3=QColor("#BDC3C7")
+                            )
+        
+        ogg2 = carica2.QCustom3CirclesLoader(size=400)
         
         v0.addWidget(nav)
-        v0.addWidget(ogg)
+        v1 = QHBoxLayout()
+        
+        v1.addWidget(ogg)
+        v1.addWidget(ogg2)
+        
+        v0.addLayout(v1)
         
         self.setCentralWidget(wid)
+        self.set_background_color()
+    
+    def set_background_color(self):
+        p = self.palette()
+        p.setColor(self.backgroundRole(), QColor.fromRgb(241,241,241))
+        self.setPalette(p)
         
         
     
