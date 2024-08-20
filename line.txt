@@ -15,9 +15,9 @@ Skipping entry /Users/lavoro/Documents/PROGETTI_LAVORO/Romaco_4/05_software/Roma
  |OBJ/log_ogg.py                                                                   |	        118 |
  |OBJ/bilancia.py                                                                  |	         27 |
  |CMP/loading.py                                                                   |	        111 |
- |CMP/Bilancia_diagno.py                                                           |	        288 |
+ |CMP/Bilancia_diagno.py                                                           |	        293 |
  |CMP/Bilancia_diagno_deactive.py                                                  |	        120 |
- |CMP/navbar.py                                                                    |	         97 |
+ |CMP/navbar.py                                                                    |	         95 |
  |CMP/__init__.py                                                                  |	          0 |
  |CMP/rectangle.py                                                                 |	        253 |
  |CMP/loading2.py                                                                  |	        167 |
@@ -25,8 +25,9 @@ Skipping entry /Users/lavoro/Documents/PROGETTI_LAVORO/Romaco_4/05_software/Roma
  |PAGE/salva_peso_page.py                                                          |	        372 |
  |PAGE/log_page.py                                                                 |	        213 |
  |PAGE/__init__.py                                                                 |	          0 |
+ |PAGE/setting_page.py                                                             |	        197 |
  |PAGE/graph_page.py                                                               |	         18 |
- |PAGE/home_page.py                                                                |	        326 |
+ |PAGE/home_page.py                                                                |	        327 |
  |PAGE/diagnostic_page.py                                                          |	        166 |
  |risorse/__init__.py                                                              |	          0 |
  |risorse/resources_rc.py                                                          |	       1175 |
@@ -36,6 +37,7 @@ Skipping entry /Users/lavoro/Documents/PROGETTI_LAVORO/Romaco_4/05_software/Roma
  |TEST/.ipynb_checkpoints/test-checkpoint.py                                       |	         56 |
  |line.py                                                                          |	         57 |
  |STYLE/home.qss                                                                   |	         52 |
+ |STYLE/settings.qss                                                               |	        165 |
  |STYLE/navbar.qss                                                                 |	         36 |
  |STYLE/salva_peso.qss                                                             |	         99 |
  |STYLE/launcher.qss                                                               |	        107 |
@@ -51,7 +53,7 @@ Skipping entry /Users/lavoro/Documents/PROGETTI_LAVORO/Romaco_4/05_software/Roma
  |API/funzioni.py                                                                  |	         27 |
  |.ipynb_checkpoints/untitled-checkpoint.py                                        |	         56 |
  |main_test.py                                                                     |	         70 |
- |main.py                                                                          |	        111 |
+ |main.py                                                                          |	        122 |
  |untitled.py                                                                      |	        105 |
  |==================================================================================================| 
- |Total lines                                                                      |	       8765 |
+ |Total lines                                                                      |	       9142 |
