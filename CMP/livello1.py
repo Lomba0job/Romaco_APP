@@ -65,3 +65,6 @@ class Livello1(QWidget):
                     widget.deleteLater()
                 else:
                     self.clearLayout(item.layout())
+                    
+    def home(self):
+        pass

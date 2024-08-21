@@ -1,9 +1,7 @@
-import sys
 from PyQt6.QtCore import Qt, QFile, QTextStream, QSize, pyqtSignal
 from PyQt6.QtWidgets import (
-    QApplication, QPushButton, QLabel, QSizePolicy, QVBoxLayout, QWidget, QScrollArea, QFrame, QHBoxLayout, QDialog, QGridLayout, QStackedWidget, QMenuBar, 
+    QPushButton, QLabel, QSizePolicy, QVBoxLayout, QWidget, QScrollArea, QFrame, QHBoxLayout, QDialog, QGridLayout, QStackedWidget, QMenuBar, 
     QSpinBox, QRadioButton
-    
 )
 from PyQt6.QtGui import QPixmap, QAction, QIcon, QColor
 import os 
@@ -13,31 +11,25 @@ from API import funzioni as f
 from CMP import puls_livello2 as p 
 
 class Livello2(QWidget):
-
     def __init__(self, master):
         super().__init__()
         
         self.master:s.Settings = master
         
-        
-        
         self.main_layout = QVBoxLayout()
+        self.stacked_widget = QStackedWidget()
         
         self.home_page()
+        self.diagnosi_page()
         
+        self.main_layout.addWidget(self.stacked_widget)
         self.setLayout(self.main_layout)
-        self.setAutoFillBackground(True)
         self.set_background_color()
         
-        
-        
-        
-    
     def set_background_color(self):
         p = self.palette()
         p.setColor(self.backgroundRole(), QColor.fromRgb(254,254,254))
         self.setPalette(p)
-        # Load the stylesheet
         self.load_stylesheet()
 
     def load_stylesheet(self):
@@ -49,8 +41,12 @@ class Livello2(QWidget):
             self.setStyleSheet(style_sheet)
     
     def home_page(self):
+        home_widget = QWidget()
+        home_layout = QVBoxLayout()
+        home_widget.setLayout(home_layout)
+        
         p1 = p.ClickableWidget(f.get_img("DIAGNOSI.png"), "Misurazione Continua")
-        p1.clicked.connect(self.diagnosi)
+        p1.clicked.connect(self.show_diagnosi_page)
         
         p2 = p.ClickableWidget(f.get_img("PARAM_SET.png"), "Settaggio Parametri")
         
@@ -60,44 +56,34 @@ class Livello2(QWidget):
         
         p5 = p.ClickableWidget(f.get_img("MOD_IMPO.png"), "Funzioni Mod-Bus")
         
-        self.main_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.main_layout.addStretch()
-        self.main_layout.addWidget(p1)
-        self.main_layout.addSpacing(10)
-        self.main_layout.addWidget(p2)
-        self.main_layout.addSpacing(10)
-        self.main_layout.addWidget(p3)
-        self.main_layout.addSpacing(10)
-        self.main_layout.addWidget(p4)
-        self.main_layout.addSpacing(10)
-        self.main_layout.addWidget(p5)
-        self.main_layout.addStretch()
+        home_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        home_layout.addStretch()
+        home_layout.addWidget(p1)
+        home_layout.addSpacing(10)
+        home_layout.addWidget(p2)
+        home_layout.addSpacing(10)
+        home_layout.addWidget(p3)
+        home_layout.addSpacing(10)
+        home_layout.addWidget(p4)
+        home_layout.addSpacing(10)
+        home_layout.addWidget(p5)
+        home_layout.addStretch()
         
-    def clearLayout(self, layout):
-        if layout is not None:
-            while layout.count():
-                item = layout.takeAt(0)
-                widget = item.widget()
-                if widget is not None:
-                    widget.deleteLater()
-                else:
-                    self.clearLayout(item.layout())
-                    
-    def diagnosi(self):
-        self.master.diagnosi_page()
-        self.clearLayout(self.main_layout)
+        self.stacked_widget.addWidget(home_widget)
         
-        
-        l = QVBoxLayout()
+    def diagnosi_page(self):
+        diagnosi_widget = QWidget()
+        diagnosi_layout = QVBoxLayout()
+        diagnosi_widget.setLayout(diagnosi_layout)
         
         h = QHBoxLayout()
         lab = QLabel("IMPOSTAZIONI DEL TEST : ")
         lab.setObjectName("titoloi")
         
         self.tempo = QSpinBox(self)
-        self.tempo.setRange(1, 15)  # Imposta il range minimo e massimo
-        self.tempo.setValue(1)         # Imposta il valore iniziale
-        self.tempo.setSingleStep(1)    # Imposta l'incremento per ogni passo
+        self.tempo.setRange(1, 15)
+        self.tempo.setValue(1)
+        self.tempo.setSingleStep(1)
         self.tempo.setMinimumWidth(100)
         
         tempolab = QLabel("minuti")
@@ -130,27 +116,23 @@ class Livello2(QWidget):
         self.mi.setObjectName("pass")
         self.mi.setMinimumWidth(60)
         
-        
         h2.addWidget(self.start)
         h2.addWidget(self.stop)
         h2.addStretch()
         h2.addWidget(labmi)
         h2.addWidget(self.mi)
 
+        diagnosi_layout.addLayout(h)
+        diagnosi_layout.addLayout(h2)
+        diagnosi_layout.addStretch()
         
-        l.addLayout(h)
-        l.addLayout(h2)
-        l.addStretch()
-        
-        self.main_layout.addLayout(l)
-
+        self.stacked_widget.addWidget(diagnosi_widget)
         
     def start_reg(self):
         print("start")
         self.stop.setObjectName("big")
         self.start.setObjectName("bigd")
 
-        # Forza il ricaricamento dello stile
         self.start.style().unpolish(self.start)
         self.start.style().polish(self.start)
         self.start.update()
@@ -167,7 +149,6 @@ class Livello2(QWidget):
         self.stop.setObjectName("bigd")
         self.start.setObjectName("big")
 
-        # Forza il ricaricamento dello stile
         self.start.style().unpolish(self.start)
         self.start.style().polish(self.start)
         self.start.update()
@@ -178,3 +159,11 @@ class Livello2(QWidget):
 
         self.start.setEnabled(True)
         self.stop.setEnabled(False)
+        
+    def show_diagnosi_page(self):
+        self.stacked_widget.setCurrentIndex(1)
+        self.master.contro_label(3)
+        
+    def home(self):
+        self.stacked_widget.setCurrentIndex(0)
+        self.master.contro_label(2)
