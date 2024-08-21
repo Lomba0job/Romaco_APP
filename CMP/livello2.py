@@ -8,6 +8,9 @@ from datetime import datetime
 import threading
 from PyQt6.QtGui import QPixmap, QAction, QIcon, QColor
 import os 
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+
 
 from PAGE import setting_page as s
 from API import funzioni as f
@@ -23,6 +26,9 @@ class Livello2(QWidget):
         super().__init__()
         
         self.master:s.Settings = master
+        # Per memorizzare i dati della pesata
+        self.pesi_totali = {}
+        self.pesi_celle = {}
         
         self.main_layout = QVBoxLayout()
         self.stacked_widget = QStackedWidget()
@@ -136,7 +142,23 @@ class Livello2(QWidget):
 
         diagnosi_layout.addLayout(h)
         diagnosi_layout.addLayout(h2)
-        diagnosi_layout.addStretch()
+        diagnosi_layout.addSpacing(20)
+        
+        # Create a QScrollArea to contain the graphs
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        
+        # Create a QWidget to hold the layout
+        graph_container = QWidget()
+        self.graph_layout = QVBoxLayout(graph_container)
+        
+        # Set the graph_container widget as the scroll area's widget
+        scroll_area.setWidget(graph_container)
+        
+        # Add the scroll area to the diagnosi layout
+        diagnosi_layout.addWidget(scroll_area)
+        
         
         self.stacked_widget.addWidget(diagnosi_widget)
         
@@ -193,26 +215,88 @@ class Livello2(QWidget):
             self.pesata_thread.pesata_completata.connect(self.on_pesata_completata)
             self.pesata_thread.start()
 
-
-
     @pyqtSlot(list)
     def on_pesata_completata(self, pesi_bilance):
-        
         self._log_thread_info("on_pesata_completata")
+
         # Ferma il thread e la barra di progresso
         self.pesata_thread.quit()
-        
+
         print(f'DEBUG LIVELLO2 | {pesi_bilance}')
-        
-        n = 0
-        for pesata in pesi_bilance:
-           bilancia_dict = self.convert_to_dict(pesata, n)
-           self.create_csv_file()
-           self.write_to_csv(bilancia_dict)
-           n += 1
-        
+
+        for n, pesata in enumerate(pesi_bilance):
+            bilancia_dict = self.convert_to_dict(pesata, n)
+            self.create_csv_file()
+            self.write_to_csv(bilancia_dict)
+
+            # Aggiorna i dati per i grafici
+            if n not in self.pesi_totali:
+                self.pesi_totali[n] = []
+                self.pesi_celle[n] = {1: [], 2: [], 3: [], 4: []}
+
+            self.pesi_totali[n].append(bilancia_dict['pesoTot'])
+            for i in range(1, 5):
+                if bilancia_dict[f'pesoc{i}'] != '':
+                    self.pesi_celle[n][i].append(bilancia_dict[f'pesoc{i}'])
+
+            # Aggiungi o aggiorna i grafici
+            self.update_graph(n)
+
         if not self.stop_requested:
-           self.timer.start(self.tempo.value() * 60 * 1000)  # Convertire i minuti in millisecondi
+            self.timer.start(self.tempo.value() * 60 * 1000)  # Convertire i minuti in millisecondi
+
+    def update_graph(self, bilancia_id):
+        """Aggiorna i grafici per una specifica bilancia."""
+    
+        # Define colors for the four cells
+        colors = ['r', 'g', 'b', 'm']  # Red, Green, Blue, Magenta (or choose any colors you prefer)
+    
+        # Crea una figura e due subplot per il peso totale e i pesi delle celle
+        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(5, 8))
+        fig.suptitle(f"Bilancia {bilancia_id + 1}")
+    
+        # Grafico peso totale
+        ax1.plot(self.pesi_totali[bilancia_id], label='Peso Totale', marker='o')
+        ax1.set_ylabel("Peso Totale")
+        ax1.legend()
+    
+        # Grafico pesi celle
+        for i in range(1, 5):
+            if len(self.pesi_celle[bilancia_id][i]) > 0:
+                ax2.plot(self.pesi_celle[bilancia_id][i], label=f'Cella {i}', color=colors[i-1], marker='o')
+    
+        ax2.set_ylabel("Pesi Celle")
+        ax2.legend()
+    
+        # If a previous graph exists, update it
+        if self.graph_layout.count() > bilancia_id:
+            graph_container = self.graph_layout.itemAt(bilancia_id).widget()
+            canvas = graph_container.layout().itemAt(1).widget()
+            canvas.figure.clf()
+            ax1, ax2 = canvas.figure.add_subplot(2, 1, 1), canvas.figure.add_subplot(2, 1, 2)
+            ax1.plot(self.pesi_totali[bilancia_id], label='Peso Totale', marker='o')
+            ax1.set_ylabel("Peso Totale")
+            ax1.legend()
+            for i in range(1, 5):
+                if len(self.pesi_celle[bilancia_id][i]) > 0:
+                    ax2.plot(self.pesi_celle[bilancia_id][i], label=f'Cella {i}', color=colors[i-1], marker='o')
+            ax2.set_ylabel("Pesi Celle")
+            ax2.legend()
+            canvas.draw()
+        else:
+            # Otherwise, create a new graph
+            canvas = FigureCanvas(fig)
+            container = QVBoxLayout()
+            label = QLabel(f"Bilancia {bilancia_id + 1}")
+            label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            container.addWidget(label)
+            container.addWidget(canvas)
+            canvas.setMinimumHeight(250)
+            graph_widget = QWidget()
+            graph_widget.setLayout(container)
+            self.graph_layout.addWidget(graph_widget)
+    
+        canvas.draw()
         
     def _log_thread_info(self, function_name):
         """Log thread information for diagnostics."""

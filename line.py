@@ -3,7 +3,7 @@ import os
 directory = "/Users/lavoro/Documents/PROGETTI_LAVORO/Romaco_4/05_software/Romaco_APP/"
 directory_depth = 100  # How deep you would like to go
 extensions_to_consider = [".py", ".qss"]  # Change to ["all"] to include all extensions
-exclude_filenames = [".venv", ".idea", "__pycache__", "cache"]
+exclude_filenames = [".venv", ".idea", "__pycache__", "cache", ".csv"]
 skip_file_error_list = True
 
 this_file_dir = os.path.realpath(__file__)
