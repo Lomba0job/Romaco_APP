@@ -42,7 +42,7 @@ class Settings(QWidget):
             self.setStyleSheet(style_sheet)
             
             
-    def header(self, livello):
+    def header(self):
         
         # Header
         header_layout = QHBoxLayout()
@@ -71,6 +71,18 @@ class Settings(QWidget):
         wid.setMaximumHeight(100)
         wid.setAutoFillBackground(True)
         self.main_layout.addWidget(wid)
+        self.sotto_menu = QVBoxLayout()
+        
+        self.h1 = QHBoxLayout()
+        self.contro_label(0)
+        self.main_layout.addLayout(self.h1)
+        self.main_layout.addStretch()  
+        self.sotto_menu.setContentsMargins(0,0,0,0)
+        self.sotto_menu.setSpacing(0)
+        self.main_layout.addLayout(self.sotto_menu)
+        self.main_layout.addStretch()
+    
+    def contro_label(self, livello):
         exit = QPushButton()
         # Carica la pixmap
         logo_pixmap = QPixmap(f.get_img("back.png"))
@@ -84,29 +96,42 @@ class Settings(QWidget):
         # Imposta la dimensione dell'icona sul pulsante (se necessario)
         exit.setIconSize(logo_pixmap.scaledToHeight(50).size())
         exit.setMaximumWidth(70)
-        exit.clicked.connect(self.back_home)
+        
         if( livello == 0):
-            self.main_layout.addWidget(exit)
+            self.clearLayout(self.h1)
+            self.h1.addWidget(exit)
+            self.h1.addStretch()
+            exit.clicked.connect(self.back_home)
         elif livello == 1: 
-            h1 = QHBoxLayout()
+            self.clearLayout(self.h1)
             contro_conf = QLabel("LIVELLO 1   ")
             contro_conf.setObjectName("configurazione_label")
             contro_conf.setAlignment(Qt.AlignmentFlag.AlignTop)
-            h1.addWidget(exit)
-            h1.addStretch()
-            h1.addWidget(contro_conf)
-            self.main_layout.addLayout(h1)
+            self.h1.addWidget(exit)
+            self.h1.addStretch()
+            self.h1.addWidget(contro_conf)
+            exit.clicked.connect(self.back_setting)
         elif livello == 2: 
-            h1 = QHBoxLayout()
+            self.clearLayout(self.h1)
             contro_conf = QLabel("LIVELLO 2   ")
             contro_conf.setObjectName("configurazione_label")
             contro_conf.setAlignment(Qt.AlignmentFlag.AlignTop)
-            h1.addWidget(exit)
-            h1.addStretch()
-            h1.addWidget(contro_conf)
-            self.main_layout.addLayout(h1)
-            
-        self.main_layout.addStretch()
+            self.h1.addWidget(exit)
+            self.h1.addStretch()
+            self.h1.addWidget(contro_conf)
+            exit.clicked.connect(self.back_setting)
+        elif livello == 3: 
+            self.clearLayout(self.h1)
+            contro_conf = QLabel("Misurazione Contiuna")
+            contro_conf.setObjectName("configurazione_label")
+            contro_conf.setAlignment(Qt.AlignmentFlag.AlignTop)
+            self.h1.addWidget(exit)
+            self.h1.addStretch()
+            self.h1.addWidget(contro_conf)
+            exit.clicked.connect(self.back_liv2)
+        
+        
+        
         
     def log(self):
         
@@ -163,29 +188,32 @@ class Settings(QWidget):
         h2.addStretch()
         h2.addWidget(wid)
         h2.addStretch()
-        self.main_layout.addLayout(h2)
-        self.main_layout.addStretch()
+        self.sotto_menu.addLayout(h2)
+        self.sotto_menu.addStretch()
     
     def preUI(self):
-        self.header(0)
+        self.header()
         self.log()
         
         self.setLayout(self.main_layout)
         self.load_stylesheet()
         
     def UIlivello2(self):
-        self.clearLayout(self.main_layout)
-        self.header(2)
-        wid = l2.Livello2(self)
-        self.main_layout.addWidget(wid)
-        self.main_layout.addStretch()
+        self.clearLayout(self.sotto_menu)
+        self.contro_label(2)
+        self.liv2 = l2.Livello2(self)
+        self.sotto_menu.addWidget(self.liv2)
+        self.sotto_menu.addStretch()
+        
+    def diagnosi_page(self):
+        self.contro_label(3)
         
     def UIlivello1(self):
-        self.clearLayout(self.main_layout)
-        self.header(1)
-        wid = l1.Livello1(self)
-        self.main_layout.addWidget(wid)
-        self.main_layout.addStretch()
+        self.clearLayout(self.sotto_menu)
+        self.contro_label(1)
+        self.liv1 = l1.Livello1(self)
+        self.sotto_menu.addWidget(self.liv1)
+        self.sotto_menu.addStretch()
         
 
     def canc(self):
@@ -218,3 +246,9 @@ class Settings(QWidget):
         self.master.back_home()
         
         
+    def back_setting(self):
+        self.clearLayout(self.main_layout)
+        self.preUI()
+        
+    def back_liv2(self):
+        self.UIlivello2()

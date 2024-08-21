@@ -50,6 +50,7 @@ class Livello2(QWidget):
     
     def home_page(self):
         p1 = p.ClickableWidget(f.get_img("DIAGNOSI.png"), "Misurazione Continua")
+        p1.clicked.connect(self.diagnosi)
         
         p2 = p.ClickableWidget(f.get_img("PARAM_SET.png"), "Settaggio Parametri")
         
@@ -81,3 +82,7 @@ class Livello2(QWidget):
                     widget.deleteLater()
                 else:
                     self.clearLayout(item.layout())
+                    
+    def diagnosi(self):
+        self.master.diagnosi_page()
+        self.clearLayout(self.main_layout)
