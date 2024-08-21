@@ -241,17 +241,18 @@ class Settings(QWidget):
                     self.clearLayout(item.layout())
                     
     def back_home(self):
-        self.clearLayout(self.main_layout)
-        self.preUI()
         self.master.back_home()
         
         
     def back_setting(self):
+        self.contro_label(0)
         self.clearLayout(self.main_layout) 
         self.preUI()
         
     def back_liv2(self):
-        self.UIlivello2()
+        self.contro_label(2)
+        self.liv2.home()
         
     def back_liv1(self):
-        self.UIlivello1()
+        self.contro_label(1)
+        self.liv1.home()
