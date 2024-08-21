@@ -247,8 +247,11 @@ class Settings(QWidget):
         
         
     def back_setting(self):
-        self.clearLayout(self.main_layout)
+        self.clearLayout(self.main_layout) 
         self.preUI()
         
     def back_liv2(self):
         self.UIlivello2()
+        
+    def back_liv1(self):
+        self.UIlivello1()

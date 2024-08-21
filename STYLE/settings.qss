@@ -74,6 +74,33 @@ QLineEdit {
     font-size: 17px;
 }
 
+QPushButton#big {
+    background-color: #ffffff;
+    border: 1px solid #E74C3C;
+    color: #E74C3C;
+    font-size: 20px;
+    padding: 10px;
+    border-radius: 9px;
+}
+
+QPushButton#big:hover{
+    background-color: #E74C3C;
+    color: #FFFFFF;
+    font-size: 20px;
+    padding: 10px;
+    border-radius: 9px;
+}
+
+QPushButton#bigd {
+    background-color: #f1f3f4;
+    border: 1px solid #f1f3f4;
+    color: #E74C3C;
+    font-size: 20px;
+    padding: 10px;
+    border-radius: 9px;
+}
+
+
 
 
 
@@ -95,8 +122,11 @@ QPushButton#small:hover{
 }
 
 
-
-/* styles.css */
+QSpinBox {
+    background-color: #ffffff;
+    font-size: 30px;
+    color: #5D5D5D;
+}
 
 
 QLabel#title_label {
@@ -224,4 +254,26 @@ QComboBox QAbstractItemView {
 /* Stile per gli elementi nel menu a discesa */
 QComboBox QAbstractItemView::item {
     min-height: 25px;
+}
+
+QRadioButton {
+    font-size: 25px;
+    color: #5D5D5D;
+}
+
+QRadioButton::indicator {
+    width: 30px;
+    height: 30px;
+}
+
+QRadioButton::indicator::unchecked {
+    border: 2px solid #5D5D5D;
+    background-color: white;
+    border-radius: 15px;
+}
+
+QRadioButton::indicator::checked {
+    border: 2px solid #5D5D5D;
+    background-color: #E74C3C;
+    border-radius: 15px;
 }
