@@ -5,7 +5,7 @@ from PyQt6.QtCore import Qt, QFile, QTextStream, QThread, pyqtSignal, pyqtSlot, 
 from PyQt6.QtGui import QColor, QPalette, QPixmap, QIcon
 import time 
 
-from CMP import rectangle as r, loading2 as carica
+from CMP import rectangle as r, loading2 as carica, livello1 as l1, livello2 as l2
 from API import funzioni as f, modbus_generico as mb
 
 class Settings(QWidget):
@@ -47,8 +47,8 @@ class Settings(QWidget):
         # Header
         header_layout = QHBoxLayout()
         logo_label = QLabel()
-        logo_pixmap = QPixmap(f.get_img("logo.jpg"))
-        logo_label.setPixmap(logo_pixmap.scaledToHeight(50))
+        ico = f.get_img("logo.jpg")
+        logo_label.setPixmap(QPixmap(ico).scaled(50, 50, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))   
         header_layout.addWidget(logo_label)
 
         title_label = QLabel("NANO<span style='color:#E74C3C'>LEVER</span>")
@@ -176,10 +176,17 @@ class Settings(QWidget):
     def UIlivello2(self):
         self.clearLayout(self.main_layout)
         self.header(2)
+        wid = l2.Livello2(self)
+        self.main_layout.addWidget(wid)
+        self.main_layout.addStretch()
         
     def UIlivello1(self):
         self.clearLayout(self.main_layout)
         self.header(1)
+        wid = l1.Livello1(self)
+        self.main_layout.addWidget(wid)
+        self.main_layout.addStretch()
+        
 
     def canc(self):
         self.pass_text.setText("")

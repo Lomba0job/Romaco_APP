@@ -28,6 +28,18 @@ QLabel#pass {
     ;
 }
 
+QLabel#testo_puls {
+    font-size: 30px;
+    color: #A4A4A4;
+    font-weight: bold;
+}
+
+QLabel#testo_puls1 {
+    font-size: 35px;
+    color: #A4A4A4;
+    font-weight: bold;
+}
+
 
 QLabel#peso {
     font-size: 35px;
