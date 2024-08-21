@@ -1,16 +1,24 @@
-from PyQt6.QtCore import Qt, QFile, QTextStream, QSize, pyqtSignal
+from PyQt6.QtCore import Qt, QFile, QTextStream, QSize, pyqtSignal, pyqtSlot, QTimer
 from PyQt6.QtWidgets import (
     QPushButton, QLabel, QSizePolicy, QVBoxLayout, QWidget, QScrollArea, QFrame, QHBoxLayout, QDialog, QGridLayout, QStackedWidget, QMenuBar, 
     QSpinBox, QRadioButton
 )
+import csv
+from datetime import datetime
+import threading
 from PyQt6.QtGui import QPixmap, QAction, QIcon, QColor
 import os 
 
 from PAGE import setting_page as s
 from API import funzioni as f
 from CMP import puls_livello2 as p 
+from OBJ import thread_pesata_continua as t 
 
 class Livello2(QWidget):
+    
+    dir_path = f.get_resource_path(os.path.join("data", "csv"))
+    
+    
     def __init__(self, master):
         super().__init__()
         
@@ -25,6 +33,10 @@ class Livello2(QWidget):
         self.main_layout.addWidget(self.stacked_widget)
         self.setLayout(self.main_layout)
         self.set_background_color()
+        
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.start_pesata)
+        self.stop_requested = False
         
     def set_background_color(self):
         p = self.palette()
@@ -143,9 +155,14 @@ class Livello2(QWidget):
 
         self.start.setEnabled(False)
         self.stop.setEnabled(True)
+        
+        self.stop_requested = False
+        self.start_pesata()
 
     def stop_reg(self):
         print("stop")
+        self.stop_requested = True
+        self.timer.stop()
         self.stop.setObjectName("bigd")
         self.start.setObjectName("big")
 
@@ -167,3 +184,80 @@ class Livello2(QWidget):
     def home(self):
         self.stacked_widget.setCurrentIndex(0)
         self.master.contro_label(2)
+        
+        
+    def start_pesata(self):
+        # Avvia il thread
+        if len(self.master.master.lista_bilance) != 0 and not self.stop_requested:
+            self.pesata_thread = t.PesataThread(self.master.master)
+            self.pesata_thread.pesata_completata.connect(self.on_pesata_completata)
+            self.pesata_thread.start()
+
+
+
+    @pyqtSlot(list)
+    def on_pesata_completata(self, pesi_bilance):
+        
+        self._log_thread_info("on_pesata_completata")
+        # Ferma il thread e la barra di progresso
+        self.pesata_thread.quit()
+        
+        print(f'DEBUG LIVELLO2 | {pesi_bilance}')
+        
+        n = 0
+        for pesata in pesi_bilance:
+           bilancia_dict = self.convert_to_dict(pesata, n)
+           self.create_csv_file()
+           self.write_to_csv(bilancia_dict)
+           n += 1
+        
+        if not self.stop_requested:
+           self.timer.start(self.tempo.value() * 60 * 1000)  # Convertire i minuti in millisecondi
+        
+    def _log_thread_info(self, function_name):
+        """Log thread information for diagnostics."""
+        current_thread = threading.current_thread()
+        print(f"DEBUG THREAD | {function_name} eseguito su thread: {current_thread.name} (ID: {current_thread.ident})")
+        
+    def create_csv_file(self):
+        """Crea un file CSV con la data odierna nel nome all'interno della cartella specificata."""
+        today = datetime.now().strftime("%d%m%y")
+        self.csv_file_path = os.path.join(self.dir_path, f"TEST{today}.csv")
+
+        # Verifica se il file esiste già
+        if not os.path.isfile(self.csv_file_path):
+            with open(self.csv_file_path, mode='w', newline='') as file:
+                writer = csv.writer(file)
+                # Scrive l'intestazione del file
+                writer.writerow(["id_bilancia", "pesoTot", "pesoc1", "pesoc2", "pesoc3", "pesoc4", "ora"])
+            print(f"DEBUG | File creato: {self.csv_file_path}")
+        else:
+            print(f"DEBUG | Il file esiste già: {self.csv_file_path}")
+
+    def write_to_csv(self, bilancia_dict):
+        """Scrive i dati della pesata nel file CSV."""
+        with open(self.csv_file_path, mode='a', newline='') as file:
+            writer = csv.writer(file)
+            current_time = datetime.now().strftime("%H:%M:%S")
+            row = [
+                bilancia_dict['id_bilancia'],
+                bilancia_dict['pesoTot'],
+                bilancia_dict.get('pesoc1', ''),
+                bilancia_dict.get('pesoc2', ''),
+                bilancia_dict.get('pesoc3', ''),
+                bilancia_dict.get('pesoc4', ''),
+                current_time
+            ]
+            writer.writerow(row)
+            print(f"DEBUG | Dati scritti nel file: {row}")
+                
+    def convert_to_dict(self, pesata, n):
+        """Converte una lista in un dizionario con le chiavi appropriate."""
+        return {
+            'id_bilancia': n,
+            'pesoTot': pesata[0],
+            'pesoc1': pesata[1] if len(pesata) > 1 else '',
+            'pesoc2': pesata[2] if len(pesata) > 2 else '',
+            'pesoc3': pesata[3] if len(pesata) > 3 else '',
+            'pesoc4': pesata[4] if len(pesata) > 4 else '',
+        }
