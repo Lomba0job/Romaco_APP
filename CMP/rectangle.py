@@ -22,8 +22,8 @@ class VTKWidget(QWidget):
         self.camera_angle_x = 0
         self.camera_angle_y = 20
         self.camera_position_x = 0
-        self.camera_position_y = 60  # Aumentato per una vista più alta
-        self.camera_position_z = 300  # Aumentato per una distanza maggiore
+        self.camera_position_y = 60
+        self.camera_position_z = 300
         self.rotating_camera = False
         self.moving_camera = False
 
@@ -60,14 +60,11 @@ class VTKWidget(QWidget):
         try:
             if not self.interactor.GetInitialized():
                 logging.debug("Inizializzazione dell'interactor VTK...")
-                self.interactor.Initialize()
-                QTimer.singleShot(100, self.start_interactor)
+                QTimer.singleShot(500, self.start_interactor)
 
             if self.render_window and self.render_window.GetRenderers().GetNumberOfItems() > 0:
                 logging.debug("Esecuzione del rendering iniziale...")
-                self.render_window.Render()
-                self.update_scene()
-                logging.debug("Rendering completato.")
+                QTimer.singleShot(600, self.render_initial_scene)
         except Exception as e:
             logging.error(f"Errore in showEvent: {e}")
             logging.error(traceback.format_exc())
@@ -84,6 +81,17 @@ class VTKWidget(QWidget):
             logging.error(f"Errore durante l'avvio dell'interactor VTK: {e}")
             logging.error(traceback.format_exc())
 
+    def render_initial_scene(self):
+        try:
+            if self.render_window and self.render_window.GetRenderers().GetNumberOfItems() > 0:
+                logging.debug("Render della scena iniziale...")
+                self.render_window.Render()
+                self.update_scene()
+                logging.debug("Scena iniziale renderizzata.")
+        except Exception as e:
+            logging.error(f"Errore durante il rendering iniziale: {e}")
+            logging.error(traceback.format_exc())
+            
     def setup_rect_positions(self):
         logging.debug("Impostazione delle posizioni dei rettangoli...")
         # Codice per impostare le posizioni
