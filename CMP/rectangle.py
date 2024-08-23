@@ -33,9 +33,9 @@ class VTKWidget(QWidget):
         self.layout.addWidget(self.vtkWidget)
 
         self.renderer = vtk.vtkRenderer()
-        self.renderer.SetBackground(1, 1, 1)  # Set background color to white
+        self.renderer.SetBackground(1, 1, 1)
         self.render_window = self.vtkWidget.GetRenderWindow()
-        self.render_window.SetMultiSamples(0)  # Disable anti-aliasing
+        self.render_window.SetMultiSamples(0)
         self.render_window.AddRenderer(self.renderer)
         self.interactor = self.render_window.GetInteractor()
 
@@ -60,38 +60,40 @@ class VTKWidget(QWidget):
         try:
             if not self.interactor.GetInitialized():
                 logging.debug("Inizializzazione dell'interactor VTK...")
-                QTimer.singleShot(500, self.start_interactor)
+                QTimer.singleShot(1000, self.start_interactor)  # Aumentato ritardo
 
             if self.render_window and self.render_window.GetRenderers().GetNumberOfItems() > 0:
                 logging.debug("Esecuzione del rendering iniziale...")
-                QTimer.singleShot(600, self.render_initial_scene)
+                QTimer.singleShot(1500, self.render_initial_scene)  # Aumentato ritardo
         except Exception as e:
             logging.error(f"Errore in showEvent: {e}")
             logging.error(traceback.format_exc())
 
     def start_interactor(self):
         try:
-            if self.interactor is not None:
+            if self.interactor is not None and self.isVisible():
                 logging.debug("Avvio dell'interactor VTK...")
                 self.interactor.Start()
                 logging.debug("VTK Interactor avviato.")
             else:
-                logging.error("L'interactor VTK è None.")
+                logging.error("L'interactor VTK è None o la finestra non è visibile.")
         except Exception as e:
             logging.error(f"Errore durante l'avvio dell'interactor VTK: {e}")
             logging.error(traceback.format_exc())
 
     def render_initial_scene(self):
         try:
-            if self.render_window and self.render_window.GetRenderers().GetNumberOfItems() > 0:
+            if self.render_window and self.render_window.GetRenderers().GetNumberOfItems() > 0 and self.isVisible():
                 logging.debug("Render della scena iniziale...")
                 self.render_window.Render()
                 self.update_scene()
                 logging.debug("Scena iniziale renderizzata.")
+            else:
+                logging.error("Render window o renderer non pronto, o finestra non visibile.")
         except Exception as e:
             logging.error(f"Errore durante il rendering iniziale: {e}")
             logging.error(traceback.format_exc())
-            
+
     def setup_rect_positions(self):
         logging.debug("Impostazione delle posizioni dei rettangoli...")
         # Codice per impostare le posizioni
