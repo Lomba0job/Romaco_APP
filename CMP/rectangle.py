@@ -5,10 +5,12 @@ from vtkmodules.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 import vtk
 import numpy as np
 from API import funzioni as f
-import traceback   
-
+import traceback
 import logging
 
+# Configurazione del logging
+logging.basicConfig(level=logging.DEBUG, filename='app.log', filemode='w',
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 class VTKWidget(QWidget):
     def __init__(self, num_rectangles, parent=None):
         super().__init__(parent)
@@ -25,16 +27,10 @@ class VTKWidget(QWidget):
         self.moving_camera = False
 
         self.layout = QVBoxLayout(self)
-        
         self.vtkWidget = QVTKRenderWindowInteractor(self)
-        
-        # Set the size policy to expanding, which allows it to grow and shrink
         self.vtkWidget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-        
-        
         self.layout.addWidget(self.vtkWidget)
 
-        # Renderer and RenderWindow
         self.renderer = vtk.vtkRenderer()
         self.renderer.SetBackground(1, 1, 1)  # Set background color to white
         self.render_window = self.vtkWidget.GetRenderWindow()
@@ -42,61 +38,51 @@ class VTKWidget(QWidget):
         self.render_window.AddRenderer(self.renderer)
         self.interactor = self.render_window.GetInteractor()
 
-        # Timer for animation
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_scene)
         self.timer.start(30)
 
-        # Load material info and model
         self.materials_info = self.load_mtl(f.get_img("mat.mtl"))
         self.model, self.materials = self.load_obj(f.get_img("bilancia_def.obj"))
 
-        # Set up positions and create actors
         self.setup_rect_positions()
         self.create_actors()
-
-        # Add transparent base plane
         self.add_base_plane()
-
-        # Camera setup
         self.setup_camera()
-        
-        
-        # Forzare il calcolo del devicePixelRatio
-        print(self.devicePixelRatioF())
 
-
-
-    # Configurare il logging per catturare messaggi dettagliati
-    logging.basicConfig(level=logging.DEBUG, filename='app.log', filemode='w',
-                        format='%(name)s - %(levelname)s - %(message)s')
+        logging.debug("VTKWidget inizializzato completamente.")
 
     def showEvent(self, event):
-        try:
-            super().showEvent(event)
-            logging.debug("showEvent triggered")
+        super().showEvent(event)
+        logging.debug("showEvent triggered")
 
+        try:
             if not self.interactor.GetInitialized():
+                logging.debug("Inizializzazione dell'interactor VTK...")
                 self.interactor.Initialize()
                 QTimer.singleShot(100, self.start_interactor)
 
             if self.render_window and self.render_window.GetRenderers().GetNumberOfItems() > 0:
+                logging.debug("Esecuzione del rendering iniziale...")
                 self.render_window.Render()
                 self.update_scene()
-                logging.debug("Mostrato")
+                logging.debug("Rendering completato.")
         except Exception as e:
             logging.error(f"Errore in showEvent: {e}")
             logging.error(traceback.format_exc())
-            
+
     def start_interactor(self):
         try:
+            logging.debug("Avvio dell'interactor VTK...")
             self.interactor.Start()
-            print("VTK Interactor started")
+            logging.debug("VTK Interactor avviato.")
         except Exception as e:
-            print(f"Error starting VTK Interactor: {e}")
-            print(traceback.format_exc())
+            logging.error(f"Errore durante l'avvio dell'interactor VTK: {e}")
+            logging.error(traceback.format_exc())
 
     def setup_rect_positions(self):
+        logging.debug("Impostazione delle posizioni dei rettangoli...")
+        # Codice per impostare le posizioni
         if self.num_rectangles == 4:
             self.rect_positions = [
                 (-50, 0, 50),  # Top-left
@@ -138,6 +124,7 @@ class VTKWidget(QWidget):
             ]
 
     def load_mtl(self, filepath):
+        logging.debug(f"Caricamento file MTL: {filepath}")
         materials_info = {}
         current_material = None
 
@@ -160,6 +147,28 @@ class VTKWidget(QWidget):
                         materials_info[current_material]['Tr'] = line.split()[1]
 
         return materials_info
+
+
+    
+
+
+    def update_scene(self):
+        try:
+            if self.renderer and self.render_window:
+                if self.renderer.GetActors().GetNumberOfItems() > 0:
+                    self.renderer.Render()
+                    logging.debug("Scene updated.")
+                else:
+                    logging.debug("No actors to render.")
+            else:
+                logging.debug("Renderer or render window not initialized.")
+        except Exception as e:
+            logging.error(f"Errore durante l'aggiornamento della scena: {e}")
+            logging.error(traceback.format_exc())
+
+     
+
+
 
     def load_obj(self, filepath):
         vertices = []
@@ -187,11 +196,16 @@ class VTKWidget(QWidget):
         return (vertices, faces, face_materials), materials
 
     def create_actors(self):
+        logging.debug("Creazione degli attori...")
+        # Codice per creare attori
+
         for position in self.rect_positions:
             actor = self.create_actor(position)
             self.renderer.AddActor(actor)
             
     def add_base_plane(self):
+        logging.debug("Aggiunta del piano di base trasparente...")
+        # Codice per aggiungere il piano di base
         # Create a plane source
         plane = vtk.vtkPlaneSource()
         plane.SetOrigin(-100, 0, -100)
@@ -270,12 +284,15 @@ class VTKWidget(QWidget):
         return [float(c) for c in kd]
 
     def setup_camera(self):
+        logging.debug("Impostazione della camera...")
         self.camera = vtk.vtkCamera()
         self.camera.SetPosition(self.camera_position_x, self.camera_position_y, self.camera_position_z)
         self.camera.SetFocalPoint(0, 0, 0)
         self.camera.SetViewUp(0, 1, 0)
-        self.camera.Zoom(1.2)  # Aumentato leggermente lo zoom per una visione migliore
+        self.camera.Zoom(1.2)
         self.renderer.SetActiveCamera(self.camera)
+        logging.debug("Camera impostata correttamente.")
+
 
     def update_scene(self):
         try:
