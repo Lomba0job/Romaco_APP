@@ -5,3 +5,10 @@ matplotlib - DEBUG - platform is linux
 matplotlib - DEBUG - CACHEDIR=/home/lomba/.cache/matplotlib
 matplotlib.font_manager - DEBUG - Using fontManager instance from /home/lomba/.cache/matplotlib/fontlist-v330.json
 root - DEBUG - showEvent triggered
+
+
+X Error of failed request:  BadWindow (invalid Window parameter)
+  Major opcode of failed request:  2 (X_ChangeWindowAttributes)
+  Resource id in failed request:  0x3
+  Serial number of failed request:  7
+  Current serial number in output stream:  9
