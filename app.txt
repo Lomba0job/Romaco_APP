@@ -1,27 +1,25 @@
-2024-08-23 13:28:24,709 - matplotlib - DEBUG - matplotlib data path: /home/lomba/.local/lib/python3.10/site-packages/matplotlib/mpl-data
-2024-08-23 13:28:24,712 - matplotlib - DEBUG - CONFIGDIR=/home/lomba/.config/matplotlib
-2024-08-23 13:28:24,713 - matplotlib - DEBUG - interactive is False
-2024-08-23 13:28:24,713 - matplotlib - DEBUG - platform is linux
-2024-08-23 13:28:24,774 - matplotlib - DEBUG - CACHEDIR=/home/lomba/.cache/matplotlib
-2024-08-23 13:28:24,775 - matplotlib.font_manager - DEBUG - Using fontManager instance from /home/lomba/.cache/matplotlib/fontlist-v330.json
-2024-08-23 13:28:45,247 - root - DEBUG - Caricamento configurazione...
-2024-08-23 13:28:45,247 - root - DEBUG - 1 corrisponde all'id 1
-2024-08-23 13:28:45,247 - root - DEBUG - 2 corrisponde all'id 2
-2024-08-23 13:28:45,247 - root - DEBUG - 3 corrisponde all'id 3
-2024-08-23 13:28:45,247 - root - DEBUG - 4 corrisponde all'id 4
-2024-08-23 13:28:45,249 - root - DEBUG - Caricamento file MTL: /home/lomba/Documenti/ROMACO/Romaco_APP/ICO/mat.mtl
-2024-08-23 13:28:45,375 - root - DEBUG - Impostazione delle posizioni dei rettangoli...
-2024-08-23 13:28:45,375 - root - DEBUG - Creazione degli attori...
-2024-08-23 13:28:46,902 - root - DEBUG - Aggiunta del piano di base trasparente...
-2024-08-23 13:28:46,902 - root - DEBUG - Impostazione della camera...
-2024-08-23 13:28:46,902 - root - DEBUG - Camera impostata correttamente.
-2024-08-23 13:28:46,903 - root - DEBUG - VTKWidget inizializzato completamente.
-2024-08-23 13:28:46,903 - root - DEBUG - Configurazione caricata e widget VTK aggiunto.
-2024-08-23 13:28:46,936 - root - DEBUG - showEvent triggered
-2024-08-23 13:28:46,936 - root - DEBUG - Inizializzazione dell'interactor VTK...
+2024-08-23 13:42:23,114 - matplotlib - DEBUG - matplotlib data path: /home/lomba/.local/lib/python3.10/site-packages/matplotlib/mpl-data
+2024-08-23 13:42:23,117 - matplotlib - DEBUG - CONFIGDIR=/home/lomba/.config/matplotlib
+2024-08-23 13:42:23,118 - matplotlib - DEBUG - interactive is False
+2024-08-23 13:42:23,118 - matplotlib - DEBUG - platform is linux
+2024-08-23 13:42:23,185 - matplotlib - DEBUG - CACHEDIR=/home/lomba/.cache/matplotlib
+2024-08-23 13:42:23,186 - matplotlib.font_manager - DEBUG - Using fontManager instance from /home/lomba/.cache/matplotlib/fontlist-v330.json
+2024-08-23 13:42:44,239 - root - DEBUG - Caricamento configurazione...
+2024-08-23 13:42:44,239 - root - DEBUG - 1 corrisponde all'id 1
+2024-08-23 13:42:44,239 - root - DEBUG - 2 corrisponde all'id 2
+2024-08-23 13:42:44,239 - root - DEBUG - 3 corrisponde all'id 3
+2024-08-23 13:42:44,239 - root - DEBUG - 4 corrisponde all'id 4
+2024-08-23 13:42:44,240 - root - DEBUG - Caricamento file MTL: /home/lomba/Documenti/ROMACO/Romaco_APP/ICO/mat.mtl
+2024-08-23 13:42:44,388 - root - DEBUG - Impostazione delle posizioni dei rettangoli...
+2024-08-23 13:42:44,388 - root - DEBUG - Creazione degli attori...
+2024-08-23 13:42:46,099 - root - DEBUG - Aggiunta del piano di base trasparente...
+2024-08-23 13:42:46,099 - root - DEBUG - Impostazione della camera...
+2024-08-23 13:42:46,099 - root - DEBUG - Camera impostata correttamente.
+2024-08-23 13:42:46,099 - root - DEBUG - VTKWidget inizializzato completamente.
+2024-08-23 13:42:46,099 - root - DEBUG - Configurazione caricata e widget VTK aggiunto.
+2024-08-23 13:42:46,130 - root - DEBUG - showEvent triggered
+2024-08-23 13:42:46,130 - root - DEBUG - Inizializzazione dell'interactor VTK...
+2024-08-23 13:42:46,130 - root - DEBUG - Esecuzione del rendering iniziale...
 
-X Error of failed request:  BadWindow (invalid Window parameter)
-  Major opcode of failed request:  2 (X_ChangeWindowAttributes)
-  Resource id in failed request:  0x3
-  Serial number of failed request:  7
-  Current serial number in output stream:  9
+
+Errore di segmentazione (core dump creato)
