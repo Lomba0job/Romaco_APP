@@ -65,7 +65,7 @@ class VTKWidget(QWidget):
         self.renderer.SetBackground(1, 1, 1)  # Set background color to white
         self.render_window = self.vtkWidget.GetRenderWindow()
         self.render_window.SetMultiSamples(0)  # Disable anti-aliasing
-        self.render_window.SetUseOffScreenRendering(1)
+        self.render_window.SetOffScreenRendering(1)
         self.render_window.AddRenderer(self.renderer)
         self.interactor = self.render_window.GetInteractor()
 
