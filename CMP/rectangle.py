@@ -5,7 +5,7 @@ from vtkmodules.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 import vtk
 import numpy as np
 from API import funzioni as f
-
+import traceback
 
 class VTKWidget(QWidget):
     def __init__(self, num_rectangles, parent=None):
@@ -63,20 +63,32 @@ class VTKWidget(QWidget):
         # Forzare il calcolo del devicePixelRatio
         print(self.devicePixelRatioF())
 
+   
+
     def showEvent(self, event):
-        super().showEvent(event)
-        print("showEvent triggered")
+        try:
+            super().showEvent(event)
+            print("showEvent triggered")
     
-        # Ensure interactor is initialized only once
-        if not self.interactor.GetInitialized():
-            self.interactor.Initialize()
+            if not self.interactor.GetInitialized():
+                self.interactor.Initialize()
+                QTimer.singleShot(100, self.start_interactor)
+    
+            if self.render_window and self.render_window.GetRenderers().GetNumberOfItems() > 0:
+                self.render_window.Render()
+                self.update_scene()
+                print("Mostrato")
+        except Exception as e:
+            print(f"Error in showEvent: {e}")
+            print(traceback.format_exc())
+    
+    def start_interactor(self):
+        try:
             self.interactor.Start()
-    
-        # Now it is safe to render
-        if self.render_window and self.render_window.GetRenderers().GetNumberOfItems() > 0:
-            self.render_window.Render()
-            self.update_scene()
-            print("Mostrato")
+            print("VTK Interactor started")
+        except Exception as e:
+            print(f"Error starting VTK Interactor: {e}")
+            print(traceback.format_exc())
 
     def setup_rect_positions(self):
         if self.num_rectangles == 4:
