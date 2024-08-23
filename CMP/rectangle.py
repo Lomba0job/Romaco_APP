@@ -5,7 +5,9 @@ from vtkmodules.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 import vtk
 import numpy as np
 from API import funzioni as f
-import traceback
+import traceback   
+
+import logging
 
 class VTKWidget(QWidget):
     def __init__(self, num_rectangles, parent=None):
@@ -63,25 +65,29 @@ class VTKWidget(QWidget):
         # Forzare il calcolo del devicePixelRatio
         print(self.devicePixelRatioF())
 
-   
+
+
+    # Configurare il logging per catturare messaggi dettagliati
+    logging.basicConfig(level=logging.DEBUG, filename='app.log', filemode='w',
+                        format='%(name)s - %(levelname)s - %(message)s')
 
     def showEvent(self, event):
         try:
             super().showEvent(event)
-            print("showEvent triggered")
-    
+            logging.debug("showEvent triggered")
+
             if not self.interactor.GetInitialized():
                 self.interactor.Initialize()
                 QTimer.singleShot(100, self.start_interactor)
-    
+
             if self.render_window and self.render_window.GetRenderers().GetNumberOfItems() > 0:
                 self.render_window.Render()
                 self.update_scene()
-                print("Mostrato")
+                logging.debug("Mostrato")
         except Exception as e:
-            print(f"Error in showEvent: {e}")
-            print(traceback.format_exc())
-    
+            logging.error(f"Errore in showEvent: {e}")
+            logging.error(traceback.format_exc())
+            
     def start_interactor(self):
         try:
             self.interactor.Start()
