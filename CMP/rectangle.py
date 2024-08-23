@@ -1,6 +1,6 @@
 import sys
 from PyQt6.QtWidgets import QApplication, QSizePolicy, QMainWindow, QVBoxLayout, QWidget
-from PyQt6.QtCore import Qt, QPointF, QTimer, QThread, pyqtSignal
+from PyQt6.QtCore import Qt, QPointF, QTimer, QThread, pyqtSignal, QObject
 from vtkmodules.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 import vtk
 import numpy as np
@@ -12,25 +12,83 @@ import logging
 logging.basicConfig(level=logging.DEBUG, filename='app.log', filemode='w',
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-class VTKWorker(QThread):
-    finished = pyqtSignal()  # Segnale per notificare il completamento
+class VTKWorker(QObject):
+    finished = pyqtSignal(object)  # Signal to notify when finished with the loaded model and materials
+    error = pyqtSignal(str)        # Signal to notify in case of errors
 
     def __init__(self, num_rectangles):
         super().__init__()
         self.num_rectangles = num_rectangles
 
-    def run(self):
+    def process(self):
         try:
-            # Esegui qui la logica complessa o il caricamento
             logging.debug("VTKWorker: Inizio elaborazione della logica 3D.")
-            # Simulazione della logica pesante, come il caricamento dei dati
-            # e preparazione della scena 3D
-            self.sleep(2)  # Simulazione di ritardo
+            # Load the MTL and OBJ files
+            materials_info = self.load_mtl(f.get_img("mat.mtl"))
+            model, materials = self.load_obj(f.get_img("bilancia_def.obj"), materials_info)
             logging.debug("VTKWorker: Logica 3D completata.")
-            self.finished.emit()  # Segnale per notificare il completamento
+            self.finished.emit((model, materials))  # Emit signal with model and materials
         except Exception as e:
             logging.error(f"Errore nel VTKWorker: {e}")
             logging.error(traceback.format_exc())
+            self.error.emit(str(e))  # Emit error signal
+
+    def load_mtl(self, filepath):
+        logging.debug(f"Caricamento file MTL: {filepath}")
+        materials_info = {}
+        current_material = None
+
+        with open(filepath, 'r') as file:
+            for line in file:
+                line = line.strip()
+                if line.startswith('newmtl '):
+                    current_material = line.split()[1]
+                    materials_info[current_material] = {}
+                elif current_material:
+                    if line.startswith('Ka '):
+                        materials_info[current_material]['Ka'] = line.split()[1:]
+                    elif line.startswith('Kd '):
+                        materials_info[current_material]['Kd'] = line.split()[1:]
+                    elif line.startswith('Ks '):
+                        materials_info[current_material]['Ks'] = line.split()[1:]
+                    elif line.startswith('Ns '):
+                        materials_info[current_material]['Ns'] = line.split()[1]
+                    elif line.startswith('Tr '):
+                        materials_info[current_material]['Tr'] = line.split()[1]
+
+        return materials_info
+
+    def load_obj(self, filepath, materials_info):
+        vertices = []
+        faces = []
+        face_materials = []
+        materials = {}
+        current_material = None
+
+        with open(filepath, 'r') as file:
+            for line in file:
+                line = line.strip()
+                if line.startswith('v '):
+                    vertex = [float(x) for x in line.split()[1:]]
+                    vertices.append([vertex[0], vertex[2], -vertex[1]])
+                elif line.startswith('f '):
+                    face = [int(vertex.split('/')[0]) - 1 for vertex in line.split()[1:]]
+                    faces.append(face)
+                    face_materials.append(current_material)
+                elif line.startswith('usemtl '):
+                    current_material = line.split()[1]
+                    if current_material not in materials:
+                        materials[current_material] = self.get_material_color(current_material, materials_info)
+
+        logging.debug(f"Loaded model with {len(vertices)} vertices and {len(faces)} faces.")
+        return (vertices, faces, face_materials), materials
+
+    def get_material_color(self, material_name, materials_info):
+        material_info = materials_info.get(material_name, {})
+        kd = material_info.get('Kd', ['0.3', '0.3', '0.3'])
+        return [float(c) for c in kd]
+    
+    
 
 class VTKWidget(QWidget):
     def __init__(self, num_rectangles, parent=None):
@@ -59,30 +117,131 @@ class VTKWidget(QWidget):
         self.render_window.AddRenderer(self.renderer)
         self.interactor = self.render_window.GetInteractor()
 
-        self.worker = VTKWorker(num_rectangles)  # Crea un'istanza del worker
-        self.worker.finished.connect(self.on_worker_finished)  # Connetti il segnale
-        self.worker.start()  # Avvia il thread
+        self.worker_thread = QThread()  # Create a thread
+        self.worker = VTKWorker(num_rectangles)  # Create a worker instance
+        self.worker.moveToThread(self.worker_thread)  # Move worker to the thread
+        self.worker.finished.connect(self.on_worker_finished)  # Connect the signal
+        self.worker.error.connect(self.handle_error)  # Connect the error signal
+        self.worker_thread.started.connect(self.worker.process)  # Start the processing method when thread starts
+        self.worker_thread.start()  # Start the thread
 
-    def on_worker_finished(self):
-        logging.debug("VTKWidget: Worker 3D completato, aggiornamento dell'interfaccia utente.")
-        self.setup_scene()  # Configura la scena ora che il worker ha terminato
+    def on_worker_finished(self, result):
+        logging.debug("Worker completato, aggiornamento dell'interfaccia utente.")
+        try:
+            model, materials = result
+            self.model = model
+            self.materials = materials
+            QTimer.singleShot(0, self.setup_scene)
+        except Exception as e:
+            logging.error(f"Errore in on_worker_finished: {e}")
+            logging.error(traceback.format_exc())
+
+    def handle_error(self, error_message):
+        logging.error(f"Errore nel thread: {error_message}")
+
+    def closeEvent(self, event):
+        self.worker_thread.quit()  # Stop the worker thread
+        self.worker_thread.wait()  # Wait for the thread to finish
+        super().closeEvent(event)
 
     def setup_scene(self):
-        # Configura la scena 3D
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self.update_scene)
-        self.timer.start(30)
+        logging.debug("VTKWidget: Impostazione della scena.")
+        try:
+            self.setup_rect_positions()
+            self.create_actors()
+            self.add_base_plane()
+            self.setup_camera()
+            self.update_scene()  # Rendering iniziale
+        except Exception as e:
+            logging.error(f"Errore durante setup_scene: {e}")
+            logging.error(traceback.format_exc())
+        
+    def create_actors(self):
+        logging.debug("Creazione degli attori...")
+        # Codice per creare attori
 
-        self.materials_info = self.load_mtl(f.get_img("mat.mtl"))
-        self.model, self.materials = self.load_obj(f.get_img("bilancia_def.obj"))
+        for position in self.rect_positions:
+            actor = self.create_actor(position)
+            self.renderer.AddActor(actor)
+            
+    def add_base_plane(self):
+        logging.debug("Aggiunta del piano di base trasparente...")
+        # Codice per aggiungere il piano di base
+        # Create a plane source
+        plane = vtk.vtkPlaneSource()
+        plane.SetOrigin(-100, 0, -100)
+        plane.SetPoint1(100, 0, -100)
+        plane.SetPoint2(-100, 0, 100)
 
-        self.setup_rect_positions()
-        self.create_actors()
-        self.add_base_plane()
-        self.setup_camera()
+        # Create a mapper and actor
+        mapper = vtk.vtkPolyDataMapper()
+        mapper.SetInputConnection(plane.GetOutputPort())
+        actor = vtk.vtkActor()
+        actor.SetMapper(mapper)
 
-        logging.debug("VTKWidget: Scena configurata.")
+        # Set the plane color and transparency
+        actor.GetProperty().SetColor(1, 1, 1)  # White color
+        actor.GetProperty().SetOpacity(0.2)    # 50% transparency
 
+        # Add the plane actor to the renderer
+        self.renderer.AddActor(actor)
+  
+        
+        
+    def create_actor(self, position):
+        vertices, faces, face_materials = self.model
+        points = vtk.vtkPoints()
+        polys = vtk.vtkCellArray()
+        colors = vtk.vtkUnsignedCharArray()
+        colors.SetNumberOfComponents(3)
+        colors.SetName("Colors")
+
+        # Calculate the current bounding box
+        min_x = min(v[0] for v in vertices)
+        max_x = max(v[0] for v in vertices)
+        min_y = min(v[1] for v in vertices)
+        max_y = max(v[1] for v in vertices)
+        min_z = min(v[2] for v in vertices)
+        max_z = max(v[2] for v in vertices)
+
+        current_width = max_x - min_x
+        current_height = max_y - min_y
+        current_depth = max_z - min_z
+
+        # Calculate the scale factors needed to match rect_size
+        x_scale = self.rect_size[0] / current_width if current_width != 0 else 1
+        y_scale = self.rect_size[1] / current_height if current_height != 0 else 1
+        z_scale = self.rect_size[2] / current_depth if current_depth != 0 else 1
+
+        for v in vertices:
+            points.InsertNextPoint(v[0] * x_scale, v[1] * y_scale, v[2] * z_scale)
+
+        for i, face in enumerate(faces):
+            triangle = vtk.vtkTriangle()
+            for j, vertex in enumerate(face):
+                triangle.GetPointIds().SetId(j, vertex)
+            polys.InsertNextCell(triangle)
+    
+            material_name = face_materials[i]
+            color = self.materials.get(material_name, [0.3, 0.3, 0.3])
+            colors.InsertNextTuple3(*[int(c * 255) for c in color])
+        
+
+        polydata = vtk.vtkPolyData()
+        polydata.SetPoints(points)
+        polydata.SetPolys(polys)
+        polydata.GetCellData().SetScalars(colors)
+
+        mapper = vtk.vtkPolyDataMapper()
+        mapper.SetInputData(polydata)
+
+        actor = vtk.vtkActor()
+        actor.SetMapper(mapper)
+
+        # Set the actor's position
+        actor.SetPosition(*position)
+        return actor
+        
     def showEvent(self, event):
         super().showEvent(event)
         logging.debug("showEvent triggered")
@@ -181,147 +340,6 @@ class VTKWidget(QWidget):
                 (0, 0, -60)    # Bottom-center
             ]
 
-    def load_mtl(self, filepath):
-        logging.debug(f"Caricamento file MTL: {filepath}")
-        materials_info = {}
-        current_material = None
-
-        with open(filepath, 'r') as file:
-            for line in file:
-                line = line.strip()
-                if line.startswith('newmtl '):
-                    current_material = line.split()[1]
-                    materials_info[current_material] = {}
-                elif current_material:
-                    if line.startswith('Ka '):
-                        materials_info[current_material]['Ka'] = line.split()[1:]
-                    elif line.startswith('Kd '):
-                        materials_info[current_material]['Kd'] = line.split()[1:]
-                    elif line.startswith('Ks '):
-                        materials_info[current_material]['Ks'] = line.split()[1:]
-                    elif line.startswith('Ns '):
-                        materials_info[current_material]['Ns'] = line.split()[1]
-                    elif line.startswith('Tr '):
-                        materials_info[current_material]['Tr'] = line.split()[1]
-
-        return materials_info
-
-     
-
-
-
-    def load_obj(self, filepath):
-        vertices = []
-        faces = []
-        face_materials = []
-        materials = {}
-        current_material = None
-
-        with open(filepath, 'r') as file:
-            for line in file:
-                line = line.strip()
-                if line.startswith('v '):
-                    vertex = [float(x) for x in line.split()[1:]]
-                    vertices.append([vertex[0], vertex[2], -vertex[1]])
-                elif line.startswith('f '):
-                    face = [int(vertex.split('/')[0]) - 1 for vertex in line.split()[1:]]
-                    faces.append(face)
-                    face_materials.append(current_material)
-                elif line.startswith('usemtl '):
-                    current_material = line.split()[1]
-                    if current_material not in materials:
-                        materials[current_material] = self.get_material_color(current_material)
-
-        print(f"Loaded model with {len(vertices)} vertices and {len(faces)} faces.")
-        return (vertices, faces, face_materials), materials
-
-    def create_actors(self):
-        logging.debug("Creazione degli attori...")
-        # Codice per creare attori
-
-        for position in self.rect_positions:
-            actor = self.create_actor(position)
-            self.renderer.AddActor(actor)
-            
-    def add_base_plane(self):
-        logging.debug("Aggiunta del piano di base trasparente...")
-        # Codice per aggiungere il piano di base
-        # Create a plane source
-        plane = vtk.vtkPlaneSource()
-        plane.SetOrigin(-100, 0, -100)
-        plane.SetPoint1(100, 0, -100)
-        plane.SetPoint2(-100, 0, 100)
-
-        # Create a mapper and actor
-        mapper = vtk.vtkPolyDataMapper()
-        mapper.SetInputConnection(plane.GetOutputPort())
-        actor = vtk.vtkActor()
-        actor.SetMapper(mapper)
-
-        # Set the plane color and transparency
-        actor.GetProperty().SetColor(1, 1, 1)  # White color
-        actor.GetProperty().SetOpacity(0.2)    # 50% transparency
-
-        # Add the plane actor to the renderer
-        self.renderer.AddActor(actor)
-
-    def create_actor(self, position):
-        vertices, faces, face_materials = self.model
-        points = vtk.vtkPoints()
-        polys = vtk.vtkCellArray()
-        colors = vtk.vtkUnsignedCharArray()
-        colors.SetNumberOfComponents(3)
-        colors.SetName("Colors")
-
-        # Calculate the current bounding box
-        min_x = min(v[0] for v in vertices)
-        max_x = max(v[0] for v in vertices)
-        min_y = min(v[1] for v in vertices)
-        max_y = max(v[1] for v in vertices)
-        min_z = min(v[2] for v in vertices)
-        max_z = max(v[2] for v in vertices)
-
-        current_width = max_x - min_x
-        current_height = max_y - min_y
-        current_depth = max_z - min_z
-
-        # Calculate the scale factors needed to match rect_size
-        x_scale = self.rect_size[0] / current_width if current_width != 0 else 1
-        y_scale = self.rect_size[1] / current_height if current_height != 0 else 1
-        z_scale = self.rect_size[2] / current_depth if current_depth != 0 else 1
-
-        for v in vertices:
-            points.InsertNextPoint(v[0] * x_scale, v[1] * y_scale, v[2] * z_scale)
-
-        for i, face in enumerate(faces):
-            triangle = vtk.vtkTriangle()
-            for j, vertex in enumerate(face):
-                triangle.GetPointIds().SetId(j, vertex)
-            polys.InsertNextCell(triangle)
-
-            material_name = face_materials[i]
-            color = self.get_material_color(material_name)
-            colors.InsertNextTuple3(*[int(c * 255) for c in color])
-
-        polydata = vtk.vtkPolyData()
-        polydata.SetPoints(points)
-        polydata.SetPolys(polys)
-        polydata.GetCellData().SetScalars(colors)
-
-        mapper = vtk.vtkPolyDataMapper()
-        mapper.SetInputData(polydata)
-
-        actor = vtk.vtkActor()
-        actor.SetMapper(mapper)
-
-        # Set the actor's position
-        actor.SetPosition(*position)
-        return actor
-
-    def get_material_color(self, material_name):
-        material_info = self.materials_info.get(material_name, {})
-        kd = material_info.get('Kd', ['0.3', '0.3', '0.3'])
-        return [float(c) for c in kd]
 
     def setup_camera(self):
         logging.debug("Impostazione della camera...")
@@ -334,20 +352,7 @@ class VTKWidget(QWidget):
         logging.debug("Camera impostata correttamente.")
 
 
-    def update_scene(self):
-        try:
-            if self.renderer and self.render_window:
-                # Check if there are any actors to render
-                if self.renderer.GetActors().GetNumberOfItems() > 0:
-                    self.renderer.Render()
-                    print("Scene updated.")
-                else:
-                    print("No actors to render.")
-            else:
-                print("Renderer or render window not initialized.")
-        except Exception as e:
-            print(f"Error during scene update: {e}")
-
+    
     def mousePressEvent(self, event):
         self.last_pos = event.position()
         if event.buttons() == Qt.MouseButton.LeftButton:

@@ -228,43 +228,73 @@ class Home_Page(QWidget):
         num_rectangles = len(self.master.lista_bilance) 
         for b in self.master.lista_bilance:
             logging.debug(f"{b.position} corrisponde all'id {b.modbusI.address}")
-        
+
         if self.glWidget is not None:
             logging.debug("Rimozione del widget precedente...")
             self.fixed_area.layout().removeWidget(self.glWidget)
             self.glWidget.deleteLater()
             self.glWidget = None
-    
+
         self.glWidget = r.VTKWidget(num_rectangles=num_rectangles)
         self.glWidget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-    
+
         if self.fixed_area.layout() is not None:
             old_layout = self.fixed_area.layout()
             QWidget().setLayout(old_layout)
-    
+
         layout = QHBoxLayout()
         layout.addWidget(self.glWidget)
         self.fixed_area.setLayout(layout)
         self.fixed_area.setAutoFillBackground(False)
         logging.debug("Configurazione caricata e widget VTK aggiunto.")
-    
+
         # Inizia il worker VTK per la logica 3D pesante
         self.startVTKWorker(num_rectangles)
-    
+
     def startVTKWorker(self, num_rectangles):
-        if self.worker is not None and self.worker.isRunning():
-            logging.debug("Worker VTK già in esecuzione. Attendere il completamento...")
-            return
-        
-        logging.debug("Avvio del worker VTK per la logica 3D pesante...")
-        self.worker = r.VTKWorker(num_rectangles)  # Crea un nuovo worker con il numero di rettangoli
-        self.worker.finished.connect(self.onVTKWorkerFinished)  # Connetti il segnale
-        self.worker.start()  # Avvia il worker
+        logging.debug("Preparazione per l'avvio del worker VTK...")
+        try:
+            if hasattr(self, 'worker_thread') and self.worker_thread.isRunning():
+                logging.debug("Worker VTK già in esecuzione. Attendere il completamento...")
+                return
     
-    @pyqtSlot()
-    def onVTKWorkerFinished(self):
+            logging.debug("Avvio del worker VTK per il calcolo 3D pesante...")
+            self.worker_thread = QThread()
+            self.worker = r.VTKWorker(num_rectangles)
+            self.worker.moveToThread(self.worker_thread)
+    
+            self.worker.finished.connect(self.onVTKWorkerFinished, Qt.ConnectionType.QueuedConnection)
+            self.worker.error.connect(self.handleWorkerError, Qt.ConnectionType.QueuedConnection)
+    
+            self.worker_thread.started.connect(self.worker.process)
+    
+            self.worker_thread.finished.connect(self.worker_thread.deleteLater)
+            self.worker.finished.connect(self.worker_thread.quit)
+            self.worker.finished.connect(self.worker.deleteLater)
+    
+            logging.debug("Impostazione del thread del worker completata, avvio del thread.")
+            self.worker_thread.start()
+        except Exception as e:
+            logging.error(f"Errore in startVTKWorker: {e}")
+            logging.error(traceback.format_exc())
+
+    @pyqtSlot(object)
+    def onVTKWorkerFinished(self, result):
         logging.debug("Worker VTK completato. Aggiornamento UI...")
-        # Ora il worker ha terminato, puoi aggiornare il VTKWidget o eseguire altri aggiornamenti UI
+        model, materials = result
+
+        # Use a single-shot timer to ensure this runs in the main thread
+        QTimer.singleShot(0, lambda: self.updateVTKWidget(model, materials))
+
+    def updateVTKWidget(self, model, materials):
+        self.glWidget.model = model
+        self.glWidget.materials = materials
+        self.glWidget.setup_scene()  # Ensure that the scene is updated with the new model and materials
+
+    @pyqtSlot(str)
+    def handleWorkerError(self, error_message):
+        logging.error(f"Errore nel worker: {error_message}")
+        # Handle the error appropriately, perhaps showing a message to the user or taking corrective actions
 
     def pesata(self):
         
