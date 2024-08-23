@@ -1,0 +1,7 @@
+matplotlib - DEBUG - matplotlib data path: /home/lomba/.local/lib/python3.10/site-packages/matplotlib/mpl-data
+matplotlib - DEBUG - CONFIGDIR=/home/lomba/.config/matplotlib
+matplotlib - DEBUG - interactive is False
+matplotlib - DEBUG - platform is linux
+matplotlib - DEBUG - CACHEDIR=/home/lomba/.cache/matplotlib
+matplotlib.font_manager - DEBUG - Using fontManager instance from /home/lomba/.cache/matplotlib/fontlist-v330.json
+root - DEBUG - showEvent triggered
