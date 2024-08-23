@@ -6,7 +6,29 @@ import vtk
 import numpy as np
 from API import funzioni as f
 
+import ctypes
+import ctypes.util
+import logging
 
+# Set up logging
+logging.basicConfig(filename='vtk_widget.log', level=logging.DEBUG, 
+                    format='%(asctime)s - %(levelname)s - %(message)s')
+
+logging.info("Starting application")
+
+# X11 error handler
+def x11_error_handler(display, event):
+    logging.error("X11 error occurred")
+    return 0
+
+try:
+    x11 = ctypes.cdll.LoadLibrary(ctypes.util.find_library('X11'))
+    x11.XSetErrorHandler(ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p)(x11_error_handler))
+    logging.info("X11 error handler set up successfully")
+except Exception as e:
+    logging.error(f"Failed to set up X11 error handler: {e}")
+    
+    
 class VTKWidget(QWidget):
     def __init__(self, num_rectangles, parent=None):
         super().__init__(parent)
