@@ -53,68 +53,51 @@ except Exception as e:
     logging.error(f"Failed to set up X11 error handler: {e}")
     
 class VTKWidget(QWidget):
-    def __init__(self, num_rectangles, parent=None):
+    def __init__(self, parent=None):
         super().__init__(parent)
+        
         logging.debug("Initializing VTKWidget")
-        
-        self.num_rectangles = num_rectangles
-        self.rect_size = [35.0, 7.0, 35.0]
-        self.selected_rect = None
-        self.last_pos = QPointF()
-        self.camera_angle_x = 0
-        self.camera_angle_y = 20
-        self.camera_position_x = 0
-        self.camera_position_y = 60  # Aumentato per una vista più alta
-        self.camera_position_z = 300  # Aumentato per una distanza maggiore
-        self.rotating_camera = False
-        self.moving_camera = False
-        
-        logging.debug("VTKWidget properties initialized")
 
         self.layout = QVBoxLayout(self)
         self.vtkWidget = QVTKRenderWindowInteractor(self)
         self.layout.addWidget(self.vtkWidget)
 
-        self.render_window.SetMultiSamples(0)  # Disable anti-aliasing
-
-        # Prova a usare solo un renderer senza attori complessi
+        # Crea una finestra di rendering e un renderer
+        self.render_window = self.vtkWidget.GetRenderWindow()
         self.renderer = vtk.vtkRenderer()
-        self.renderer.SetBackground(0.1, 0.2, 0.3)
         self.render_window.AddRenderer(self.renderer)
-        
-        # Aggiungi solo un attore semplice
+
+        logging.debug("Render window and renderer created")
+
+        # Aggiungi un attore semplice
         cube_source = vtk.vtkCubeSource()
         cube_mapper = vtk.vtkPolyDataMapper()
         cube_mapper.SetInputConnection(cube_source.GetOutputPort())
         cube_actor = vtk.vtkActor()
         cube_actor.SetMapper(cube_mapper)
         self.renderer.AddActor(cube_actor)
-        
-        logging.debug("Renderer and simple actor added")
-        
-        logging.debug("VTK rendering setup complete")
 
-        # Timer for animation
+        logging.debug("Simple cube actor added to renderer")
+
+        # Imposta il background del renderer
+        self.renderer.SetBackground(0.1, 0.2, 0.4)
+
+        # Inizializza l'interactor
+        self.interactor = self.vtkWidget.GetRenderWindow().GetInteractor()
+        self.interactor.Initialize()
+        self.interactor.Start()
+
+        logging.debug("VTKWidget initialization complete")
+
+        # Timer per aggiornare la scena
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_scene)
         self.timer.start(30)
 
-        # Load material info and model
-        self.materials_info = self.load_mtl(f.get_img("mat.mtl"))
-        self.model, self.materials = self.load_obj(f.get_img("bilancia_def.obj"))
-
-        # Set up positions and create actors
-        self.setup_rect_positions()
-        self.create_actors()
-
-        # Add transparent base plane
-        self.add_base_plane()
-
-        # Camera setup
-        self.setup_camera()
-
-        # Forzare il calcolo del devicePixelRatio
-        print(self.devicePixelRatioF())
+    def update_scene(self):
+        logging.debug("Updating scene")
+        self.render_window.Render()
+        logging.debug("Scene updated")
 
     def showEvent(self, event):
         logging.debug("showEvent started")
@@ -341,12 +324,7 @@ class VTKWidget(QWidget):
         self.renderer.SetActiveCamera(self.camera)
         logging.debug("Camera setup complete")
 
-    def update_scene(self):
-        # logging.debug("Updating scene")
-        self.renderer.Render()
-        QApplication.processEvents()  # Keep the UI responsive during rendering
-        # logging.debug("Scene updated")
-
+    
     
     def mousePressEvent(self, event):
         # logging.debug("Mouse press event")
