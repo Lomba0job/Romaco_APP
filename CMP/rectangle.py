@@ -16,8 +16,19 @@ import logging
 import signal
 
 # Set up logging
-logging.basicConfig(filename='vtk_widget.log', level=logging.DEBUG, 
-                    format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    filename='vtk_widget.log',
+    filemode='w',
+    level=logging.DEBUG,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+
+# Add a console handler for immediate output
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+console_handler.setFormatter(formatter)
+logging.getLogger().addHandler(console_handler)
 
 logging.info("Starting application")
 
@@ -44,6 +55,8 @@ except Exception as e:
 class VTKWidget(QWidget):
     def __init__(self, num_rectangles, parent=None):
         super().__init__(parent)
+        logging.debug("Initializing VTKWidget")
+        
         self.num_rectangles = num_rectangles
         self.rect_size = [35.0, 7.0, 35.0]
         self.selected_rect = None
@@ -51,10 +64,12 @@ class VTKWidget(QWidget):
         self.camera_angle_x = 0
         self.camera_angle_y = 20
         self.camera_position_x = 0
-        self.camera_position_y = 80  # Aumentato per una vista più alta
-        self.camera_position_z = 400  # Aumentato per una distanza maggiore
+        self.camera_position_y = 60  # Aumentato per una vista più alta
+        self.camera_position_z = 300  # Aumentato per una distanza maggiore
         self.rotating_camera = False
         self.moving_camera = False
+        
+        logging.debug("VTKWidget properties initialized")
 
         self.layout = QVBoxLayout(self)
         self.vtkWidget = QVTKRenderWindowInteractor(self)
@@ -65,9 +80,11 @@ class VTKWidget(QWidget):
         self.renderer.SetBackground(1, 1, 1)  # Set background color to white
         self.render_window = self.vtkWidget.GetRenderWindow()
         self.render_window.SetMultiSamples(0)  # Disable anti-aliasing
-        self.render_window.SetOffScreenRendering(1)
+        self.render_window.SetUseOffScreenRendering(1)
         self.render_window.AddRenderer(self.renderer)
         self.interactor = self.render_window.GetInteractor()
+        
+        logging.debug("VTK rendering setup complete")
 
         # Timer for animation
         self.timer = QTimer(self)
