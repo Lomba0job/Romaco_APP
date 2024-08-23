@@ -2,6 +2,10 @@ import sys
 from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
 from PyQt6.QtCore import Qt, QPointF, QTimer
 from vtkmodules.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
+import vtkmodules.vtkRenderingOpenGL2
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingFreeType
+
 import vtk
 import numpy as np
 from API import funzioni as f
@@ -16,6 +20,14 @@ logging.basicConfig(filename='vtk_widget.log', level=logging.DEBUG,
 
 logging.info("Starting application")
 
+import signal
+
+def handle_signal(signum, frame):
+    logging.error(f"Received signal: {signum}")
+    sys.exit(1)
+
+signal.signal(signal.SIGSEGV, handle_signal)  # Handle segmentation faults
+signal.signal(signal.SIGABRT, handle_signal)  # Handle aborts
 # X11 error handler
 def x11_error_handler(display, event):
     logging.error("X11 error occurred")
@@ -53,6 +65,7 @@ class VTKWidget(QWidget):
         self.renderer.SetBackground(1, 1, 1)  # Set background color to white
         self.render_window = self.vtkWidget.GetRenderWindow()
         self.render_window.SetMultiSamples(0)  # Disable anti-aliasing
+        self.render_window.SetUseOffScreenRendering(1)
         self.render_window.AddRenderer(self.renderer)
         self.interactor = self.render_window.GetInteractor()
 
