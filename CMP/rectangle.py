@@ -111,21 +111,33 @@ class VTKWidget(QWidget):
     def showEvent(self, event):
         logging.debug("showEvent started")
         super().showEvent(event)
-        self.interactor.Initialize()
+
+        logging.debug("Initializing interactor")
+        # self.interactor.Initialize()  # Commenta questa linea
+
+        logging.debug("Rendering window")
         self.render_window.Render()
+        logging.debug("Window rendered")
+
+        logging.debug("Updating scene")
         self.update_scene()
-        self.interactor.Start()
-        
+        logging.debug("Scene updated")
+
+        # self.interactor.Start()  # Commenta questa linea
+        logging.debug("Interactor not started")
+
         QApplication.processEvents()  # Keep the UI responsive
         logging.debug("showEvent finished")
 
-        # Forza un aggiornamento esplicito del widget e della finestra di rendering
         self.update()
+        logging.debug("Widget updated")
         self.render_window.Render()
+        logging.debug("Window rendered again")
         self.render_window.Modified()
+        logging.debug("Render window modified")
         self.render_window.GetInteractor().Render()
+        logging.debug("Interactor rendered")
         print("Mostrato")
-
     def setup_rect_positions(self):
         logging.debug("Setting up rectangle positions")
         if self.num_rectangles == 4:
