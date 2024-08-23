@@ -29,6 +29,7 @@ class Home_Page(QWidget):
         self.pesata_thread = None  # Per tenere il riferimento al thread
         self.progress_bar = None  # Per tenere il riferimento alla barra di progresso
         self.timer = None  # Timer per aggiornare la barra di progresso
+        self.worker = None  # Worker per gestire il calcolo in thread separato
         self.preUI()
         self.setAutoFillBackground(True)
         self.set_background_color()
@@ -233,20 +234,37 @@ class Home_Page(QWidget):
             self.fixed_area.layout().removeWidget(self.glWidget)
             self.glWidget.deleteLater()
             self.glWidget = None
-
+    
         self.glWidget = r.VTKWidget(num_rectangles=num_rectangles)
         self.glWidget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-
+    
         if self.fixed_area.layout() is not None:
             old_layout = self.fixed_area.layout()
             QWidget().setLayout(old_layout)
-
+    
         layout = QHBoxLayout()
         layout.addWidget(self.glWidget)
         self.fixed_area.setLayout(layout)
         self.fixed_area.setAutoFillBackground(False)
         logging.debug("Configurazione caricata e widget VTK aggiunto.")
-
+    
+        # Inizia il worker VTK per la logica 3D pesante
+        self.startVTKWorker(num_rectangles)
+    
+    def startVTKWorker(self, num_rectangles):
+        if self.worker is not None and self.worker.isRunning():
+            logging.debug("Worker VTK già in esecuzione. Attendere il completamento...")
+            return
+        
+        logging.debug("Avvio del worker VTK per la logica 3D pesante...")
+        self.worker = r.VTKWorker(num_rectangles)  # Crea un nuovo worker con il numero di rettangoli
+        self.worker.finished.connect(self.onVTKWorkerFinished)  # Connetti il segnale
+        self.worker.start()  # Avvia il worker
+    
+    @pyqtSlot()
+    def onVTKWorkerFinished(self):
+        logging.debug("Worker VTK completato. Aggiornamento UI...")
+        # Ora il worker ha terminato, puoi aggiornare il VTKWidget o eseguire altri aggiornamenti UI
 
     def pesata(self):
         

@@ -1,6 +1,6 @@
 import sys
 from PyQt6.QtWidgets import QApplication, QSizePolicy, QMainWindow, QVBoxLayout, QWidget
-from PyQt6.QtCore import Qt, QPointF, QTimer
+from PyQt6.QtCore import Qt, QPointF, QTimer, QThread, pyqtSignal
 from vtkmodules.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 import vtk
 import numpy as np
@@ -11,6 +11,26 @@ import logging
 # Configurazione del logging
 logging.basicConfig(level=logging.DEBUG, filename='app.log', filemode='w',
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+class VTKWorker(QThread):
+    finished = pyqtSignal()  # Segnale per notificare il completamento
+
+    def __init__(self, num_rectangles):
+        super().__init__()
+        self.num_rectangles = num_rectangles
+
+    def run(self):
+        try:
+            # Esegui qui la logica complessa o il caricamento
+            logging.debug("VTKWorker: Inizio elaborazione della logica 3D.")
+            # Simulazione della logica pesante, come il caricamento dei dati
+            # e preparazione della scena 3D
+            self.sleep(2)  # Simulazione di ritardo
+            logging.debug("VTKWorker: Logica 3D completata.")
+            self.finished.emit()  # Segnale per notificare il completamento
+        except Exception as e:
+            logging.error(f"Errore nel VTKWorker: {e}")
+            logging.error(traceback.format_exc())
 
 class VTKWidget(QWidget):
     def __init__(self, num_rectangles, parent=None):
@@ -39,6 +59,16 @@ class VTKWidget(QWidget):
         self.render_window.AddRenderer(self.renderer)
         self.interactor = self.render_window.GetInteractor()
 
+        self.worker = VTKWorker(num_rectangles)  # Crea un'istanza del worker
+        self.worker.finished.connect(self.on_worker_finished)  # Connetti il segnale
+        self.worker.start()  # Avvia il thread
+
+    def on_worker_finished(self):
+        logging.debug("VTKWidget: Worker 3D completato, aggiornamento dell'interfaccia utente.")
+        self.setup_scene()  # Configura la scena ora che il worker ha terminato
+
+    def setup_scene(self):
+        # Configura la scena 3D
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_scene)
         self.timer.start(30)
@@ -51,7 +81,7 @@ class VTKWidget(QWidget):
         self.add_base_plane()
         self.setup_camera()
 
-        logging.debug("VTKWidget inizializzato completamente.")
+        logging.debug("VTKWidget: Scena configurata.")
 
     def showEvent(self, event):
         super().showEvent(event)
@@ -60,11 +90,11 @@ class VTKWidget(QWidget):
         try:
             if not self.interactor.GetInitialized():
                 logging.debug("Inizializzazione dell'interactor VTK...")
-                QTimer.singleShot(1000, self.start_interactor)  # Aumentato ritardo
+                QTimer.singleShot(1000, self.start_interactor)
 
             if self.render_window and self.render_window.GetRenderers().GetNumberOfItems() > 0:
                 logging.debug("Esecuzione del rendering iniziale...")
-                QTimer.singleShot(1500, self.render_initial_scene)  # Aumentato ritardo
+                QTimer.singleShot(1500, self.render_initial_scene)
         except Exception as e:
             logging.error(f"Errore in showEvent: {e}")
             logging.error(traceback.format_exc())
@@ -94,6 +124,20 @@ class VTKWidget(QWidget):
             logging.error(f"Errore durante il rendering iniziale: {e}")
             logging.error(traceback.format_exc())
 
+    def update_scene(self):
+        try:
+            if self.renderer and self.render_window:
+                if self.renderer.GetActors().GetNumberOfItems() > 0:
+                    self.renderer.Render()
+                    # logging.debug("Scene updated.")
+                else:
+                    logging.debug("No actors to render.")
+            else:
+                logging.debug("Renderer or render window not initialized.")
+        except Exception as e:
+            logging.error(f"Error during scene update: {e}")
+
+    # Aggiungi il resto dei metodi per gestire le posizioni, la creazione degli attori, ecc.
     def setup_rect_positions(self):
         logging.debug("Impostazione delle posizioni dei rettangoli...")
         # Codice per impostare le posizioni
@@ -161,24 +205,6 @@ class VTKWidget(QWidget):
                         materials_info[current_material]['Tr'] = line.split()[1]
 
         return materials_info
-
-
-    
-
-
-    def update_scene(self):
-        try:
-            if self.renderer and self.render_window:
-                if self.renderer.GetActors().GetNumberOfItems() > 0:
-                    self.renderer.Render()
-                    logging.debug("Scene updated.")
-                else:
-                    logging.debug("No actors to render.")
-            else:
-                logging.debug("Renderer or render window not initialized.")
-        except Exception as e:
-            logging.error(f"Errore durante l'aggiornamento della scena: {e}")
-            logging.error(traceback.format_exc())
 
      
 
