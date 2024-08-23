@@ -64,18 +64,19 @@ class VTKWidget(QWidget):
         print(self.devicePixelRatioF())
 
     def showEvent(self, event):
-        super().showEvent(event)
-        self.interactor.Initialize()
-        self.render_window.Render()
-        self.update_scene()
-        self.interactor.Start()
-
-        # Forza un aggiornamento esplicito del widget e della finestra di rendering
-        self.update()
-        self.render_window.Render()
-        self.render_window.Modified()
-        self.render_window.GetInteractor().Render()
-        print("Mostrato")
+        try:
+            super().showEvent(event)
+            
+            if not self.interactor.GetInitialized():
+                self.interactor.Initialize()
+                self.interactor.Start()
+    
+            if self.render_window and self.render_window.GetRenderers().GetNumberOfItems() > 0:
+                self.render_window.Render()
+                self.update_scene()
+                print("Mostrato")
+        except Exception as e:
+            print(f"Error in showEvent: {e}")
 
     def setup_rect_positions(self):
         if self.num_rectangles == 4:

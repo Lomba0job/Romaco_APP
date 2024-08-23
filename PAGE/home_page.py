@@ -60,7 +60,7 @@ class Home_Page(QWidget):
         
         # Right side fixed area
         self.fixed_area = QWidget()
-        self.fixed_area.setFixedSize(int(self.master.width() * 0.45), int(self.master.height() * 0.8))
+        self.fixed_area.setFixedSize(int(self.master.width() * 0.45), int(self.master.height() * 0.75))
         self.fixed_area.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         
         palette = self.fixed_area.palette()
