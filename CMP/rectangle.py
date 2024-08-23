@@ -75,14 +75,22 @@ class VTKWidget(QWidget):
         self.vtkWidget = QVTKRenderWindowInteractor(self)
         self.layout.addWidget(self.vtkWidget)
 
-        # Renderer and RenderWindow
-        self.renderer = vtk.vtkRenderer()
-        self.renderer.SetBackground(1, 1, 1)  # Set background color to white
-        self.render_window = self.vtkWidget.GetRenderWindow()
         self.render_window.SetMultiSamples(0)  # Disable anti-aliasing
-        # self.render_window.SetOffScreenRendering(1)
+
+        # Prova a usare solo un renderer senza attori complessi
+        self.renderer = vtk.vtkRenderer()
+        self.renderer.SetBackground(0.1, 0.2, 0.3)
         self.render_window.AddRenderer(self.renderer)
-        self.interactor = self.render_window.GetInteractor()
+        
+        # Aggiungi solo un attore semplice
+        cube_source = vtk.vtkCubeSource()
+        cube_mapper = vtk.vtkPolyDataMapper()
+        cube_mapper.SetInputConnection(cube_source.GetOutputPort())
+        cube_actor = vtk.vtkActor()
+        cube_actor.SetMapper(cube_mapper)
+        self.renderer.AddActor(cube_actor)
+        
+        logging.debug("Renderer and simple actor added")
         
         logging.debug("VTK rendering setup complete")
 
