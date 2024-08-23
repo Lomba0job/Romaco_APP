@@ -66,11 +66,11 @@ class VTKWidget(QWidget):
     def showEvent(self, event):
         try:
             super().showEvent(event)
-            
+
             if not self.interactor.GetInitialized():
                 self.interactor.Initialize()
                 self.interactor.Start()
-    
+
             if self.render_window and self.render_window.GetRenderers().GetNumberOfItems() > 0:
                 self.render_window.Render()
                 self.update_scene()
@@ -260,7 +260,18 @@ class VTKWidget(QWidget):
         self.renderer.SetActiveCamera(self.camera)
 
     def update_scene(self):
-        self.renderer.Render()
+        try:
+            if self.renderer and self.render_window:
+                # Check if there are any actors to render
+                if self.renderer.GetActors().GetNumberOfItems() > 0:
+                    self.renderer.Render()
+                    print("Scene updated.")
+                else:
+                    print("No actors to render.")
+            else:
+                print("Renderer or render window not initialized.")
+        except Exception as e:
+            print(f"Error during scene update: {e}")
 
     def mousePressEvent(self, event):
         self.last_pos = event.position()
