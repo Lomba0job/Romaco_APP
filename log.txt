@@ -1,40 +1,32 @@
-2024-08-23 15:51:58,079 - INFO - Starting application
-2024-08-23 15:51:58,083 - INFO - X11 error handler set up successfully
-2024-08-23 15:51:58,166 - DEBUG - matplotlib data path: /home/lomba/.local/lib/python3.10/site-packages/matplotlib/mpl-data
-2024-08-23 15:51:58,169 - DEBUG - CONFIGDIR=/home/lomba/.config/matplotlib
-2024-08-23 15:51:58,170 - DEBUG - interactive is False
-2024-08-23 15:51:58,170 - DEBUG - platform is linux
-2024-08-23 15:51:58,227 - DEBUG - CACHEDIR=/home/lomba/.cache/matplotlib
-2024-08-23 15:51:58,229 - DEBUG - Using fontManager instance from /home/lomba/.cache/matplotlib/fontlist-v330.json
-2024-08-23 16:00:36,782 - INFO - Starting application
-2024-08-23 16:00:36,790 - INFO - X11 error handler set up successfully
-2024-08-23 16:00:36,912 - DEBUG - matplotlib data path: /home/lomba/.local/lib/python3.10/site-packages/matplotlib/mpl-data
-2024-08-23 16:00:36,916 - DEBUG - CONFIGDIR=/home/lomba/.config/matplotlib
-2024-08-23 16:00:36,917 - DEBUG - interactive is False
-2024-08-23 16:00:36,917 - DEBUG - platform is linux
-2024-08-23 16:00:36,980 - DEBUG - CACHEDIR=/home/lomba/.cache/matplotlib
-2024-08-23 16:00:36,982 - DEBUG - Using fontManager instance from /home/lomba/.cache/matplotlib/fontlist-v330.json
-2024-08-23 16:01:03,574 - INFO - Starting application
-2024-08-23 16:01:03,578 - INFO - X11 error handler set up successfully
-2024-08-23 16:01:03,656 - DEBUG - matplotlib data path: /home/lomba/.local/lib/python3.10/site-packages/matplotlib/mpl-data
-2024-08-23 16:01:03,659 - DEBUG - CONFIGDIR=/home/lomba/.config/matplotlib
-2024-08-23 16:01:03,660 - DEBUG - interactive is False
-2024-08-23 16:01:03,660 - DEBUG - platform is linux
-2024-08-23 16:01:03,718 - DEBUG - CACHEDIR=/home/lomba/.cache/matplotlib
-2024-08-23 16:01:03,719 - DEBUG - Using fontManager instance from /home/lomba/.cache/matplotlib/fontlist-v330.json
-2024-08-23 16:02:57,710 - INFO - Starting application
-2024-08-23 16:02:57,717 - INFO - X11 error handler set up successfully
-2024-08-23 16:02:57,819 - DEBUG - matplotlib data path: /home/lomba/.local/lib/python3.10/site-packages/matplotlib/mpl-data
-2024-08-23 16:02:57,824 - DEBUG - CONFIGDIR=/home/lomba/.config/matplotlib
-2024-08-23 16:02:57,829 - DEBUG - interactive is False
-2024-08-23 16:02:57,829 - DEBUG - platform is linux
-2024-08-23 16:02:57,924 - DEBUG - CACHEDIR=/home/lomba/.cache/matplotlib
-2024-08-23 16:02:57,926 - DEBUG - Using fontManager instance from /home/lomba/.cache/matplotlib/fontlist-v330.json
-2024-08-23 16:15:36,580 - INFO - Starting application
-2024-08-23 16:15:36,588 - INFO - X11 error handler set up successfully
-2024-08-23 16:15:36,700 - DEBUG - matplotlib data path: /home/lomba/.local/lib/python3.10/site-packages/matplotlib/mpl-data
-2024-08-23 16:15:36,703 - DEBUG - CONFIGDIR=/home/lomba/.config/matplotlib
-2024-08-23 16:15:36,704 - DEBUG - interactive is False
-2024-08-23 16:15:36,704 - DEBUG - platform is linux
-2024-08-23 16:15:36,769 - DEBUG - CACHEDIR=/home/lomba/.cache/matplotlib
-2024-08-23 16:15:36,771 - DEBUG - Using fontManager instance from /home/lomba/.cache/matplotlib/fontlist-v330.json
+2024-08-23 16:57:04,652 - INFO - Starting application
+2024-08-23 16:57:04,660 - INFO - X11 error handler set up successfully
+2024-08-23 16:57:04,743 - DEBUG - matplotlib data path: /home/lomba/.local/lib/python3.10/site-packages/matplotlib/mpl-data
+2024-08-23 16:57:04,747 - DEBUG - CONFIGDIR=/home/lomba/.config/matplotlib
+2024-08-23 16:57:04,748 - DEBUG - interactive is False
+2024-08-23 16:57:04,748 - DEBUG - platform is linux
+2024-08-23 16:57:04,826 - DEBUG - CACHEDIR=/home/lomba/.cache/matplotlib
+2024-08-23 16:57:04,829 - DEBUG - Using fontManager instance from /home/lomba/.cache/matplotlib/fontlist-v330.json
+2024-08-23 16:57:31,059 - DEBUG - Initializing VTKWidget
+2024-08-23 16:57:31,059 - DEBUG - VTKWidget properties initialized
+2024-08-23 16:57:31,061 - DEBUG - VTK rendering setup complete
+2024-08-23 16:57:31,061 - DEBUG - Loading MTL file from /home/lomba/Documenti/ROMACO/Romaco_APP/ICO/mat.mtl
+2024-08-23 16:57:31,062 - DEBUG - MTL file loaded
+2024-08-23 16:57:31,062 - DEBUG - Loading OBJ file from /home/lomba/Documenti/ROMACO/Romaco_APP/ICO/bilancia_def.obj
+2024-08-23 16:57:31,193 - DEBUG - Loaded model with 32183 vertices and 50180 faces.
+2024-08-23 16:57:31,193 - DEBUG - Setting up rectangle positions
+2024-08-23 16:57:31,193 - DEBUG - Rectangle positions set up
+2024-08-23 16:57:31,193 - DEBUG - Creating actors
+2024-08-23 16:57:31,194 - DEBUG - Creating actor at position (-50, 0, 50)
+2024-08-23 16:57:31,595 - DEBUG - Actor created
+2024-08-23 16:57:31,595 - DEBUG - Creating actor at position (50, 0, 50)
+2024-08-23 16:57:31,991 - DEBUG - Actor created
+2024-08-23 16:57:31,991 - DEBUG - Creating actor at position (50, 0, -50)
+2024-08-23 16:57:32,395 - DEBUG - Actor created
+2024-08-23 16:57:32,395 - DEBUG - Creating actor at position (-50, 0, -50)
+2024-08-23 16:57:32,789 - DEBUG - Actor created
+2024-08-23 16:57:32,789 - DEBUG - Actors created
+2024-08-23 16:57:32,789 - DEBUG - Adding base plane
+2024-08-23 16:57:32,790 - DEBUG - Base plane added
+2024-08-23 16:57:32,790 - DEBUG - Setting up camera
+2024-08-23 16:57:32,790 - DEBUG - Camera setup complete
+2024-08-23 16:57:32,823 - DEBUG - showEvent started
