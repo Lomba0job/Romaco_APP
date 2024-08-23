@@ -13,6 +13,7 @@ from API import funzioni as f
 import ctypes
 import ctypes.util
 import logging
+import signal
 
 # Set up logging
 logging.basicConfig(filename='vtk_widget.log', level=logging.DEBUG, 
@@ -20,14 +21,14 @@ logging.basicConfig(filename='vtk_widget.log', level=logging.DEBUG,
 
 logging.info("Starting application")
 
-import signal
-
+# Signal handling to catch segmentation faults and aborts
 def handle_signal(signum, frame):
     logging.error(f"Received signal: {signum}")
     sys.exit(1)
 
 signal.signal(signal.SIGSEGV, handle_signal)  # Handle segmentation faults
 signal.signal(signal.SIGABRT, handle_signal)  # Handle aborts
+
 # X11 error handler
 def x11_error_handler(display, event):
     logging.error("X11 error occurred")
@@ -40,7 +41,6 @@ try:
 except Exception as e:
     logging.error(f"Failed to set up X11 error handler: {e}")
     
-    
 class VTKWidget(QWidget):
     def __init__(self, num_rectangles, parent=None):
         super().__init__(parent)
@@ -51,8 +51,8 @@ class VTKWidget(QWidget):
         self.camera_angle_x = 0
         self.camera_angle_y = 20
         self.camera_position_x = 0
-        self.camera_position_y = 60  # Aumentato per una vista più alta
-        self.camera_position_z = 300  # Aumentato per una distanza maggiore
+        self.camera_position_y = 80  # Aumentato per una vista più alta
+        self.camera_position_z = 400  # Aumentato per una distanza maggiore
         self.rotating_camera = False
         self.moving_camera = False
 
@@ -87,17 +87,20 @@ class VTKWidget(QWidget):
 
         # Camera setup
         self.setup_camera()
-        
-        
+
         # Forzare il calcolo del devicePixelRatio
         print(self.devicePixelRatioF())
 
     def showEvent(self, event):
+        logging.debug("showEvent started")
         super().showEvent(event)
         self.interactor.Initialize()
         self.render_window.Render()
         self.update_scene()
         self.interactor.Start()
+        
+        QApplication.processEvents()  # Keep the UI responsive
+        logging.debug("showEvent finished")
 
         # Forza un aggiornamento esplicito del widget e della finestra di rendering
         self.update()
@@ -107,6 +110,7 @@ class VTKWidget(QWidget):
         print("Mostrato")
 
     def setup_rect_positions(self):
+        logging.debug("Setting up rectangle positions")
         if self.num_rectangles == 4:
             self.rect_positions = [
                 (-50, 0, 50),  # Top-left
@@ -147,7 +151,10 @@ class VTKWidget(QWidget):
                 (0, 0, -60)    # Bottom-center
             ]
 
+        logging.debug("Rectangle positions set up")
+
     def load_mtl(self, filepath):
+        logging.debug(f"Loading MTL file from {filepath}")
         materials_info = {}
         current_material = None
 
@@ -169,9 +176,11 @@ class VTKWidget(QWidget):
                     elif line.startswith('Tr '):
                         materials_info[current_material]['Tr'] = line.split()[1]
 
+        logging.debug("MTL file loaded")
         return materials_info
 
     def load_obj(self, filepath):
+        logging.debug(f"Loading OBJ file from {filepath}")
         vertices = []
         faces = []
         face_materials = []
@@ -193,15 +202,18 @@ class VTKWidget(QWidget):
                     if current_material not in materials:
                         materials[current_material] = self.get_material_color(current_material)
 
-        print(f"Loaded model with {len(vertices)} vertices and {len(faces)} faces.")
+        logging.debug(f"Loaded model with {len(vertices)} vertices and {len(faces)} faces.")
         return (vertices, faces, face_materials), materials
 
     def create_actors(self):
+        logging.debug("Creating actors")
         for position in self.rect_positions:
             actor = self.create_actor(position)
             self.renderer.AddActor(actor)
-            
+        logging.debug("Actors created")
+
     def add_base_plane(self):
+        logging.debug("Adding base plane")
         # Create a plane source
         plane = vtk.vtkPlaneSource()
         plane.SetOrigin(-100, 0, -100)
@@ -220,8 +232,10 @@ class VTKWidget(QWidget):
 
         # Add the plane actor to the renderer
         self.renderer.AddActor(actor)
+        logging.debug("Base plane added")
 
     def create_actor(self, position):
+        logging.debug(f"Creating actor at position {position}")
         vertices, faces, face_materials = self.model
         points = vtk.vtkPoints()
         polys = vtk.vtkCellArray()
@@ -272,25 +286,32 @@ class VTKWidget(QWidget):
 
         # Set the actor's position
         actor.SetPosition(*position)
+        logging.debug("Actor created")
         return actor
-
+    
     def get_material_color(self, material_name):
         material_info = self.materials_info.get(material_name, {})
         kd = material_info.get('Kd', ['0.3', '0.3', '0.3'])
         return [float(c) for c in kd]
-
+    
     def setup_camera(self):
+        logging.debug("Setting up camera")
         self.camera = vtk.vtkCamera()
         self.camera.SetPosition(self.camera_position_x, self.camera_position_y, self.camera_position_z)
         self.camera.SetFocalPoint(0, 0, 0)
         self.camera.SetViewUp(0, 1, 0)
         self.camera.Zoom(1.2)  # Aumentato leggermente lo zoom per una visione migliore
         self.renderer.SetActiveCamera(self.camera)
+        logging.debug("Camera setup complete")
 
     def update_scene(self):
+        logging.debug("Updating scene")
         self.renderer.Render()
+        QApplication.processEvents()  # Keep the UI responsive during rendering
+        logging.debug("Scene updated")
 
     def mousePressEvent(self, event):
+        logging.debug("Mouse press event")
         self.last_pos = event.position()
         if event.buttons() == Qt.MouseButton.LeftButton:
             self.moving_camera = True
@@ -298,6 +319,7 @@ class VTKWidget(QWidget):
             self.rotating_camera = True
 
     def mouseMoveEvent(self, event):
+        logging.debug("Mouse move event")
         if self.moving_camera:
             dx = (event.position().x() - self.last_pos.x()) / 0.05
             dy = (event.position().y() - self.last_pos.y()) / 0.05
@@ -316,12 +338,15 @@ class VTKWidget(QWidget):
         self.update_scene()
 
     def mouseReleaseEvent(self, event):
+        logging.debug("Mouse release event")
         self.moving_camera = False
         self.rotating_camera = False
-        
+
     def wheelEvent(self, event):
+        logging.debug("Mouse wheel event")
         delta = event.angleDelta().y() / 120
         self.camera_position_z -= delta * 10
         self.camera_position_z = max(100, min(self.camera_position_z, 1000))
         self.camera.SetPosition(self.camera_position_x, self.camera_position_y, self.camera_position_z)
         self.update_scene()
+
