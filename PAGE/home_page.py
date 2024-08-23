@@ -8,7 +8,11 @@ import time
 from CMP import rectangle as r, loading2 as carica
 from API import funzioni as f, modbus_generico as mb
 from OBJ import thread_pesata as t
+import logging
 
+# Configurazione del logging
+logging.basicConfig(level=logging.DEBUG, filename='app_home.log', filemode='w',
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 class Home_Page(QWidget):
 
@@ -219,28 +223,29 @@ class Home_Page(QWidget):
         self.peso_bilance = lista_pesi
 
     def loadConfiguration(self):
+        logging.debug("Caricamento configurazione...")
         num_rectangles = len(self.master.lista_bilance) 
         for b in self.master.lista_bilance:
-            print(f"{b.position} corrisponde all'id {b.modbusI.address}")     
-        # Rimuovi il widget precedente e il suo layout se esistono
+            logging.debug(f"{b.position} corrisponde all'id {b.modbusI.address}")
+        
         if self.glWidget is not None:
+            logging.debug("Rimozione del widget precedente...")
             self.fixed_area.layout().removeWidget(self.glWidget)
             self.glWidget.deleteLater()
+            self.glWidget = None
 
-        # Crea e aggiungi il nuovo widget
         self.glWidget = r.VTKWidget(num_rectangles=num_rectangles)
         self.glWidget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
-        # Pulisci qualsiasi layout esistente nell'area fissa
         if self.fixed_area.layout() is not None:
             old_layout = self.fixed_area.layout()
             QWidget().setLayout(old_layout)
 
         layout = QHBoxLayout()
         layout.addWidget(self.glWidget)
-
         self.fixed_area.setLayout(layout)
         self.fixed_area.setAutoFillBackground(False)
+        logging.debug("Configurazione caricata e widget VTK aggiunto.")
 
 
     def pesata(self):

@@ -11,6 +11,7 @@ import logging
 # Configurazione del logging
 logging.basicConfig(level=logging.DEBUG, filename='app.log', filemode='w',
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
 class VTKWidget(QWidget):
     def __init__(self, num_rectangles, parent=None):
         super().__init__(parent)
@@ -73,9 +74,12 @@ class VTKWidget(QWidget):
 
     def start_interactor(self):
         try:
-            logging.debug("Avvio dell'interactor VTK...")
-            self.interactor.Start()
-            logging.debug("VTK Interactor avviato.")
+            if self.interactor is not None:
+                logging.debug("Avvio dell'interactor VTK...")
+                self.interactor.Start()
+                logging.debug("VTK Interactor avviato.")
+            else:
+                logging.error("L'interactor VTK è None.")
         except Exception as e:
             logging.error(f"Errore durante l'avvio dell'interactor VTK: {e}")
             logging.error(traceback.format_exc())
