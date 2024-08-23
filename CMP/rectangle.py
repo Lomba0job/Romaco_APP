@@ -80,7 +80,7 @@ class VTKWidget(QWidget):
         self.renderer.SetBackground(1, 1, 1)  # Set background color to white
         self.render_window = self.vtkWidget.GetRenderWindow()
         self.render_window.SetMultiSamples(0)  # Disable anti-aliasing
-        self.render_window.SetUseOffScreenRendering(1)
+        # self.render_window.SetOffScreenRendering(1)
         self.render_window.AddRenderer(self.renderer)
         self.interactor = self.render_window.GetInteractor()
         
@@ -322,13 +322,14 @@ class VTKWidget(QWidget):
         logging.debug("Camera setup complete")
 
     def update_scene(self):
-        logging.debug("Updating scene")
+        # logging.debug("Updating scene")
         self.renderer.Render()
         QApplication.processEvents()  # Keep the UI responsive during rendering
-        logging.debug("Scene updated")
+        # logging.debug("Scene updated")
 
+    
     def mousePressEvent(self, event):
-        logging.debug("Mouse press event")
+        # logging.debug("Mouse press event")
         self.last_pos = event.position()
         if event.buttons() == Qt.MouseButton.LeftButton:
             self.moving_camera = True
@@ -336,7 +337,7 @@ class VTKWidget(QWidget):
             self.rotating_camera = True
 
     def mouseMoveEvent(self, event):
-        logging.debug("Mouse move event")
+        # logging.debug("Mouse move event")
         if self.moving_camera:
             dx = (event.position().x() - self.last_pos.x()) / 0.05
             dy = (event.position().y() - self.last_pos.y()) / 0.05
@@ -352,18 +353,17 @@ class VTKWidget(QWidget):
             self.camera.Elevation(dy)
             self.camera.Azimuth(dx)
             self.last_pos = event.position()
-        self.update_scene()
 
     def mouseReleaseEvent(self, event):
-        logging.debug("Mouse release event")
+        # logging.debug("Mouse release event")
         self.moving_camera = False
         self.rotating_camera = False
 
     def wheelEvent(self, event):
-        logging.debug("Mouse wheel event")
+        # logging.debug("Mouse wheel event")
         delta = event.angleDelta().y() / 120
         self.camera_position_z -= delta * 10
         self.camera_position_z = max(100, min(self.camera_position_z, 1000))
         self.camera.SetPosition(self.camera_position_x, self.camera_position_y, self.camera_position_z)
-        self.update_scene()
+
 
