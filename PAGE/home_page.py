@@ -229,6 +229,7 @@ class Home_Page(QWidget):
 
         # Crea e aggiungi il nuovo widget
         self.glWidget = r.VTKWidget(num_rectangles=num_rectangles)
+        self.glWidget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
         # Pulisci qualsiasi layout esistente nell'area fissa
         if self.fixed_area.layout() is not None:

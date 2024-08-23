@@ -113,6 +113,9 @@ pyqt6-tools==6.4.2.3.3
 PyQt6_sip==13.8.0
 pyqt6rc==0.1.1
 pyserial==3.5
+PySide6==6.7.2
+PySide6_Addons==6.7.2
+PySide6_Essentials==6.7.2
 python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
 python-json-logger==2.0.7

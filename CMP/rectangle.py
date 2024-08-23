@@ -1,5 +1,5 @@
 import sys
-from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
+from PyQt6.QtWidgets import QApplication, QSizePolicy, QMainWindow, QVBoxLayout, QWidget
 from PyQt6.QtCore import Qt, QPointF, QTimer
 from vtkmodules.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 import vtk
@@ -23,7 +23,13 @@ class VTKWidget(QWidget):
         self.moving_camera = False
 
         self.layout = QVBoxLayout(self)
+        
         self.vtkWidget = QVTKRenderWindowInteractor(self)
+        
+        # Set the size policy to expanding, which allows it to grow and shrink
+        self.vtkWidget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        
+        
         self.layout.addWidget(self.vtkWidget)
 
         # Renderer and RenderWindow

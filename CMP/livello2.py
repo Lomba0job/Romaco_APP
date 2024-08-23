@@ -75,17 +75,17 @@ class Livello2(QWidget):
         p5 = p.ClickableWidget(f.get_img("MOD_IMPO.png"), "Funzioni Mod-Bus")
         
         home_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        home_layout.addStretch()
+        home_layout.addSpacing(5)
         home_layout.addWidget(p1)
-        home_layout.addSpacing(10)
+        home_layout.addSpacing(5)
         home_layout.addWidget(p2)
-        home_layout.addSpacing(10)
+        home_layout.addSpacing(5)
         home_layout.addWidget(p3)
-        home_layout.addSpacing(10)
+        home_layout.addSpacing(5)
         home_layout.addWidget(p4)
-        home_layout.addSpacing(10)
+        home_layout.addSpacing(5)
         home_layout.addWidget(p5)
-        home_layout.addStretch()
+        home_layout.addSpacing(5)
         
         self.stacked_widget.addWidget(home_widget)
         
