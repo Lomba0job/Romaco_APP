@@ -5,6 +5,7 @@ import logging
 from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
 from PyQt6.QtCore import Qt, QPointF, QTimer
 from vtkmodules.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
+from vtkmodules.vtkRenderingCore import vtkRenderer
 import vtk
 import numpy as np
 from API import funzioni as f
@@ -36,11 +37,15 @@ class VTKWidget(QWidget):
         self.layout.addWidget(self.vtkWidget)
 
         # Renderer and RenderWindow
-        self.renderer = vtk.vtkRenderer()
+        self.renderer = vtkRenderer()
         self.renderer.SetBackground(1, 1, 1)
         self.render_window = self.vtkWidget.GetRenderWindow()
         self.render_window.SetMultiSamples(0)
         self.render_window.AddRenderer(self.renderer)
+
+        self.interactor = self.render_window.GetInteractor()
+        self.interactor.Initialize()
+        self.interactor.Start()
 
         # Timer for animation
         self.timer = QTimer(self)
@@ -60,23 +65,6 @@ class VTKWidget(QWidget):
 
         # Camera setup
         self.setup_camera()
-
-        # Initialize the VTK interactor
-        self.initialize_vtk_interactor()
-
-    def initialize_vtk_interactor(self):
-        # Inizializza l'interactor specifico per la piattaforma
-        if platform.system() == "Linux":
-            logging.debug("Using vtkXRenderWindowInteractor for Linux.")
-            self.interactor = vtk.vtkXRenderWindowInteractor()
-            self.interactor.SetRenderWindow(self.render_window)
-        else:
-            logging.debug("Using default QVTKRenderWindowInteractor.")
-            self.interactor = self.render_window.GetInteractor()
-
-        self.interactor.Initialize()
-        self.interactor.Start()
-        logging.debug("VTK Interactor initialized and started.")
 
     def showEvent(self, event):
         super().showEvent(event)
