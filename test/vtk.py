@@ -2,6 +2,7 @@ import sys
 import os
 from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
 from vtkmodules.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
+from vtkmodules.vtkRenderingCore import vtkRenderer
 import vtk
 
 os.environ['QT_QPA_PLATFORM'] = 'xcb'
@@ -14,7 +15,7 @@ class SimpleVTKWidget(QWidget):
         self.vtkWidget = QVTKRenderWindowInteractor(self)
         self.layout.addWidget(self.vtkWidget)
 
-        self.renderer = vtk.vtkRenderer()
+        self.renderer = vtkRenderer()
         self.renderer.SetBackground(1, 1, 1)
         self.render_window = self.vtkWidget.GetRenderWindow()
         self.render_window.AddRenderer(self.renderer)
