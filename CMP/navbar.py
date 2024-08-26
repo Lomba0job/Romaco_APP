@@ -9,7 +9,6 @@ import os
 # from risorse import resources_rc
 from API import funzioni as f
 class NavbarWidget(QFrame):
-    settings_button_clicked = pyqtSignal()
 
     def __init__(self, parent=None):
         
@@ -89,13 +88,12 @@ class NavbarWidget(QFrame):
         layout.addWidget(vertical_line)
         
         # Settings Icon
-        settings_button = QPushButton()
-        settings_button.setIcon(QIcon(f.get_img("settings.png")))
-        settings_button.setIconSize(QSize(24, 24))
-        settings_button.setFixedSize(50, 50)
-        layout.addWidget(settings_button)
+        self.settings_button = QPushButton()
+        self.settings_button.setIcon(QIcon(f.get_img("settings.png")))
+        self.settings_button.setIconSize(QSize(24, 24))
+        self.settings_button.setFixedSize(50, 50)
+        layout.addWidget(self.settings_button)
 
-        settings_button.clicked.connect(self.settings_button_clicked.emit)
 
         self.setLayout(layout)
 

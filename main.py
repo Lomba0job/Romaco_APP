@@ -6,7 +6,7 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtGui import QPixmap, QAction
 
-from PAGE import home_page as h, launcher_page as l, salva_peso_page as s, log_page as lo, diagnostic_page as d
+from PAGE import home_page as h, launcher_page as l, salva_peso_page as s, log_page as lo, diagnostic_page as d, setting_page as se
 from CMP import navbar as nv
 
 from API import API_db as db
@@ -20,7 +20,7 @@ class MainWindow(QMainWindow):
         # Avvia il thread per processare la coda prima di qualsiasi altra operazione
        
         self.state = 0
-        self.setWindowTitle("Sistema ad isola NANOLEVERAPP")
+        self.setWindowTitle("Sistema ad isola NANOLEVER APP")
         screen_geometry = QApplication.primaryScreen().geometry()
         self.screen_width = screen_geometry.width()
         self.screen_height = screen_geometry.height()
@@ -39,14 +39,15 @@ class MainWindow(QMainWindow):
         self.pages = {
             self.navbar.home_button: 1,
             self.navbar.log_button: 3, 
-            self.navbar.diagno_button: 4
+            self.navbar.diagno_button: 4, 
+            self.navbar.settings_button: 5
         }
         for button, index in self.pages.items():
             button.clicked.connect(lambda checked=True, index=index: self.change_page(index))
 
-        self.navbar.settings_button_clicked.connect(lambda: self.change_page(4))
 
         self.change_page(1)  # Initialize to the launcher page
+        
 
     def create_pages(self):
         # Launcher Page
@@ -68,6 +69,9 @@ class MainWindow(QMainWindow):
         
         self.diagno = d.DiagnosticWidget(self)
         self.central_widget.addWidget(self.diagno)
+        
+        self.settings = se.Settings(self)
+        self.central_widget.addWidget(self.settings)
         
     def update_log_page(self):
         self.log.load_data()  # Chiama il metodo per ricaricare i dati nella pagina di log
@@ -117,6 +121,13 @@ class MainWindow(QMainWindow):
             else:
                 button.setProperty("active", False)
                 button.setStyle(button.style())  # Refresh style
+        if index == 5:  
+            self.navbar.setVisible(False)   #Nascondi La navbar
+            
+    def back_home(self):
+        
+        self.navbar.setVisible(True)   
+        self.change_page(1)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

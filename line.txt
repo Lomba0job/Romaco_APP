@@ -7,35 +7,47 @@ Skipping entry /Users/lavoro/Documents/PROGETTI_LAVORO/Romaco_4/05_software/Roma
 Skipping entry /Users/lavoro/Documents/PROGETTI_LAVORO/Romaco_4/05_software/Romaco_APP/risorse/__pycache__
 Skipping entry /Users/lavoro/Documents/PROGETTI_LAVORO/Romaco_4/05_software/Romaco_APP/.venv
 Skipping entry /Users/lavoro/Documents/PROGETTI_LAVORO/Romaco_4/05_software/Romaco_APP/API/__pycache__
+Skipping entry /Users/lavoro/Documents/PROGETTI_LAVORO/Romaco_4/05_software/Romaco_APP/DATA/csv/TEST260824.csv
+Skipping entry /Users/lavoro/Documents/PROGETTI_LAVORO/Romaco_4/05_software/Romaco_APP/DATA/csv/TEST210824.csv
 
 
  |==================================================================================================|
  |                               Counting Lines 	                                                |
+ |OBJ/thread_pesata_continua.py                                                    |	         66 |
  |OBJ/__init__.py                                                                  |	          0 |
  |OBJ/log_ogg.py                                                                   |	        118 |
  |OBJ/bilancia.py                                                                  |	         27 |
+ |OBJ/thread_pesata.py                                                             |	         86 |
+ |CMP/livello2.py                                                                  |	        324 |
+ |CMP/puls_livello2.py                                                             |	         47 |
  |CMP/loading.py                                                                   |	        111 |
- |CMP/Bilancia_diagno.py                                                           |	        288 |
+ |CMP/header.py                                                                    |	         43 |
+ |CMP/Bilancia_diagno.py                                                           |	        293 |
  |CMP/Bilancia_diagno_deactive.py                                                  |	        120 |
- |CMP/navbar.py                                                                    |	         97 |
+ |CMP/navbar.py                                                                    |	         95 |
  |CMP/__init__.py                                                                  |	          0 |
  |CMP/rectangle.py                                                                 |	        253 |
  |CMP/loading2.py                                                                  |	        167 |
+ |CMP/livello1.py                                                                  |	         65 |
+ |CMP/puls_livello1.py                                                             |	         47 |
  |PAGE/launcher_page.py                                                            |	        280 |
  |PAGE/salva_peso_page.py                                                          |	        372 |
  |PAGE/log_page.py                                                                 |	        213 |
  |PAGE/__init__.py                                                                 |	          0 |
+ |PAGE/setting_page.py                                                             |	        276 |
  |PAGE/graph_page.py                                                               |	         18 |
- |PAGE/home_page.py                                                                |	        326 |
+ |PAGE/home_page.py                                                                |	        254 |
  |PAGE/diagnostic_page.py                                                          |	        166 |
  |risorse/__init__.py                                                              |	          0 |
  |risorse/resources_rc.py                                                          |	       1175 |
  |TEST/__init__.py                                                                 |	          0 |
  |TEST/test.py                                                                     |	        126 |
  |TEST/test_two_com.py                                                             |	         17 |
+ |TEST/vtk.py                                                                      |	         28 |
  |TEST/.ipynb_checkpoints/test-checkpoint.py                                       |	         56 |
  |line.py                                                                          |	         57 |
  |STYLE/home.qss                                                                   |	         52 |
+ |STYLE/settings.qss                                                               |	        220 |
  |STYLE/navbar.qss                                                                 |	         36 |
  |STYLE/salva_peso.qss                                                             |	         99 |
  |STYLE/launcher.qss                                                               |	        107 |
@@ -51,7 +63,7 @@ Skipping entry /Users/lavoro/Documents/PROGETTI_LAVORO/Romaco_4/05_software/Roma
  |API/funzioni.py                                                                  |	         27 |
  |.ipynb_checkpoints/untitled-checkpoint.py                                        |	         56 |
  |main_test.py                                                                     |	         70 |
- |main.py                                                                          |	        111 |
+ |main.py                                                                          |	        122 |
  |untitled.py                                                                      |	        105 |
  |==================================================================================================| 
- |Total lines                                                                      |	       8765 |
+ |Total lines                                                                      |	       9909 |
