@@ -85,6 +85,7 @@ log_messages = {
     106: ('INFO', 'Calibrazione singola richiesta'),
     107: ('INFO', 'Salvataggio peso richiesto'),
     108: ('INFO', 'Porte Seriale scan effettuato'),
+    109: ('INFO', 'ID: '),
     
     404: ('WARNING', 'Errore sconosciuto'),
     401: ('WARNING', 'Errore di Configurazione no ID'),
@@ -97,9 +98,13 @@ log_messages = {
     409: ('WARNING', 'Password impostazioni Sbagliata'),
     410: ('WARNING', 'Porte Seriale scan in Errore'),
     411: ('WARNING', 'Errore durante elaborazione della Bilancia'),
+    412: ('WARNING', 'Peso totale in errore: '),
     
     700: ('CRITICAL', 'Bilancie Scollegate'),
     701: ('CRITICAL', 'Deriva Eccessiva'),  #not implement
+    
+    800: ('DEBUG', 'Linux'),
+    900: ('DEBUG', 'MacOS'), 
     
     1000: ('INFO', 'thread: '),
 }

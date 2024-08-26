@@ -80,6 +80,7 @@ class MainWindow(QMainWindow):
         # self.change_page(3)  # Passa alla pagina di log dopo l'aggiornamento
         
     def launcher_call(self):
+        log.log_file(101)
         self.navbar.setVisible(False)   #Nascondi La navbar
         self.change_page(0)  # Passa alla pagina rubrica
         

@@ -12,6 +12,8 @@ from OBJ import thread_pesata as t
 import os
 import platform
 
+from API import LOG as l
+
 
 if platform.system() == "Linux":
     from CMP import rectangle_linux as r
@@ -19,8 +21,11 @@ if platform.system() == "Linux":
     # Imposta variabili d'ambiente per Qt e VTK prima di inizializzare qualsiasi componente
     os.environ['QT_QPA_PLATFORM'] = 'xcb'
     os.environ['VTK_USE_X'] = '1'
+    l.log_file(800)
 else:
     from CMP import rectangle_univ as r
+    l.log_file(900)
+    
 class Home_Page(QWidget):
 
     def __init__(self, master):
@@ -126,7 +131,7 @@ class Home_Page(QWidget):
         self.clearLayout(self.left_layout)
         self.clearLayout(self.fixed_area.layout())
         self.glWidget = None
-        print(f"DEBUG HOMEPAGE {len(self.master.lista_bilance)}")
+        # print(f"DEBUG HOMEPAGE {len(self.master.lista_bilance)}")
         numero = len(self.master.lista_bilance)
         
         h1 = QHBoxLayout()
@@ -187,7 +192,7 @@ class Home_Page(QWidget):
             numbi.setObjectName("passo")
             numbi.setMinimumWidth(200)
             numbi.setMaximumWidth(200)
-            print(f"DEBUG | Pesata {i}, {lista_pesi}")
+            # print(f"DEBUG | Pesata {i}, {lista_pesi}")
             peso_v = str(lista_pesi[i] / 1000) + " Kg"
             pesobi = QLabel(peso_v)
             pesobi.setObjectName("desc1")
@@ -232,7 +237,7 @@ class Home_Page(QWidget):
     def loadConfiguration(self):
         num_rectangles = len(self.master.lista_bilance) 
         for b in self.master.lista_bilance:
-            print(f"{b.position} corrisponde all'id {b.modbusI.address}")     
+            l.log_file(109, f"{b.position} corrisponde all'id {b.modbusI.address}")     
         # Rimuovi il widget precedente e il suo layout se esistono
         if self.glWidget is not None:
             self.fixed_area.layout().removeWidget(self.glWidget)
@@ -254,7 +259,7 @@ class Home_Page(QWidget):
 
 
     def pesata(self):
-        
+        l.log_file(102)
         self._log_thread_info("pesata")
         # Pulisci l'UI esistente
         self.clearLayout(self.left_layout)
@@ -292,12 +297,14 @@ class Home_Page(QWidget):
         self.pesata_thread.quit()
         #self.progress_bar.hide()
         self.clearLayout(self.left_layout)
-        print(pesi_bilance)
+        # print(pesi_bilance)
         
         if len(pesi_bilance) != 0 and len(pesi_bilance) == len(self.master.lista_bilance):  
             # Visualizza l'UI finale con i risultati della pesata
+            l.log_file(2, f"{pesi_bilance}")
             self.finalUI(pesi_bilance)
         else: 
+            l.log_file(412, f"{pesi_bilance}")
             self.initUI()
 
     def salva_f(self):
@@ -306,4 +313,4 @@ class Home_Page(QWidget):
     def _log_thread_info(self, function_name):
         """Log thread information for diagnostics."""
         current_thread = threading.current_thread()
-        print(f"DEBUG THREAD | {function_name} eseguito su thread: {current_thread.name} (ID: {current_thread.ident})")
+        l.log_file(1000, f"DEBUG THREAD | {function_name} eseguito su thread: {current_thread.name} (ID: {current_thread.ident})")
