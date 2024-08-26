@@ -1,7 +1,8 @@
 import sqlite3
-from API import funzioni as f
+from API import funzioni as f, LOG as l 
 
 def crea_db():
+    l.log_file(111, " creazione")
     # Connessione al database (crea il database se non esiste)
     conn = sqlite3.connect(f.get_db())
     
@@ -32,6 +33,7 @@ def crea_db():
 import sqlite3
 
 def put(peso_tot, b1, b2, b3, b4, b5, b6, desc, prio, data, nome):
+    l.log_file(111, " inserimento")
     # Connessione al database (crea il database se non esiste)
     conn = sqlite3.connect(f.get_db())
     
@@ -53,10 +55,11 @@ def put(peso_tot, b1, b2, b3, b4, b5, b6, desc, prio, data, nome):
         conn.close()
         return 0
     except sqlite3.Error as e:
-        print(f"Errore durante l'inserimento dei dati: {e}")
+        l.log_file(419, f" {e}")
         return 1
 
 def get(page_number):
+    l.log_file(111, " download")
     # Numero di righe per pagina
     page_size = 100
     
@@ -84,13 +87,15 @@ def get(page_number):
         
         # Conversione delle righe in una lista di dizionari
         results = [dict(zip(column_names, row)) for row in rows]
+        l.log_file(12)
         return results
     except sqlite3.Error as e:
-        print(f"Errore durante il recupero dei dati: {e}")
+        l.log_file(418, f" {e}")
         return []
 
 
 def get_priority(page_number, priority):
+    l.log_file(111, " download prioritario")
     # Numero di righe per pagina
     page_size = 100
     
@@ -120,10 +125,11 @@ def get_priority(page_number, priority):
         results = [dict(zip(column_names, row)) for row in rows]
         return results
     except sqlite3.Error as e:
-        print(f"Errore durante il recupero dei dati: {e}")
+        l.log_file(418, f" {e}")
         return []
 
 def get_filtered(page_number, date_from=None, date_to=None, priority=None):
+    l.log_file(111, " download filtrato")
     # Numero di righe per pagina
     page_size = 100
     
@@ -172,5 +178,5 @@ def get_filtered(page_number, date_from=None, date_to=None, priority=None):
         results = [dict(zip(column_names, row)) for row in rows]
         return results
     except sqlite3.Error as e:
-        print(f"Errore durante il recupero dei dati: {e}")
+        l.log_file(418, f" {e}")
         return []

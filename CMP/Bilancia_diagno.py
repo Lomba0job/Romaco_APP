@@ -10,8 +10,7 @@ import os
 import time 
 
 from OBJ import bilancia as b
-from CMP import rectangle as r
-from API import funzioni as f, modbus_generico as mg
+from API import funzioni as f, modbus_generico as mg, LOG as l 
 
 class Bilancia(QWidget):
 
@@ -189,13 +188,13 @@ class Bilancia(QWidget):
         if future_adc is not None:
             future_adc.add_done_callback(self.handle_adc_status)
         else:
-            print("ERROR UPDATE | Future for get_adcs_status is None")
+            l.log_file(702, "ERROR UPDATE | Future for get_adcs_status is None")
     
         future_cells = mg.get_cells_status(self.bilancia.modbusI)
         if future_cells is not None:
             future_cells.add_done_callback(self.handle_cells_status)
         else:
-            print("ERROR UPDATE | Future for get_cells_status is None")
+            l.log_file(702, "ERROR UPDATE | Future for get_cells_status is None")
     
     def handle_adc_status(self, future):
         self._log_thread_info("handle_adc_status")
@@ -203,7 +202,7 @@ class Bilancia(QWidget):
             ris = future.result()
             self.adc_status_signal.emit(ris)
         except Exception as e:
-            print(f"Errore durante l'aggiornamento dello stato ADC: {e}")
+            l.log_file(702, f"Errore durante l'aggiornamento dello stato ADC: {e}")
 
     def update_adc_status_ui(self, ris):
         self._log_thread_info("update_adc_status_ui")
@@ -220,7 +219,7 @@ class Bilancia(QWidget):
             ris = future.result()
             self.cells_status_signal.emit(ris)
         except Exception as e:
-            print(f"Errore durante l'aggiornamento dello stato delle celle: {e}")
+            l.log_file(702, "Errore durante l'aggiornamento dello stato delle celle: {e}")
     
     def update_cells_status_ui(self, ris):
         self._log_thread_info("update_cells_status_ui")
@@ -239,10 +238,10 @@ class Bilancia(QWidget):
             self.ele = True
         adc_v, ele_v, cel_v = self.get_status()
         if self.adc != adc_v or self.ele != ele_v or self.celle != cel_v:
-            print(f"DEBUG UPDATE | adc{self.adc}, ele{self.ele}, celle{self.celle}")
+            # print(f"DEBUG UPDATE | adc{self.adc}, ele{self.ele}, celle{self.celle}")
             self.laod_status(self.adc, self.ele, self.celle)
         if not self.ele:
-            print(f"DEBUG UPDATE | elettronica False")
+            # print(f"DEBUG UPDATE | elettronica False")
             if self.elettronica:
                 self.elettronica_false_since = time.time()
                 self.elettronica = False
@@ -256,15 +255,15 @@ class Bilancia(QWidget):
         self._log_thread_info("check_ele")
         if self.elettronica_false_since is not None:
             elapsed_time = time.time() - self.elettronica_false_since
-            print(f"DEBUG CHECK | tempo : {elapsed_time}, warnign {self.trigger_warning}")
+            # print(f"DEBUG CHECK | tempo : {elapsed_time}, warnign {self.trigger_warning}")
             if elapsed_time > 10:
                 self.trigger_warning = True
-                print("trigger change")
+                l.log_file(700)
         
         
     def effettua_calibrazione(self):
         self._log_thread_info("effettua_calibrazione")
-        print(f"avvio calibrazione {self.bilancia.modbusI.address}")
+        l.log_file(106, f" {self.bilancia.modbusI.address}")
         future = mg.calib_command(self.peso_calib.value(), self.bilancia.modbusI)
         future.add_done_callback(self.handle_calibrazione_completata)
     
@@ -274,7 +273,7 @@ class Bilancia(QWidget):
             risult = future.result()
             self.calibrazione_completata_signal.emit(risult)
         except Exception as e:
-            print(f"Errore durante la calibrazione: {e}")
+            l.log_file(407, f"Errore durante la calibrazione: {e}")
     
     def update_calibrazione_ui(self, risult):
         self._log_thread_info("update_calibrazione_ui")
@@ -295,7 +294,7 @@ class Bilancia(QWidget):
             risult = future.result()
             self.tara_completata_signal.emit(risult)
         except Exception as e:
-            print(f"Errore durante la tara: {e}")
+            l.log_file(413, f"Errore durante la tara: {e}")
     
     def update_tara_ui(self, risult):
         self._log_thread_info("update_tara_ui")
@@ -322,4 +321,4 @@ class Bilancia(QWidget):
     def _log_thread_info(self, function_name):
         """Log thread information for diagnostics."""
         current_thread = threading.current_thread()
-        print(f"DEBUG THREAD | {function_name} eseguito su thread: {current_thread.name} (ID: {current_thread.ident})")
+        l.log_file(1000, f"DEBUG THREAD | {function_name} eseguito su thread: {current_thread.name} (ID: {current_thread.ident})")

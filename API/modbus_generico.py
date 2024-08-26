@@ -9,13 +9,15 @@ import time
 from OBJ import bilancia as b
 from API import modbus
 from API import modbus_strutture as st
+from API import LOG as l
 
 
 from concurrent.futures import ThreadPoolExecutor
 
 class QueueProcessor:
     def __init__(self):
-        self.executor = ThreadPoolExecutor(max_workers=4)  # Puoi regolare il numero di worker in base alle tue esigenze
+        l.log_file(1000, "queue processir (config 8)")
+        self.executor = ThreadPoolExecutor(max_workers=8)  # Puoi regolare il numero di worker in base alle tue esigenze
         self.lock = threading.Lock()
     
     def submit_task(self, func, *args, **kwargs):
@@ -26,9 +28,9 @@ class QueueProcessor:
     def handle_task_completion(self, future):
         try:
             result = future.result()
-            print(f"Task completato con risultato: {result}")
+            l.log_file(1002, f"Task completato con risultato: {result}")
         except Exception as e:
-            print(f"Errore durante l'esecuzione del task: {e}")
+            l.log_file(1001, f"Errore durante l'esecuzione del task: {e}")
 
     def shutdown(self):
         self.executor.shutdown(wait=True)
@@ -46,12 +48,12 @@ def async_modbus_operation(func):
     def wrapper(*args, **kwargs):
         future = None
         try:
-            print(f"DEBUG DECORATOR | {func.__name__} chiamato con args: {args}, kwargs: {kwargs}")
+            l.log_file(1000, f"DEBUG DECORATOR | {func.__name__} chiamato con args: {args}, kwargs: {kwargs}")
             # Usa QueueProcessor per inviare il task
             future = _queue_processor.submit_task(func, *args, **kwargs)
-            print(f"DEBUG DECORATOR | {func.__name__} messo in coda con Future: {future}")
+            l.log_file(1002, f"DEBUG DECORATOR | {func.__name__} messo in coda con Future: {future}")
         except Exception as e:
-            print(f"ERROR DECORATOR | Errore nel mettere in coda {func.__name__}: {str(e)}")
+            l.log_file(1001, f"ERROR DECORATOR | Errore nel mettere in coda {func.__name__}: {str(e)}")
             if future:
                 future.set_exception(e)
             return None
@@ -73,7 +75,7 @@ def tare_command(instrument: modbus.Instrument):
     Returns:
         int: 0 se il comando ha successo, -1 in caso di errore.
     """
-    print("Tare command launched")
+    l.log_file(105, f"id: {instrument.address}")
     start_time = time.time()
     try:
         with _modbus_lock:
@@ -82,7 +84,7 @@ def tare_command(instrument: modbus.Instrument):
                 instrument.write_bit(st.COIL_TARE_COMMAND, 1)
                 tareCoil = instrument.read_bit(st.COIL_TARE_COMMAND, functioncode=1)
             if(tareCoil==0):
-                print("Timeout exceeded!")
+                l.log_file(406, f"id: {instrument.address}")
                 return -1
             time.sleep(1)   #BRUTTO: last command succeed
             # Here tare takes place
@@ -91,11 +93,11 @@ def tare_command(instrument: modbus.Instrument):
                 instrument.write_bit(st.COIL_TARE_COMMAND, 0)
                 tareCoil = instrument.read_bit(st.COIL_TARE_COMMAND, functioncode=1)
             if(tareCoil==1):
-                print("Timeout exceeded!")
+                l.log_file(406, f"id: {instrument.address}")
                 return -1
             return 0
     except Exception as e:
-        print(e)
+        l.log_file(413, f"{e}")
         return -1
    
 @async_modbus_operation 
@@ -110,6 +112,7 @@ def calib_command(weight_kg, instrument: modbus.Instrument):
     Returns:
         int: 0 se il comando ha successo, -1 in caso di errore.
     """
+    l.log_file(106, f" id: {instrument.address}")
     start_time = time.time()
     weight = int(weight_kg * 1000)
     try:
@@ -128,12 +131,14 @@ def calib_command(weight_kg, instrument: modbus.Instrument):
                 t1 = instrument.read_register(st.HOLDING_PESO_CALIB_MS, functioncode=3)* 65536 
                 t2 = instrument.read_register(st.HOLDING_PESO_CALIB_LS, functioncode=3)
             if(calibWeight!=weight):
+                l.log_file(414, f"id: {weight}")
                 return -1
             calibCoil = instrument.read_bit(st.COIL_CALIB_COMMAND, functioncode=1)
             while(calibCoil==0 and (time.time()-start_time < timeout_duration)):
                 instrument.write_bit(st.COIL_CALIB_COMMAND, 1)
                 calibCoil = instrument.read_bit(st.COIL_CALIB_COMMAND, functioncode=1)
             if(calibCoil==0):
+                l.log_file(415)
                 return -1
             time.sleep(2)   #BRUTTO: last command succeed
             # Here calib takes place
@@ -142,10 +147,11 @@ def calib_command(weight_kg, instrument: modbus.Instrument):
                 instrument.write_bit(st.COIL_CALIB_COMMAND, 0)
                 calibCoil = instrument.read_bit(st.COIL_CALIB_COMMAND, functioncode=1)
             if(calibCoil==1):
+                l.log_file(415)
                 return -1
             return 0
     except Exception as e:
-        print(e)
+        l.log_file(407, f"{e}")
         return -1
 
     
@@ -166,12 +172,14 @@ def get_totWeight(instrument: modbus.Instrument):
             stato = True
             while stato:
                 modbus.serial.timeout = 0.2
-                ris = instrument.read_bit(st.COIL_LAST_COMMAND_SUCCESS, functioncode=1)
-                if ris == 1:
+                ris = instrument.read_bit(st.COIL_PESO_COMMAND, functioncode=1)
+                if ris == 0:
                     stato = False
+            time.sleep(0.2)
             peso = twos_complement_inverse(instrument.read_register(st.HOLDING_PESO_TOT_MS, functioncode=3)*65536 + instrument.read_register(st.HOLDING_PESO_TOT_LS, functioncode=3), 32)
         return peso
     except:
+        l.log_file(408)
         return -1
     
 def twos_complement_inverse(x, bits):
@@ -224,10 +232,10 @@ def get_cellWeight(instrument: modbus.Instrument):
         b2_int = twos_complement_inverse(b2, 32)
         b3_int = twos_complement_inverse(b3, 32)
         b4_int = twos_complement_inverse(b4, 32)
-        print(f"DEBUG MODBUS API | {b1} -> {b1_int} ")
-        print(f"DEBUG MODBUS API | {b2} -> {b2_int} ")
-        print(f"DEBUG MODBUS API | {b3} -> {b3_int} ")
-        print(f"DEBUG MODBUS API | {b4} -> {b4_int} ")
+        l.log_file(110, f"DEBUG MODBUS API | {b1} -> {b1_int} ")
+        l.log_file(110, f"DEBUG MODBUS API | {b2} -> {b2_int} ")
+        l.log_file(110, f"DEBUG MODBUS API | {b3} -> {b3_int} ")
+        l.log_file(110, f"DEBUG MODBUS API | {b4} -> {b4_int} ")
         cells.append(b1_int)
         cells.append(b2_int)
         cells.append(b3_int)
@@ -235,6 +243,7 @@ def get_cellWeight(instrument: modbus.Instrument):
         modbus.serial.timeout = 0.2
         return cells
     except:
+        l.log_file(416)
         return -1
 
 @async_modbus_operation  
@@ -250,10 +259,10 @@ def get_cells_status(instrument: modbus.Instrument):
     try:
         with _modbus_lock:
             val = instrument.read_bit(st.COIL_CELL_STATUS, functioncode=1)
-            print(val)
             return val
         
     except:
+        l.log_file(417)
         return -1
 
 @async_modbus_operation  
@@ -269,9 +278,9 @@ def get_adcs_status(instrument: modbus.Instrument):
     try:
         with _modbus_lock:
             val = instrument.read_bit(st.COIL_ADCS_STATUS, functioncode=1)
-            print(val)
             return val
     except:
+        l.log_file(417)
         return -1
 
 
@@ -288,7 +297,7 @@ def configure(port, list_add):
     """
     lista_bilance = []
     for add in list_add:
-        print(f"Inizializzando ID {add}")
+        l.log_file(999, f"Inizializzando ID {add}")
         instrument = modbus.Instrument(port, add)
         instrument.serial.baudrate = 9600
         instrument.serial.timeout = 0.5
@@ -296,7 +305,7 @@ def configure(port, list_add):
         ogg.set_coil_config()
         lista_bilance.append(ogg)
     
-    print(f"Bilance create {len(list_add)} / {len(lista_bilance)}")
+    l.log_file(999, f"Bilance create {len(list_add)} / {len(lista_bilance)}")
     return lista_bilance
 
 def connect_modbus(port, address, baud):
@@ -313,7 +322,7 @@ def connect_modbus(port, address, baud):
     """
     instrument = None
     try:
-        print(f"DEBUG| {port} {address}")
+        l.log_file(999, f" {port} {address}")
         instrument = modbus.Instrument(port, address)  # Nome porta, indirizzo slave (in decimale)
         instrument.serial.baudrate = baud
         instrument.serial.timeout = 0.3
@@ -323,10 +332,10 @@ def connect_modbus(port, address, baud):
         else:
             return -1
     except serial.SerialException as e:
-        print(f"Errore di connessione seriale: {e}")
+        l.log_file(402, f"Errore di connessione seriale: {e} {address}")
         return -1
     except Exception as e:
-        print(f"Errore generico: {e}")
+        l.log_file(404, f"Errore generico: {e}")
         return -1
     finally:
         if instrument is not None:
@@ -346,13 +355,12 @@ def test_connection(instrument):
         with _modbus_lock:
             instrument.serial.timeout = 0.3
             register = instrument.read_register(12, functioncode=3)  # Legge registri
-            print(register)
             if register != 0:
                 return 0
             else:
                 return -1
     except Exception as e:
-        print(f"Errore nel test di connessione: {e}, indirizzo {instrument.address}")
+        l.log_file(402, f"Errore nel test di connessione: {e}, indirizzo {instrument.address}")
         return -2
     finally:
         instrument.serial.close()
@@ -373,7 +381,7 @@ def check_address(port, address):
         if response == 0:
             return address
     except Exception as e:
-        print(f"Errore di comunicazione Modbus con ID {address}: {e}")
+        l.log_file(402, f"Errore di comunicazione Modbus con ID {address}: {e}")
     return None
 
 def scan_modbus_network(port):
@@ -387,12 +395,10 @@ def scan_modbus_network(port):
         list: Una lista di ID Modbus di dispositivi attivi.
     """
     connected_ids = []
-    print(port)
     for i in range(1, 8):
-        print(i)
         r = check_address(port, i)
         if r is not None:
             connected_ids.append(r)
     for id in connected_ids:
-        print(id)
+        l.log_file(9, f"{id}")
     return connected_ids
