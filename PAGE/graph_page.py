@@ -1,7 +1,11 @@
 from PyQt6.QtWidgets import QWidget, QHBoxLayout
+import platform
 
 
-from CMP import rectangle as r
+if platform.system() == "Linux":
+    from CMP import rectangle_linux as r
+else:
+    from CMP import rectangle_univ as r
 
 class Graph_page(QWidget):
     

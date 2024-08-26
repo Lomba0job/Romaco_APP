@@ -8,7 +8,7 @@ import locale
 from datetime import datetime
 
 
-from API import funzioni as f, API_db as db
+from API import funzioni as f, API_db as db, LOG as l 
 
 class SalvaPesoWidget(QWidget):
     peso_salvato = pyqtSignal()  # Signal emitted when the weight is saved
@@ -392,6 +392,7 @@ class SalvaPesoWidget(QWidget):
 
     
     def save(self):
+        l.log_file(107)
         nome = self.front_combo.text()
         decs = self.description_input.toPlainText()
         stato = 0
@@ -408,14 +409,14 @@ class SalvaPesoWidget(QWidget):
         # Formatala secondo la lingua di sistema
         data_formattata = oggi.strftime('%d-%m-%Y')
 
-        print("Data odierna:", data_formattata)
+        # print("Data odierna:", data_formattata)
 
         self.peso_tot, self.peso_b1, self.peso_b2, self.peso_b3, self.peso_b4, self.peso_b5, self.peso_b6, nome, decs, stato, data_formattata
         ris = db.put(peso_tot=self.peso_tot, b1=self.peso_b1, b2=self.peso_b2, b3=self.peso_b3, b4=self.peso_b4, b5=self.peso_b5, b6=self.peso_b6, desc=decs, prio=stato, data=data_formattata, nome=nome)
         if ris == 1:
-            print("error")
+            l.log_file(408)
         else:
-            print("salva")
+            l.log_file(7)
             self.master.change_page(1) 
             self.master.navbar.setVisible(True)
             self.peso_salvato.emit()

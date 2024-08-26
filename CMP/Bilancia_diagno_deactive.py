@@ -8,7 +8,6 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtGui import QPixmap, QAction, QIcon, QColor
 import os 
 
-from CMP import rectangle as r
 from API import funzioni as f
 
 class Bilancia(QWidget):
