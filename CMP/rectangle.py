@@ -1,12 +1,20 @@
 import sys
 import os
 import platform
+import logging
 from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
 from PyQt6.QtCore import Qt, QPointF, QTimer
 from vtkmodules.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 import vtk
 import numpy as np
 from API import funzioni as f
+
+# Configurazione del logging per il debug
+logging.basicConfig(level=logging.DEBUG)
+
+# Imposta variabili d'ambiente per Qt e VTK prima di inizializzare qualsiasi componente
+os.environ['QT_QPA_PLATFORM'] = 'xcb'
+os.environ['VTK_USE_X'] = '1'
 
 class VTKWidget(QWidget):
     def __init__(self, num_rectangles, parent=None):
@@ -33,9 +41,6 @@ class VTKWidget(QWidget):
         self.render_window = self.vtkWidget.GetRenderWindow()
         self.render_window.SetMultiSamples(0)
         self.render_window.AddRenderer(self.renderer)
-        
-        # Sistema operativo specifico setup
-        self.setup_os_specific()
 
         # Timer for animation
         self.timer = QTimer(self)
@@ -56,30 +61,28 @@ class VTKWidget(QWidget):
         # Camera setup
         self.setup_camera()
 
-    def setup_os_specific(self):
-        if platform.system() == "Darwin":  # macOS
-            # Usa il rendering OpenGL di default
-            self.interactor = self.render_window.GetInteractor()
-        elif platform.system() == "Linux":
-            # Usa il backend XCB e forza VTK a usare X11
-            os.environ['QT_QPA_PLATFORM'] = 'xcb'
-            os.environ['VTK_USE_X'] = '1'
+        # Initialize the VTK interactor
+        self.initialize_vtk_interactor()
+
+    def initialize_vtk_interactor(self):
+        # Inizializza l'interactor specifico per la piattaforma
+        if platform.system() == "Linux":
+            logging.debug("Using vtkXRenderWindowInteractor for Linux.")
             self.interactor = vtk.vtkXRenderWindowInteractor()
             self.interactor.SetRenderWindow(self.render_window)
-        elif platform.system() == "Windows":
-            # Usa il rendering OpenGL di default
-            self.interactor = self.render_window.GetInteractor()
         else:
-            # Fallback per altri sistemi operativi
+            logging.debug("Using default QVTKRenderWindowInteractor.")
             self.interactor = self.render_window.GetInteractor()
+
+        self.interactor.Initialize()
+        self.interactor.Start()
+        logging.debug("VTK Interactor initialized and started.")
 
     def showEvent(self, event):
         super().showEvent(event)
-        self.interactor.Initialize()
         self.render_window.Render()
         self.update_scene()
-        self.interactor.Start()
-
+        
     def setup_rect_positions(self):
         if self.num_rectangles == 4:
             self.rect_positions = [
