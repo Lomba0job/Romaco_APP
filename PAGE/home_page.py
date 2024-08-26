@@ -5,11 +5,22 @@ from PyQt6.QtCore import Qt, QFile, QTextStream, QThread, pyqtSignal, pyqtSlot, 
 from PyQt6.QtGui import QColor, QPalette
 import time 
 
-from CMP import rectangle as r, loading2 as carica
+from CMP import loading2 as carica, rectangle_linux as r
 from API import funzioni as f, modbus_generico as mb
 from OBJ import thread_pesata as t
 
+import os
+import platform
 
+
+if platform.system() == "Linux":
+    from CMP import rectangle_linux as r
+
+    # Imposta variabili d'ambiente per Qt e VTK prima di inizializzare qualsiasi componente
+    os.environ['QT_QPA_PLATFORM'] = 'xcb'
+    os.environ['VTK_USE_X'] = '1'
+else:
+    from CMP import rectangle_univ as r
 class Home_Page(QWidget):
 
     def __init__(self, master):

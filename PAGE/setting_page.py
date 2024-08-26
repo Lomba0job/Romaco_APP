@@ -4,7 +4,7 @@ from PyQt6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QLabel, QComboBox
 from PyQt6.QtCore import Qt, QFile, QTextStream, QThread, pyqtSignal, pyqtSlot, QTimer, QSize
 from PyQt6.QtGui import QColor, QPalette, QPixmap, QIcon
 
-from CMP import rectangle as r, loading2 as carica, livello1 as l1, livello2 as l2
+from CMP import loading2 as carica, livello1 as l1, livello2 as l2
 from API import funzioni as f, modbus_generico as mb
 
 

@@ -1,25 +1,17 @@
 import sys
-import os
-import platform
-import logging
 from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
 from PyQt6.QtCore import Qt, QPointF, QTimer
 from vtkmodules.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
-from vtkmodules.vtkRenderingCore import vtkRenderer
 import vtk
 import numpy as np
 from API import funzioni as f
 
-# Configurazione del logging per il debug
-logging.basicConfig(level=logging.DEBUG)
-
-# Imposta variabili d'ambiente per Qt e VTK prima di inizializzare qualsiasi componente
-os.environ['QT_QPA_PLATFORM'] = 'xcb'
-os.environ['VTK_USE_X'] = '1'
 
 class VTKWidget(QWidget):
     def __init__(self, num_rectangles, parent=None):
         super().__init__(parent)
+        
+        print("univ")
         self.num_rectangles = num_rectangles
         self.rect_size = [35.0, 7.0, 35.0]
         self.selected_rect = None
@@ -27,8 +19,8 @@ class VTKWidget(QWidget):
         self.camera_angle_x = 0
         self.camera_angle_y = 20
         self.camera_position_x = 0
-        self.camera_position_y = 60
-        self.camera_position_z = 300
+        self.camera_position_y = 60  # Aumentato per una vista più alta
+        self.camera_position_z = 300  # Aumentato per una distanza maggiore
         self.rotating_camera = False
         self.moving_camera = False
 
@@ -37,15 +29,12 @@ class VTKWidget(QWidget):
         self.layout.addWidget(self.vtkWidget)
 
         # Renderer and RenderWindow
-        self.renderer = vtkRenderer()
-        self.renderer.SetBackground(1, 1, 1)
+        self.renderer = vtk.vtkRenderer()
+        self.renderer.SetBackground(1, 1, 1)  # Set background color to white
         self.render_window = self.vtkWidget.GetRenderWindow()
-        self.render_window.SetMultiSamples(0)
+        self.render_window.SetMultiSamples(0)  # Disable anti-aliasing
         self.render_window.AddRenderer(self.renderer)
-
         self.interactor = self.render_window.GetInteractor()
-        self.interactor.Initialize()
-        self.interactor.Start()
 
         # Timer for animation
         self.timer = QTimer(self)
@@ -65,12 +54,25 @@ class VTKWidget(QWidget):
 
         # Camera setup
         self.setup_camera()
+        
+        
+        # Forzare il calcolo del devicePixelRatio
+        print(self.devicePixelRatioF())
 
     def showEvent(self, event):
         super().showEvent(event)
+        self.interactor.Initialize()
         self.render_window.Render()
         self.update_scene()
-        
+        self.interactor.Start()
+
+        # Forza un aggiornamento esplicito del widget e della finestra di rendering
+        self.update()
+        self.render_window.Render()
+        self.render_window.Modified()
+        self.render_window.GetInteractor().Render()
+        print("Mostrato")
+
     def setup_rect_positions(self):
         if self.num_rectangles == 4:
             self.rect_positions = [
@@ -253,7 +255,7 @@ class VTKWidget(QWidget):
         self.renderer.SetActiveCamera(self.camera)
 
     def update_scene(self):
-        self.render_window.Render()
+        self.renderer.Render()
 
     def mousePressEvent(self, event):
         self.last_pos = event.position()

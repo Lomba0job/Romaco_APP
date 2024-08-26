@@ -10,7 +10,6 @@ import os
 import time 
 
 from OBJ import bilancia as b
-from CMP import rectangle as r
 from API import funzioni as f, modbus_generico as mg
 
 class Bilancia(QWidget):
