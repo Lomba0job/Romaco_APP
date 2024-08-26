@@ -3,7 +3,7 @@ from PyQt6.QtGui import QColor, QFont, QPalette
 from PyQt6.QtCore import Qt
 from OBJ import log_ogg as l 
 from API import funzioni as f
-from API import API_db as db  # Importa le funzioni del database
+from API import API_db as db, LOG as log  # Importa le funzioni del database
 
 class LogPage(QWidget):
     def __init__(self, master):
@@ -160,8 +160,9 @@ class LogPage(QWidget):
             self.setStyleSheet(file.read())
 
     def load_data(self):
+        log.log_file(111)
         log_entries = db.get(self.page_number)  # Recupera i dati dal database
-        print(log_entries)
+        # print(log_entries)
         self.populate_log_entries(log_entries)
         
     def load_filtered_data(self):

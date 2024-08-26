@@ -1,9 +1,9 @@
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QHBoxLayout
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QHBoxLayout, QMessageBox
 from PyQt6.QtCore import pyqtSignal, QThread, pyqtSlot, QTimer
 from PyQt6.QtGui import QColor
 
 import threading
-from API import modbus_generico as mg
+from API import modbus_generico as mg, LOG as l 
 import time
 from CMP import Bilancia_diagno as b, Bilancia_diagno_deactive as bd
 
@@ -110,7 +110,7 @@ class DiagnosticWidget(QWidget):
 
     def UI(self):
         self.lista_ogg_attivi = []
-        print(f"DEBUG DIAGNO| {len(self.master.lista_bilance)}")
+        # print(f"DEBUG DIAGNO| {len(self.master.lista_bilance)}")
         for i in range(1, 7):
             if i <= len(self.master.lista_bilance):
                 home_page = b.Bilancia(i, self.screen_width-10, self.screen_height-10, self.master.lista_bilance[i-1])
@@ -150,8 +150,9 @@ class DiagnosticWidget(QWidget):
     
     def calib_all(self):
         self._log_thread_info("calib_all")
+        l.log_file(104)
         for b in self.master.lista_bilance:
-            print(f"avvio calibrazione {b.modbusI.address}")
+            # print(f"avvio calibrazione {b.modbusI.address}")
             future = mg.tare_command(b.modbusI)
             future.add_done_callback(self.handle_calibrazione_completata)
 
@@ -161,16 +162,17 @@ class DiagnosticWidget(QWidget):
             risult = future.result()
             self.calibrazione_completata_signal.emit(risult)
         except Exception as e:
-            print(f"Errore durante la calibrazione: {e}")
+            l.log_file(407, f" {e}")
 
     def update_calibrazione_ui(self, risult):
         self._log_thread_info("update_calibrazione_ui")
         if risult == 0:
-            print("all ok")
+            QMessageBox.information(self, "Tara Totale", "Successo")
         else:
-            print("error")
+            QMessageBox.warning(self, "Tara Totale", "Errore")
+            
             
     def _log_thread_info(self, function_name):
         """Log thread information for diagnostics."""
         current_thread = threading.current_thread()
-        print(f"DEBUG THREAD | {function_name} eseguito su thread: {current_thread.name} (ID: {current_thread.ident})")
+        l.log_file(1000, f" | {function_name} eseguito su thread: {current_thread.name} (ID: {current_thread.ident})")

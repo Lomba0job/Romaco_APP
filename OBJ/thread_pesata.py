@@ -5,7 +5,7 @@ from PyQt6.QtCore import Qt, QFile, QTextStream, QThread, pyqtSignal, pyqtSlot, 
 from PyQt6.QtGui import QColor, QPalette
 import time 
 
-from API import modbus_generico as mb
+from API import modbus_generico as mb, LOG as l 
 
 
 
@@ -22,7 +22,7 @@ class PesataThread(QThread):
         self.start_time = time.time()
         QThread.msleep(500)  # Aspetta 500 millisecondi prima di iniziare il ciclo di pesatura
 
-        print(f"DEBUG PESATA | bilance {len(self.master.lista_bilance)}")
+        # print(f"DEBUG PESATA | bilance {len(self.master.lista_bilance)}")
 
         for bilancia in self.master.lista_bilance:
             self.get_weight_for_bilancia(bilancia)
@@ -39,14 +39,14 @@ class PesataThread(QThread):
         try:
             pesotot = future.result()
             end_peso_tot = time.time()
-            print(f"DEBUG PESATA | peso TOT {pesotot} {bilancia.modbusI.address}  completed in {end_peso_tot - start_bilancia_time:.4f} seconds ")
+            # print(f"DEBUG PESATA | peso TOT {pesotot} {bilancia.modbusI.address}  completed in {end_peso_tot - start_bilancia_time:.4f} seconds ")
             if pesotot != -1:
                 future_cell_weight = mb.get_cellWeight(bilancia.modbusI)
                 future_cell_weight.add_done_callback(lambda f: self.handle_cell_weight(f, bilancia, pesotot, start_bilancia_time))
             else:
                 self.handle_pesata_result(None, bilancia, start_bilancia_time)
         except Exception as e:
-            print(f"Errore durante la lettura del peso totale: {e}")
+            l.log_file(412, f" {e}")
             self.handle_pesata_result(None, bilancia, start_bilancia_time)
 
     def handle_cell_weight(self, future, bilancia, pesotot, start_bilancia_time):
@@ -54,31 +54,32 @@ class PesataThread(QThread):
         try:
             peso = future.result()
             end_cell_time = time.time()
-            print(f"DEBUG PESATA check | pesi {peso} completed in {end_cell_time - start_bilancia_time:.4f} seconds ")
+            # print(f"DEBUG PESATA check | pesi {peso} completed in {end_cell_time - start_bilancia_time:.4f} seconds ")
             s = peso[0]
-            print(f"DEBUG PESATA check | pesi {peso}, primo {s}")
+            # print(f"DEBUG PESATA check | pesi {peso}, primo {s}")
             warn = False
             for p in peso:
                 if abs(p - s) > 20000:  # SOTTOCHIAVE IMPOSTAZIONE
                     warn = True  # ! AGGIUNGERE ERRORE
-            print(f"DEBUG PESATA check | war {warn}")
+            # print(f"DEBUG PESATA check | war {warn}")
             if not warn:
+                l.log_file(3)
                 self.handle_pesata_result(pesotot, bilancia, start_bilancia_time)
             else:
+                l.log_file(403)
                 self.handle_pesata_result(None, bilancia, start_bilancia_time)
         except Exception as e:
-            print(f"Errore durante la lettura dei pesi delle celle: {e}")
+            l.log_file(403, f" {e}")
             self.handle_pesata_result(None, bilancia, start_bilancia_time)
 
     def handle_pesata_result(self, result, bilancia, start_bilancia_time):
         self._log_thread_info("handle_pesata_result")
         end_bilancia_time = time.time()
-        print(result)
         if result is not None:
-            print(f"DEBUG PESATA TIME | Bilancia {bilancia.modbusI.address} completed in {end_bilancia_time - start_bilancia_time:.4f} seconds")
+            l.log_file(999,f"DEBUG PESATA TIME | Bilancia {bilancia.modbusI.address} completed in {end_bilancia_time - start_bilancia_time:.4f} seconds")
             self.pesi_bilance.append(result)
         else:
-            print(f"DEBUG PESATA TIME | Bilancia {bilancia.modbusI.address} completed in {end_bilancia_time - start_bilancia_time:.4f} seconds (failed or warning)")
+            l.log_file(999,f"DEBUG PESATA TIME | Bilancia {bilancia.modbusI.address} completed in {end_bilancia_time - start_bilancia_time:.4f} seconds (failed or warning)")
             self.pesata_completata.emit(self.pesi_bilance)
             
         if len(self.pesi_bilance) == len(self.master.lista_bilance):
@@ -93,11 +94,11 @@ class PesataThread(QThread):
                         self.pesi_bilance.append(result)
 
             end_time = time.time()
-            print(f"DEBUG PESATA TIME | Total pesata process completed in {end_time - self.start_time:.4f} seconds")
+            l.log_file(999, f"PESATA TIME | Total pesata process completed in {end_time - self.start_time:.4f} seconds")
 
             self.pesata_completata.emit(self.pesi_bilance)  # Emit the signal with the result
 
     def _log_thread_info(self, function_name):
         """Log thread information for diagnostics."""
         current_thread = threading.current_thread()
-        print(f"DEBUG THREAD | {function_name} eseguito su thread: {current_thread.name} (ID: {current_thread.ident})")
+        l.log_file(1000, f"DEBUG THREAD | {function_name} eseguito su thread: {current_thread.name} (ID: {current_thread.ident})")

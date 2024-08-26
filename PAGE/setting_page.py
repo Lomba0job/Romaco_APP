@@ -5,7 +5,7 @@ from PyQt6.QtCore import Qt, QFile, QTextStream, QThread, pyqtSignal, pyqtSlot, 
 from PyQt6.QtGui import QColor, QPalette, QPixmap, QIcon
 
 from CMP import loading2 as carica, livello1 as l1, livello2 as l2
-from API import funzioni as f, modbus_generico as mb
+from API import funzioni as f, modbus_generico as mb, LOG as l 
 
 
 class Header(QWidget):
@@ -62,13 +62,13 @@ class Header(QWidget):
         exit.setMaximumWidth(70)
         
         if( livello == 0):
-            print("liv0")
+            # print("liv0")
             self.clearLayout(self.h1)
             self.h1.addWidget(exit)
             self.h1.addStretch()
             exit.clicked.connect(master.back_home)
         elif livello == 1: 
-            print("liv1")
+            # print("liv1")
             self.clearLayout(self.h1)
             contro_conf = QLabel("LIVELLO 1   ")
             contro_conf.setObjectName("configurazione_label")
@@ -78,7 +78,7 @@ class Header(QWidget):
             self.h1.addWidget(contro_conf)
             exit.clicked.connect(master.back_setting)
         elif livello == 2: 
-            print("liv2")
+            # print("liv2")
             self.clearLayout(self.h1)
             contro_conf = QLabel("LIVELLO 2   ")
             contro_conf.setObjectName("configurazione_label")
@@ -88,7 +88,7 @@ class Header(QWidget):
             self.h1.addWidget(contro_conf)
             exit.clicked.connect(master.back_setting)
         elif livello == 3: 
-            print("liv3")
+            # print("liv3")
             self.clearLayout(self.h1)
             contro_conf = QLabel("Misurazione Contiuna")
             contro_conf.setObjectName("configurazione_label")
@@ -204,13 +204,16 @@ class Home_Impo(QWidget):
         
     def enter(self):
         if self.pass_text.text() == "IsolaNLV":
+            l.log_file(10)
             self.master.stacked_widget.setCurrentIndex(1)  # Livello1
             self.master.contro_label(1)
         elif self.pass_text.text() == "NLVlombapass":
+            l.log_file(11)
             self.master.stacked_widget.setCurrentIndex(2)  # Livello2
             self.master.contro_label(2)
         else:
             print("WRONG")
+            l.log_file(409)
         self.canc()
         
     def canc(self):

@@ -64,6 +64,7 @@ def setup_logger():
     console_handler = logging.StreamHandler()
     console_handler.setLevel(logging.DEBUG)
     console_handler.setFormatter(color_formatter)
+    console_handler.addFilter(CodiceFilter(set(range(0, 1000)).union({1001})))  # Include range 0-999 and 1002
 
     # Add handlers to the logger
     logger.addHandler(app_handler)

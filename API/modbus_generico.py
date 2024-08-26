@@ -28,9 +28,9 @@ class QueueProcessor:
     def handle_task_completion(self, future):
         try:
             result = future.result()
-            l.log_file(1001, f"Task completato con risultato: {result}")
+            l.log_file(1002, f"Task completato con risultato: {result}")
         except Exception as e:
-            l.log_file(1002, f"Errore durante l'esecuzione del task: {e}")
+            l.log_file(1001, f"Errore durante l'esecuzione del task: {e}")
 
     def shutdown(self):
         self.executor.shutdown(wait=True)
@@ -172,9 +172,10 @@ def get_totWeight(instrument: modbus.Instrument):
             stato = True
             while stato:
                 modbus.serial.timeout = 0.2
-                ris = instrument.read_bit(st.COIL_LAST_COMMAND_SUCCESS, functioncode=1)
-                if ris == 1:
+                ris = instrument.read_bit(st.COIL_PESO_COMMAND, functioncode=1)
+                if ris == 0:
                     stato = False
+            time.sleep(0.2)
             peso = twos_complement_inverse(instrument.read_register(st.HOLDING_PESO_TOT_MS, functioncode=3)*65536 + instrument.read_register(st.HOLDING_PESO_TOT_LS, functioncode=3), 32)
         return peso
     except:

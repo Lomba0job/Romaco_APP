@@ -22,21 +22,22 @@ Skipping entry /Users/lavoro/Documents/PROGETTI_LAVORO/Romaco_4/05_software/Roma
  |CMP/puls_livello2.py                                                             |	         47 |
  |CMP/loading.py                                                                   |	        111 |
  |CMP/header.py                                                                    |	         43 |
- |CMP/Bilancia_diagno.py                                                           |	        293 |
- |CMP/Bilancia_diagno_deactive.py                                                  |	        120 |
+ |CMP/Bilancia_diagno.py                                                           |	        292 |
+ |CMP/Bilancia_diagno_deactive.py                                                  |	        119 |
  |CMP/navbar.py                                                                    |	         95 |
  |CMP/__init__.py                                                                  |	          0 |
- |CMP/rectangle.py                                                                 |	        253 |
+ |CMP/rectangle_univ.py                                                            |	        255 |
+ |CMP/rectangle_linux.py                                                           |	        249 |
  |CMP/loading2.py                                                                  |	        167 |
  |CMP/livello1.py                                                                  |	         65 |
  |CMP/puls_livello1.py                                                             |	         47 |
- |PAGE/launcher_page.py                                                            |	        280 |
+ |PAGE/launcher_page.py                                                            |	        285 |
  |PAGE/salva_peso_page.py                                                          |	        372 |
  |PAGE/log_page.py                                                                 |	        213 |
  |PAGE/__init__.py                                                                 |	          0 |
  |PAGE/setting_page.py                                                             |	        276 |
- |PAGE/graph_page.py                                                               |	         18 |
- |PAGE/home_page.py                                                                |	        254 |
+ |PAGE/graph_page.py                                                               |	         22 |
+ |PAGE/home_page.py                                                                |	        270 |
  |PAGE/diagnostic_page.py                                                          |	        166 |
  |risorse/__init__.py                                                              |	          0 |
  |risorse/resources_rc.py                                                          |	       1175 |
@@ -45,6 +46,7 @@ Skipping entry /Users/lavoro/Documents/PROGETTI_LAVORO/Romaco_4/05_software/Roma
  |TEST/test_two_com.py                                                             |	         17 |
  |TEST/vtk.py                                                                      |	         28 |
  |TEST/.ipynb_checkpoints/test-checkpoint.py                                       |	         56 |
+ |TEST/lot_test.py                                                                 |	        164 |
  |line.py                                                                          |	         57 |
  |STYLE/home.qss                                                                   |	         52 |
  |STYLE/settings.qss                                                               |	        220 |
@@ -54,16 +56,17 @@ Skipping entry /Users/lavoro/Documents/PROGETTI_LAVORO/Romaco_4/05_software/Roma
  |STYLE/log_ogg.qss                                                                |	         18 |
  |STYLE/bilancia.qss                                                               |	         66 |
  |STYLE/log.qss                                                                    |	         77 |
+ |API/LOG.py                                                                       |	        145 |
  |API/modbus_strutture.py                                                          |	         26 |
  |API/modbus_unico.py                                                              |	         24 |
  |API/__init__.py                                                                  |	          0 |
  |API/modbus.py                                                                    |	       3383 |
- |API/modbus_generico.py                                                           |	        351 |
- |API/API_db.py                                                                    |	        170 |
+ |API/modbus_generico.py                                                           |	        356 |
+ |API/API_db.py                                                                    |	        176 |
  |API/funzioni.py                                                                  |	         27 |
  |.ipynb_checkpoints/untitled-checkpoint.py                                        |	         56 |
- |main_test.py                                                                     |	         70 |
- |main.py                                                                          |	        122 |
+ |main_test.py                                                                     |	         62 |
+ |main.py                                                                          |	        125 |
  |untitled.py                                                                      |	        105 |
  |==================================================================================================| 
- |Total lines                                                                      |	       9909 |
+ |Total lines                                                                      |	      10498 |
