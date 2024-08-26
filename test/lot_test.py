@@ -79,6 +79,7 @@ log_messages = {
     9: ('SUCCESS', 'Collegato ID: '),
     10: ('SUCCESS', 'Livello 1'),
     11: ('SUCCESS', 'Livello 2'),
+    12: ('SUCCESS', 'Log importato'),
     
     101: ('INFO', 'Configurazione Richiesta'),
     102: ('INFO', 'Richiesta Peso '),

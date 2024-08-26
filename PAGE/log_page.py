@@ -184,7 +184,7 @@ class LogPage(QWidget):
         # Aggiunge i nuovi widget
         for entry in log_entries:
             date_str = str(entry['data'])  # Converti il valore di data in una stringa
-            print(f"Creating LogEntryWidget with date: {date_str}, peso_totale: {entry['peso_totale']}, name: {entry['name']}, priority: {entry['priority']}")
+            # print(f"Creating LogEntryWidget with date: {date_str}, peso_totale: {entry['peso_totale']}, name: {entry['name']}, priority: {entry['priority']}")
            
             log_widget = l.LogEntryWidget(date=date_str, peso_totale=entry['peso_totale'], name=entry['name'], priority=entry['priority'])
             self.scroll_layout.addWidget(log_widget)
