@@ -61,11 +61,17 @@ class VTKWidget(QWidget):
             # Usa il rendering OpenGL di default
             self.interactor = self.render_window.GetInteractor()
         elif platform.system() == "Linux":
-            # Usa il backend XCB e forza VTK a usare X11
-            os.environ['QT_QPA_PLATFORM'] = 'xcb'
-            os.environ['VTK_USE_X'] = '1'
-            self.interactor = vtk.vtkXRenderWindowInteractor()
-            self.interactor.SetRenderWindow(self.render_window)
+            # Usa Wayland se disponibile, altrimenti fallback su xcb
+            os.environ['QT_QPA_PLATFORM'] = 'wayland'
+            os.environ.pop('VTK_USE_X', None)  # Rimuovi questa variabile se presente
+
+            # Usa il renderizzatore EGL invece di X11
+            os.environ['VTK_RENDERER'] = 'EGL'
+
+            self.interactor = self.render_window.GetInteractor()
+
+            # Configura OpenGL per Wayland
+            self.render_window.SetOffScreenRendering(1)
         elif platform.system() == "Windows":
             # Usa il rendering OpenGL di default
             self.interactor = self.render_window.GetInteractor()
