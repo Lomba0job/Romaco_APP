@@ -11,6 +11,7 @@ from CMP import navbar as nv
 
 from API import API_db as db
 from API.modbus_generico import QueueProcessor
+from API import LOG as log
 
 queue_processor = QueueProcessor()
 class MainWindow(QMainWindow):
@@ -18,7 +19,8 @@ class MainWindow(QMainWindow):
         super().__init__()
         db.crea_db()
         # Avvia il thread per processare la coda prima di qualsiasi altra operazione
-       
+        log.setup_logger()
+        log.log_file(0)
         self.state = 0
         self.setWindowTitle("Sistema ad isola NANOLEVER APP")
         screen_geometry = QApplication.primaryScreen().geometry()

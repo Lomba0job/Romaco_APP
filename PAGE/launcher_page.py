@@ -8,6 +8,7 @@ import glob
 from API import modbus_generico as m
 from API import funzioni as f
 import time
+from API import LOG as l
 
 
 
@@ -27,7 +28,9 @@ def serial_ports():
             s = serial.Serial(port)
             s.close()
             result.append(port)
+            l.log_file(108)
         except (OSError, serial.SerialException):
+            l.log_file(410)
             pass
     return result
 
@@ -53,7 +56,7 @@ class OrdinamentoWorker(QThread):
                         self.progress_updated.emit(sum(status_ok))
                             
                     except Exception as e:
-                        print(f"Errore durante l'elaborazione della Bilancia {self.lista_bilance[i].modbusI.address}: {e}")
+                        l.log_file(411, f"{self.lista_bilance[i].modbusI.address}: {e}")
             time.sleep(0.2)
         
         self.finished.emit()
@@ -266,6 +269,7 @@ class LauncherWidget(QWidget):
             self.progress_bar.setVisible(False)
 
     def ordinamento(self):
+        l.log_file(8)
         self.worker = OrdinamentoWorker(self.lista_bilance)
         self.worker.progress_updated.connect(self.update_progress)
         self.worker.finished.connect(self.on_finished)
@@ -307,6 +311,7 @@ class LauncherWidget(QWidget):
             self.progress_bar.setValue(int(percentage))
 
     def on_finished(self):
+        l.log_file(1, f'{len(self.lista_bilance)}')
         #QMessageBox.information(self, "Ordinamento", "Ordinamento completato")
         self.finished.emit()
         self.start_button.setVisible(True)
