@@ -7,6 +7,7 @@ Skipping entry /Users/lavoro/Documents/PROGETTI_LAVORO/Romaco_4/05_software/Roma
 Skipping entry /Users/lavoro/Documents/PROGETTI_LAVORO/Romaco_4/05_software/Romaco_APP/risorse/__pycache__
 Skipping entry /Users/lavoro/Documents/PROGETTI_LAVORO/Romaco_4/05_software/Romaco_APP/.venv
 Skipping entry /Users/lavoro/Documents/PROGETTI_LAVORO/Romaco_4/05_software/Romaco_APP/API/__pycache__
+Skipping entry /Users/lavoro/Documents/PROGETTI_LAVORO/Romaco_4/05_software/Romaco_APP/DATA/csv/TEST260824.csv
 Skipping entry /Users/lavoro/Documents/PROGETTI_LAVORO/Romaco_4/05_software/Romaco_APP/DATA/csv/TEST210824.csv
 
 
@@ -42,6 +43,7 @@ Skipping entry /Users/lavoro/Documents/PROGETTI_LAVORO/Romaco_4/05_software/Roma
  |TEST/__init__.py                                                                 |	          0 |
  |TEST/test.py                                                                     |	        126 |
  |TEST/test_two_com.py                                                             |	         17 |
+ |TEST/vtk.py                                                                      |	         28 |
  |TEST/.ipynb_checkpoints/test-checkpoint.py                                       |	         56 |
  |line.py                                                                          |	         57 |
  |STYLE/home.qss                                                                   |	         52 |
@@ -64,4 +66,4 @@ Skipping entry /Users/lavoro/Documents/PROGETTI_LAVORO/Romaco_4/05_software/Roma
  |main.py                                                                          |	        122 |
  |untitled.py                                                                      |	        105 |
  |==================================================================================================| 
- |Total lines                                                                      |	       9881 |
+ |Total lines                                                                      |	       9909 |
