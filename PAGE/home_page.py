@@ -308,6 +308,7 @@ class Home_Page(QWidget):
             self.initUI()
 
     def salva_f(self):
+        l.log_file(107)
         self.master.save_call(self.pesoTotale, self.peso_bilance)
 
     def _log_thread_info(self, function_name):

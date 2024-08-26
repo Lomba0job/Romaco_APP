@@ -1,6 +1,7 @@
 import logging
 from colorlog import ColoredFormatter
-
+import os
+from API import funzioni as f
 # Define a new logging level for SUCCESS
 SUCCESS_LEVEL_NUM = 25
 logging.addLevelName(SUCCESS_LEVEL_NUM, "SUCCESS")
@@ -38,16 +39,22 @@ def setup_logger():
             'SUCCESS': 'green'  # Color for SUCCESS level
         }
     )
+    
+    # Specify the directory for log files
+    log_directory = f.get_resource_path(os.path.join("data", "logs"))
+    # Full paths for log files
+    app_log_path = os.path.join(log_directory, 'app.log')
+    thread_log_path = os.path.join(log_directory, 'thread.log')
 
     # Handler for app.log with a specific filter
-    app_handler = logging.FileHandler('app.log')
+    app_handler = logging.FileHandler(app_log_path)
     app_handler.setLevel(logging.DEBUG)
     app_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
     app_handler.setFormatter(app_formatter)
     app_handler.addFilter(CodiceFilter(set(range(0, 1000))))  # Codici da 0 a 999 inclusi
 
     # Handler for thread.log with a specific filter
-    thread_handler = logging.FileHandler('thread.log')
+    thread_handler = logging.FileHandler(thread_log_path)
     thread_handler.setLevel(logging.DEBUG)
     thread_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
     thread_handler.setFormatter(thread_formatter)

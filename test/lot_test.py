@@ -76,6 +76,9 @@ log_messages = {
     6: ('SUCCESS', 'Calibrazione singola termianta'),
     7: ('SUCCESS', 'Salvataggio peso termianto'),
     8: ('SUCCESS', 'ID rilevati'),
+    9: ('SUCCESS', 'Collegato ID: '),
+    10: ('SUCCESS', 'Livello 1'),
+    11: ('SUCCESS', 'Livello 2'),
     
     101: ('INFO', 'Configurazione Richiesta'),
     102: ('INFO', 'Richiesta Peso '),
@@ -86,27 +89,37 @@ log_messages = {
     107: ('INFO', 'Salvataggio peso richiesto'),
     108: ('INFO', 'Porte Seriale scan effettuato'),
     109: ('INFO', 'ID: '),
+    110: ('INFO', 'Conversione: '),
     
     404: ('WARNING', 'Errore sconosciuto'),
     401: ('WARNING', 'Errore di Configurazione no ID'),
     402: ('WARNING', 'Errore di Configurazione errore risposta'),
     403: ('WARNING', 'Bilancia singola peso in errore interno: '),
     405: ('WARNING', 'Tara totale in Errore'),
-    406: ('WARNING', 'Tara singola in Errore'),
+    406: ('WARNING', 'Tara singola in Errore timeout'),
     407: ('WARNING', 'Calibrazione singola in Errore'),
     408: ('WARNING', 'Salvataggio peso in Errore'),
     409: ('WARNING', 'Password impostazioni Sbagliata'),
     410: ('WARNING', 'Porte Seriale scan in Errore'),
     411: ('WARNING', 'Errore durante elaborazione della Bilancia'),
     412: ('WARNING', 'Peso totale in errore: '),
+    413: ('WARNING', 'Tara Singola errere: '), 
+    414: ('WARNING', 'Calibrazione singola in Errore peso'),
+    415: ('WARNING', 'Calibrazione singola in Errore timout'),
+    416: ('WARNING', 'Diagnostica errore sconosciuto'),
+    417: ('WARNING', 'Conversione errore sconosciuto'),
     
     700: ('CRITICAL', 'Bilancie Scollegate'),
     701: ('CRITICAL', 'Deriva Eccessiva'),  #not implement
+    702: ('CRITICAL', 'Diagnostica: '), 
     
     800: ('DEBUG', 'Linux'),
     900: ('DEBUG', 'MacOS'), 
+    999: ('DEBUG', ''),
     
     1000: ('INFO', 'thread: '),
+    1001: ('WARNING', 'thread: '),
+    1002: ('SUCCESS', 'thread: '),
 }
 
 # Function to log messages based on code and optional suffix
