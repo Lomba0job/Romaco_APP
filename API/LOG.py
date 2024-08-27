@@ -89,6 +89,7 @@ log_messages = {
     11: ('SUCCESS', 'Livello 2'),
     12: ('SUCCESS', 'DB successo lettura'),
     13: ('SUCCESS', 'DB successo scrittura'),
+    14: ('SUCCESS', 'set accensione su bilancia: '),
     
     101: ('INFO', 'Configurazione Richiesta'),
     102: ('INFO', 'Richiesta Peso '),
@@ -121,6 +122,7 @@ log_messages = {
     417: ('WARNING', 'Conversione errore sconosciuto'),
     418: ('WARNING', 'DB errore di lettura'),
     419: ('WARNING', 'DB errore di scrittura'),
+    420: ('WARNING', 'Errore fase di ordinamento: '),
     
     700: ('CRITICAL', 'Bilancie Scollegate'),
     701: ('CRITICAL', 'Deriva Eccessiva'),  #not implement

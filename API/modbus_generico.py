@@ -16,6 +16,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 class QueueProcessor:
     def __init__(self):
+        self.shutdown_flag = threading.Event()
         l.log_file(1000, "queue processir (config 8)")
         self.executor = ThreadPoolExecutor(max_workers=8)  # Puoi regolare il numero di worker in base alle tue esigenze
         self.lock = threading.Lock()
@@ -26,14 +27,17 @@ class QueueProcessor:
         return future
 
     def handle_task_completion(self, future):
-        try:
-            result = future.result()
-            l.log_file(1002, f"Task completato con risultato: {result}")
-        except Exception as e:
-            l.log_file(1001, f"Errore durante l'esecuzione del task: {e}")
+        while not self.shutdown_flag.is_set():
+            try:
+                result = future.result()
+                l.log_file(1002, f"Task completato con risultato: {result}")
+            except Exception as e:
+                l.log_file(1001, f"Errore durante l'esecuzione del task: {e}")
 
     def shutdown(self):
         self.executor.shutdown(wait=True)
+        self.shutdown_flag.set()
+        #self.thread.join()  # Wait for the thread to finish
 
 # Durata timeout
 timeout_duration = 10
@@ -302,9 +306,13 @@ def configure(port, list_add):
         instrument.serial.baudrate = 9600
         instrument.serial.timeout = 0.5
         ogg = b.Bilancia(instrument)
-        ogg.set_coil_config()
-        lista_bilance.append(ogg)
-    
+        ris = ogg.set_coil_config()
+        
+        if ris == 1:
+            lista_bilance.append(ogg)
+        else:
+            l.log_file(402)
+            return None
     l.log_file(999, f"Bilance create {len(list_add)} / {len(lista_bilance)}")
     return lista_bilance
 

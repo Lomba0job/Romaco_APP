@@ -11,7 +11,7 @@ class Bilancia():
         
     def set_coil_config(self) -> None:
         # print(f"Configurazione Bilancia {self.modbusI.address}")
-        mb.set_accensione(self.modbusI)
+        return mb.set_accensione(self.modbusI)
         
         
     def check_coil_status(self) -> int:

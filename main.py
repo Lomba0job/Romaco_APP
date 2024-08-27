@@ -132,6 +132,11 @@ class MainWindow(QMainWindow):
         
         self.navbar.setVisible(True)   
         self.change_page(1)
+        
+    def closeEvent(self, event):
+        log.log_file(999, "Closing application. Shutting down threads...")
+        queue_processor.shutdown()  # Signal thread to shut down
+        event.accept()  # Close the window
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

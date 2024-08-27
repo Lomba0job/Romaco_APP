@@ -262,9 +262,15 @@ class LauncherWidget(QWidget):
         self.label.setVisible(True)
         if len(connected_ids) != 0:
             self.lista_bilance = m.configure(self.port_combo.currentText(), connected_ids)
-            self.ordinamento()
+            if self.lista_bilance is not None:
+                self.ordinamento()
+            else:
+                QMessageBox.warning(self, "Scan Results", "Errore 402")
+                self.start_button.setVisible(True)
+                self.label.setVisible(False)
+                self.progress_bar.setVisible(False)
         else:
-            QMessageBox.warning(self, "Scan Results", "No Connected ID")
+            QMessageBox.warning(self, "Scan Results", "Errore 401")
             self.start_button.setVisible(True)
             self.label.setVisible(False)
             self.progress_bar.setVisible(False)
