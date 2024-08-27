@@ -16,7 +16,6 @@ from concurrent.futures import ThreadPoolExecutor
 
 class QueueProcessor:
     def __init__(self):
-        self.shutdown_flag = threading.Event()
         l.log_file(1000, "queue processir (config 8)")
         self.executor = ThreadPoolExecutor(max_workers=8)  # Puoi regolare il numero di worker in base alle tue esigenze
         self.lock = threading.Lock()
@@ -27,18 +26,14 @@ class QueueProcessor:
         return future
 
     def handle_task_completion(self, future):
-        while not self.shutdown_flag.is_set():
-            try:
-                result = future.result()
-                l.log_file(1002, f"Task completato con risultato: {result}")
-            except Exception as e:
-                l.log_file(1001, f"Errore durante l'esecuzione del task: {e}")
+        try:
+            result = future.result()
+            l.log_file(1002, f"Task completato con risultato: {result}")
+        except Exception as e:
+            l.log_file(1001, f"Errore durante l'esecuzione del task: {e}")
 
     def shutdown(self):
         self.executor.shutdown(wait=True)
-        self.shutdown_flag.set()
-        #self.thread.join()  # Wait for the thread to finish
-
 # Durata timeout
 timeout_duration = 10
 

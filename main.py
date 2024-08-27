@@ -134,14 +134,10 @@ class MainWindow(QMainWindow):
         self.navbar.setVisible(True)   
         self.change_page(1)
         
-    def closeEvent(self, event):
-        log.log_file(999, "Closing application. Shutting down threads...")
-        queue_processor.shutdown()  # Signal thread to shut down
-        event.accept()  # Close the window
 
     def calib_all(self):
         log.log_file(112)
-        for b in self.master.lista_bilance:
+        for b in self.lista_bilance:
             # print(f"avvio calibrazione {b.modbusI.address}")
             future = mg.tare_command(b.modbusI)
             future.add_done_callback(self.handle_calibrazione_completata)
@@ -152,6 +148,14 @@ class MainWindow(QMainWindow):
         except Exception as e:
             log.log_file(405, f" {e}")
 
+    def closeEvent(self, event):
+        """
+        Override del metodo closeEvent per assicurarsi che tutti i thread vengano chiusi
+        correttamente prima che l'applicazione si chiuda.
+        """
+        log.log_file(2000, "Chiusura dell'applicazione, terminazione dei thread...")
+        queue_processor.shutdown()  # Chiude tutti i thread del ThreadPoolExecutor
+        super().closeEvent(event)
     
             
 if __name__ == "__main__":
@@ -159,4 +163,3 @@ if __name__ == "__main__":
     main_window = MainWindow()
     main_window.show()
     sys.exit(app.exec())
-    queue_processor.shutdown()
