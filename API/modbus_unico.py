@@ -12,7 +12,7 @@ def set_accensione(modbus: modbus.Instrument):
     try:
         # print(modbus.address)
         coil_reg = read_coil(modbus)
-        modbus.serial.timeout = 0.5
+        modbus.serial.timeout = 0.2
         modbus.write_bit(st.COIL_START, value=1, functioncode=5)
         coil_reg = read_coil(modbus)
         l.log_file(14, f"id {modbus.address}")
@@ -26,7 +26,7 @@ def set_accensione(modbus: modbus.Instrument):
 
 def read_coil(instrument: modbus.Instrument):
     try:
-        modbus.serial.timeout = 0.2
+        modbus.serial.timeout = 0.1
         coils = instrument.read_bit(st.COIL_CONFIG, functioncode=1)
         return coils
     except Exception as e:

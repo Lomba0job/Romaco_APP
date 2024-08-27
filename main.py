@@ -140,7 +140,6 @@ class MainWindow(QMainWindow):
         event.accept()  # Close the window
 
     def calib_all(self):
-        self._log_thread_info("calib_all")
         l.log_file(104)
         for b in self.master.lista_bilance:
             # print(f"avvio calibrazione {b.modbusI.address}")
@@ -148,7 +147,6 @@ class MainWindow(QMainWindow):
             future.add_done_callback(self.handle_calibrazione_completata)
 
     def handle_calibrazione_completata(self, future):
-        self._log_thread_info("handle_calibrazione_completata")
         try:
             risult = future.result()
         except Exception as e:
