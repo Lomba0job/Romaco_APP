@@ -42,19 +42,20 @@ class DiagnosticWidget(QWidget):
         self.main_layout.setSpacing(0)
         self.UI()
         v1 = QVBoxLayout()
-        push = QPushButton()
-        push.setText("ESEGUI LA TARA COMPLETA")
-        push.clicked.connect(self.calib_all)
-        push.setObjectName("pls")
+        self.push = QPushButton()
+        self.push.setText("ESEGUI LA TARA COMPLETA")
+        self.push.setEnabled(False)
+        self.push.clicked.connect(self.calib_all)
+        self.push.setObjectName("pls")
         
-        push.setMinimumWidth(int(self.screen_width * 0.5))
-        push.setMaximumWidth(int(self.screen_width * 0.5))
-        push.setMinimumHeight(int(self.screen_height * 0.1))
-        push.setMaximumHeight(int(self.screen_height * 0.1))
+        self.push.setMinimumWidth(int(self.screen_width * 0.5))
+        self.push.setMaximumWidth(int(self.screen_width * 0.5))
+        self.push.setMinimumHeight(int(self.screen_height * 0.1))
+        self.push.setMaximumHeight(int(self.screen_height * 0.1))
         
         h0 = QHBoxLayout()
         h0.addStretch()
-        h0.addWidget(push)
+        h0.addWidget(self.push)
         h0.addStretch()
         
         v1.addSpacing(70)
@@ -72,6 +73,13 @@ class DiagnosticWidget(QWidget):
                 border: 1px solid grey;
                 background-color: #FFFFFF;
                 color: #FD6363;
+                font-size: 30px;
+                border-radius: 10px;
+            }
+            QPushButton#pls1{
+                border: 1px solid grey;
+                background-color: #FD6363;
+                color: #000000;
                 font-size: 30px;
                 border-radius: 10px;
             }
@@ -119,6 +127,9 @@ class DiagnosticWidget(QWidget):
             else:
                 home_page = bd.Bilancia(i, self.screen_width-10, self.screen_height-10)
                 home_page.setObjectName("weed")
+            
+            if len(self.master.lista_bilance) > 0: 
+                self.push.setEnabled(True)
                 
             raggruppa = QWidget()
             l0 = QHBoxLayout()
@@ -141,6 +152,7 @@ class DiagnosticWidget(QWidget):
                     self.status_thread.stop()
                     print("DISTRUTTO")
                     self.master.disconnect()
+                    self.push.setEnabled(False)
                     self.update()
     
     def set_background_color(self):
@@ -149,6 +161,8 @@ class DiagnosticWidget(QWidget):
         self.setPalette(p)
     
     def calib_all(self):
+        self.push.setObjectName("pls1")
+        self.push.setText("IN ELABORAZIONE")
         self._log_thread_info("calib_all")
         l.log_file(104)
         for b in self.master.lista_bilance:
@@ -165,10 +179,12 @@ class DiagnosticWidget(QWidget):
             l.log_file(407, f" {e}")
 
     def update_calibrazione_ui(self, risult):
+        self.push.setObjectName("pls")
         self._log_thread_info("update_calibrazione_ui")
         if risult == 0:
-            QMessageBox.information(self, "Tara Totale", "Successo")
+            l.log_file(4)
         else:
+            l.log_file(405)
             QMessageBox.warning(self, "Tara Totale", "Errore")
             
             

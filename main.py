@@ -9,7 +9,7 @@ from PyQt6.QtGui import QPixmap, QAction
 from PAGE import home_page as h, launcher_page as l, salva_peso_page as s, log_page as lo, diagnostic_page as d, setting_page as se
 from CMP import navbar as nv
 
-from API import API_db as db
+from API import API_db as db, modbus_generico as mg
 from API.modbus_generico import QueueProcessor
 from API import LOG as log
 
@@ -107,6 +107,7 @@ class MainWindow(QMainWindow):
         self.lista_bilance = lista_ordianta
         #print(f"DEBUG MAIN {len(self.lista_bilance)}")
         self.rubrica_page.initUI()
+        self.calib_all()
         self.diagno.update()
         self.change_page(1)  # Passa alla pagina rubrica
         
@@ -138,6 +139,23 @@ class MainWindow(QMainWindow):
         queue_processor.shutdown()  # Signal thread to shut down
         event.accept()  # Close the window
 
+    def calib_all(self):
+        self._log_thread_info("calib_all")
+        l.log_file(104)
+        for b in self.master.lista_bilance:
+            # print(f"avvio calibrazione {b.modbusI.address}")
+            future = mg.tare_command(b.modbusI)
+            future.add_done_callback(self.handle_calibrazione_completata)
+
+    def handle_calibrazione_completata(self, future):
+        self._log_thread_info("handle_calibrazione_completata")
+        try:
+            risult = future.result()
+        except Exception as e:
+            l.log_file(407, f" {e}")
+
+    
+            
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     main_window = MainWindow()

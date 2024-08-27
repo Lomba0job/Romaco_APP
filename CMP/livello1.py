@@ -20,9 +20,15 @@ class Livello1(QWidget):
         self.master:s.Settings = master
         
         
-        self.main_layout = QHBoxLayout()
+        self.main_layout = QVBoxLayout()
+        self.stacked_widget = QStackedWidget()
         
-        self.home_page()
+        self.home_page() #indice 0
+        self.log_page() #indice 1
+        self.db_page()  #indice 2
+        
+        self.main_layout.addWidget(self.stacked_widget)
+        self.setLayout(self.main_layout)
         
         
         self.setLayout(self.main_layout)
@@ -47,15 +53,58 @@ class Livello1(QWidget):
             self.setStyleSheet(style_sheet)
     
     def home_page(self):
+        
+        home_widget = QWidget()
+        home_layout = QHBoxLayout()
+        home_widget.setLayout(home_layout)
+        
         p1 = p.ClickableWidget(f.get_img("DB_F.png"),     "Operazioni Database") 
+        p1.clicked.connect(self.db_operatione)
         p2 = p.ClickableWidget(f.get_img("LOG_DATA.png"), "Operazioni DataLog") 
+        p2.clicked.connect(self.dataLog_operatione)
         
-        self.main_layout.addStretch()
-        self.main_layout.addWidget(p1)
-        self.main_layout.addSpacing(50)
-        self.main_layout.addWidget(p2)
-        self.main_layout.addStretch()
+        home_layout.addStretch()
+        home_layout.addWidget(p1)
+        home_layout.addSpacing(50)
+        home_layout.addWidget(p2)
+        home_layout.addStretch()
         
+        self.stacked_widget.addWidget(home_widget)
+        
+    def db_page(self):
+        
+        home_widget = QWidget()
+        home_layout = QHBoxLayout()
+        home_widget.setLayout(home_layout)
+        
+        p1 = p.ClickableWidget(f.get_img("trash.png"),     "Elimina dati database") 
+        p2 = p.ClickableWidget(f.get_img("share.png"), "Esporta dati database") 
+        
+        home_layout.addStretch()
+        home_layout.addWidget(p1)
+        home_layout.addSpacing(50)
+        home_layout.addWidget(p2)
+        home_layout.addStretch()
+        
+        self.stacked_widget.addWidget(home_widget)
+        
+    def log_page(self):
+        
+        home_widget = QWidget()
+        home_layout = QHBoxLayout()
+        home_widget.setLayout(home_layout)
+        
+        p1 = p.ClickableWidget(f.get_img("trash.png"), "Elimina DataLog") 
+        p2 = p.ClickableWidget(f.get_img("share.png"), "Esporta DataLog") 
+        
+        home_layout.addStretch()
+        home_layout.addWidget(p1)
+        home_layout.addSpacing(50)
+        home_layout.addWidget(p2)
+        home_layout.addStretch()
+        
+        self.stacked_widget.addWidget(home_widget)
+         
     def clearLayout(self, layout):
         if layout is not None:
             while layout.count():
@@ -67,4 +116,16 @@ class Livello1(QWidget):
                     self.clearLayout(item.layout())
                     
     def home(self):
-        pass
+        self.stacked_widget.setCurrentIndex(0)
+        self.master.contro_label(1)
+    
+    
+    def dataLog_operatione(self):
+        self.stacked_widget.setCurrentIndex(1)
+        self.master.contro_label(4)
+    
+    
+    def db_operatione(self):
+        self.stacked_widget.setCurrentIndex(2)
+        self.master.contro_label(5)
+    
