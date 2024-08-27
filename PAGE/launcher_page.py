@@ -1,7 +1,6 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QComboBox, QPushButton, QMessageBox, QFormLayout, QProgressBar, QHBoxLayout, QGroupBox, QGraphicsEffect
 from PyQt6.QtCore import Qt, pyqtSignal, QThread, pyqtSlot, QFile, QTextStream, QPropertyAnimation, QEasingCurve, QParallelAnimationGroup
 from PyQt6.QtGui import QFontDatabase, QPixmap, QPalette, QColor
-from pymodbus.client import ModbusSerialClient as ModbusClient
 import serial.tools.list_ports
 import sys
 import glob
@@ -9,6 +8,7 @@ from API import modbus_generico as m
 from API import funzioni as f
 import time
 from API import LOG as l
+from OBJ import bilancia as b
 
 
 
@@ -30,7 +30,7 @@ def serial_ports():
             result.append(port)
             l.log_file(108)
         except (OSError, serial.SerialException):
-            l.log_file(410)
+            #l.log_file(410)
             pass
     return result
 
@@ -40,7 +40,7 @@ class OrdinamentoWorker(QThread):
 
     def __init__(self, lista_bilance):
         super().__init__()
-        self.lista_bilance = lista_bilance
+        self.lista_bilance: list[b.Bilancia] = lista_bilance
 
     def run(self):
         status_ok = [0 for _ in range(len(self.lista_bilance))]
@@ -266,6 +266,7 @@ class LauncherWidget(QWidget):
         else:
             QMessageBox.warning(self, "Scan Results", "No Connected ID")
             self.start_button.setVisible(True)
+            self.label.setVisible(False)
             self.progress_bar.setVisible(False)
 
     def ordinamento(self):
@@ -311,7 +312,7 @@ class LauncherWidget(QWidget):
             self.progress_bar.setValue(int(percentage))
 
     def on_finished(self):
-        l.log_file(1, f'{len(self.lista_bilance)}')
+        l.log_file(1, f' ordinamento {len(self.lista_bilance)}')
         #QMessageBox.information(self, "Ordinamento", "Ordinamento completato")
         self.finished.emit()
         self.start_button.setVisible(True)

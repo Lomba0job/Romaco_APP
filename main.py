@@ -103,8 +103,9 @@ class MainWindow(QMainWindow):
 
     def on_launcher_finished(self):
         self.navbar.setVisible(True)  # Mostra la barra di navigazione
-        self.lista_bilance = self.launcher_page.lista_bilance
-        print(f"DEBUG MAIN {len(self.lista_bilance)}")
+        lista_ordianta = sorted(self.launcher_page.lista_bilance, key=lambda item: item.position)
+        self.lista_bilance = lista_ordianta
+        #print(f"DEBUG MAIN {len(self.lista_bilance)}")
         self.rubrica_page.initUI()
         self.diagno.update()
         self.change_page(1)  # Passa alla pagina rubrica

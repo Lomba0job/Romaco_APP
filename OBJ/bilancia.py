@@ -1,6 +1,7 @@
 from API import modbus_strutture as st 
 from API import modbus_unico as mb
 from API import modbus
+from API import LOG as l 
 
 class Bilancia():
     
@@ -26,3 +27,4 @@ class Bilancia():
         
     def set_number(self, numero) -> None:
         self.position = numero
+        l.log_file(109, f"{self.modbusI.address}, posizione: {self.position} ")
