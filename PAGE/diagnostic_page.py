@@ -176,7 +176,7 @@ class DiagnosticWidget(QWidget):
             risult = future.result()
             self.calibrazione_completata_signal.emit(risult)
         except Exception as e:
-            l.log_file(407, f" {e}")
+            l.log_file(405, f" {e}")
 
     def update_calibrazione_ui(self, risult):
         self.push.setObjectName("pls")

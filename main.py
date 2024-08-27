@@ -140,7 +140,7 @@ class MainWindow(QMainWindow):
         event.accept()  # Close the window
 
     def calib_all(self):
-        l.log_file(104)
+        log.log_file(112)
         for b in self.master.lista_bilance:
             # print(f"avvio calibrazione {b.modbusI.address}")
             future = mg.tare_command(b.modbusI)
@@ -150,7 +150,7 @@ class MainWindow(QMainWindow):
         try:
             risult = future.result()
         except Exception as e:
-            l.log_file(407, f" {e}")
+            log.log_file(405, f" {e}")
 
     
             

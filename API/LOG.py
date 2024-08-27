@@ -102,6 +102,7 @@ log_messages = {
     109: ('INFO', 'ID: '),
     110: ('INFO', 'Conversione: '),
     111: ('INFO', 'DB richiesta'),
+    112: ('INFO', 'Tara Automatica dopo Collegamento'),
     
     404: ('WARNING', 'Errore sconosciuto'),
     401: ('WARNING', 'Errore di Configurazione no ID'),
