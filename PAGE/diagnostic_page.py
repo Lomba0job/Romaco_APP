@@ -169,7 +169,8 @@ class DiagnosticWidget(QWidget):
         for b in self.master.lista_bilance:
             # print(f"avvio calibrazione {b.modbusI.address}")
             future = mg.tare_command(b.modbusI)
-            future.add_done_callback(self.handle_calibrazione_completata)
+            if future is not None:
+                future.add_done_callback(self.handle_calibrazione_completata)
 
     def handle_calibrazione_completata(self, future):
         self._log_thread_info("handle_calibrazione_completata")

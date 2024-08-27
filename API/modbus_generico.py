@@ -53,8 +53,8 @@ def async_modbus_operation(func):
             l.log_file(1002, f"DEBUG DECORATOR | {func.__name__} messo in coda con Future: {future}")
             
             # Attendi il completamento del future con timeout
-            result = future.result(timeout=120)  # Timeout di 2 minuti
-            return result
+            
+            return future
         except concurrent.futures.TimeoutError:
             l.log_file(421, f"ERROR DECORATOR | Timeout superato per {func.__name__}")
             l.log_file(1001, f"ERROR DECORATOR | Timeout superato per {func.__name__}")
