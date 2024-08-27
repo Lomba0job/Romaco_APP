@@ -124,6 +124,7 @@ log_messages = {
     418: ('WARNING', 'DB errore di lettura'),
     419: ('WARNING', 'DB errore di scrittura'),
     420: ('WARNING', 'Errore fase di ordinamento: '),
+    421: ('WARNING', ''),
     
     700: ('CRITICAL', 'Bilancie Scollegate'),
     701: ('CRITICAL', 'Deriva Eccessiva'),  #not implement

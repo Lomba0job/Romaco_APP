@@ -164,6 +164,7 @@ class DiagnosticWidget(QWidget):
         self.push.setObjectName("pls1")
         self.push.setText("IN ELABORAZIONE")
         self._log_thread_info("calib_all")
+        self.calibrazione_completata_signal.connect(self.update_calibrazione_ui)
         l.log_file(104)
         for b in self.master.lista_bilance:
             # print(f"avvio calibrazione {b.modbusI.address}")
@@ -180,6 +181,7 @@ class DiagnosticWidget(QWidget):
 
     def update_calibrazione_ui(self, risult):
         self.push.setObjectName("pls")
+        self.push.setText("ESEGUI LA TARA COMPLETA")
         self._log_thread_info("update_calibrazione_ui")
         if risult == 0:
             l.log_file(4)

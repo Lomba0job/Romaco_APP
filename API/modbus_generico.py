@@ -51,12 +51,21 @@ def async_modbus_operation(func):
             # Usa QueueProcessor per inviare il task
             future = _queue_processor.submit_task(func, *args, **kwargs)
             l.log_file(1002, f"DEBUG DECORATOR | {func.__name__} messo in coda con Future: {future}")
+            
+            # Attendi il completamento del future con timeout
+            result = future.result(timeout=120)  # Timeout di 2 minuti
+            return result
+        except concurrent.futures.TimeoutError:
+            l.log_file(421, f"ERROR DECORATOR | Timeout superato per {func.__name__}")
+            l.log_file(1001, f"ERROR DECORATOR | Timeout superato per {func.__name__}")
+            if future:
+                future.cancel()  # Cancella il task se possibile
+            return None
         except Exception as e:
             l.log_file(1001, f"ERROR DECORATOR | Errore nel mettere in coda {func.__name__}: {str(e)}")
             if future:
                 future.set_exception(e)
             return None
-        return future
     return wrapper
 
 queue_lock = threading.Lock()
