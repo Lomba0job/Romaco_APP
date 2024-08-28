@@ -101,6 +101,7 @@ class LauncherWidget(QWidget):
         self.initUI()
         self.setAutoFillBackground(True)
         self.set_background_color()
+        self.lista_bilance = []
     
     def set_background_color(self):
         p = self.palette()
@@ -258,6 +259,8 @@ class LauncherWidget(QWidget):
             self.setStyleSheet(style_sheet)
 
     def start_scanning(self):
+        if len(self.lista_bilance) > 0:
+            self.lista_bilance.clear()
         self.progress_bar.setVisible(True)
         self.label.setVisible(True)
         self.label.setText("Identificazione bilance")
@@ -311,7 +314,7 @@ class LauncherWidget(QWidget):
         QMessageBox.warning(self, "Ordinamento", "Errore 420\n Messaggio disturbato \n\n controlla i cavi\nse persiste riavviare l'app")
         l.log_file(1000, "resetting lauocher main_thread")
         self.lista_bilance.clear()
-        
+        self.worker.deleteLater()
         self.start_button.setVisible(True)
         self.start_button.setEnabled(True)
         self.progress_bar.setVisible(False)
@@ -357,3 +360,4 @@ class LauncherWidget(QWidget):
         self.start_button.setEnabled(True)
         self.progress_bar.setVisible(False)
         self.label.setVisible(False)
+        self.worker.deleteLater()

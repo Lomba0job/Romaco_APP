@@ -48,10 +48,9 @@ MAX_SCALES = 6
 list_instrument = []
 # Configurazione del master Modbus
 for i in range(1, 5):
-    if i != 2:
         instrument = m.Instrument('/dev/tty.usbserial-FT57PLKR', i)  # Modifica '/dev/ttyUSB0' con il tuo dispositivo seriale e '1' con l'ID del tuo slave
         instrument.serial.baudrate = 9600
-        instrument.serial.timeout = 0.15
+        instrument.serial.timeout = 0.3
         instrument.mode = m.MODE_RTU
 
         list_instrument.append(instrument)
@@ -86,14 +85,15 @@ def read_holding_registers():
 def read_coils(instrument_i: m.Instrument):
     coils = []
     try:
-        for i in range(0,10):
-            coils.append(instrument_i.read_bit(i*8 , functioncode=1))  # Legge 8 coil a partire dal coil COIL_PESO_COMMAND
+        a1 = instrument_i.read_bit(COIL_CONFIG, functioncode=1)
+        a2 = instrument_i.read_bit(COIL_START, functioncode=1)
+        a3 = instrument_i.read_bit(COIL_INPUT, functioncode=1)
         # print(f"Coils read: {coils}")  # Debug
         coil_reg_params = {
             
-            'coil_Config': coils[7],
-            'coils_Start': coils[8],
-            'coils_Input': coils[9]
+            'coil_Config': a1,
+            'coils_Start': a2,
+            'coils_Input': a3
         }
         return coil_reg_params
     except Exception as e:
@@ -103,7 +103,9 @@ def read_coils(instrument_i: m.Instrument):
 
 def start(instrument_t: m.Instrument):
     try:
+        print(f"scrittura su {instrument_t.address}")
         instrument_t.write_bit(64, value=1, functioncode=5)
+        print(instrument_t.read_bit(COIL_START, functioncode=1))
     except Exception as e:
         print(f"Error writing coils: {e}")
         return None
@@ -137,7 +139,7 @@ def main():
                 ciclo = 20
                 print("RESET |||||||||||||||||||||             ")
                 
-            ciclo += 1
+        ciclo += 1
         print("")
             
         
