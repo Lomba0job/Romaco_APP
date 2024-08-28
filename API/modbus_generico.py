@@ -53,19 +53,21 @@ def async_modbus_operation(func):
             l.log_file(1002, f"DEBUG DECORATOR | {func.__name__} messo in coda con Future: {future}")
             
             # Attendi il completamento del future con timeout
-            
             return future
+        except Exception as e:
+            l.log_file(1001, f"ERROR DECORATOR | Errore nel mettere in coda {func.__name__}: {str(e)}")
+            if future:
+                future.set_exception(e)
+            return None
+        """
         except concurrent.futures.TimeoutError:
             l.log_file(421, f"ERROR DECORATOR | Timeout superato per {func.__name__}")
             l.log_file(1001, f"ERROR DECORATOR | Timeout superato per {func.__name__}")
             if future:
                 future.cancel()  # Cancella il task se possibile
             return None
-        except Exception as e:
-            l.log_file(1001, f"ERROR DECORATOR | Errore nel mettere in coda {func.__name__}: {str(e)}")
-            if future:
-                future.set_exception(e)
-            return None
+        """
+        
     return wrapper
 
 queue_lock = threading.Lock()
@@ -127,17 +129,15 @@ def calib_command(weight_kg, instrument: modbus.Instrument):
         with _modbus_lock:
             # Setting the weight
             calibWeight = instrument.read_register(st.HOLDING_PESO_CALIB_MS, functioncode=3)*65536 + instrument.read_register(st.HOLDING_PESO_CALIB_LS, functioncode=3)
-            while(calibWeight!=weight and (time.time()-start_time < timeout_duration)):
-                LS16bit = weight & 0xffff
-                MS16bit = (weight >> 16) & 0xffff
-                instrument.write_registers(st.HOLDING_PESO_CALIB_MS, [MS16bit, LS16bit]) 
-                instrument.write_register(st.HOLDING_PESO_CALIB_MS, MS16bit, functioncode=6)  
-                instrument.write_register(st.HOLDING_PESO_CALIB_LS, LS16bit, functioncode=6)  
+            # while(calibWeight!=weight and (time.time()-start_time < timeout_duration)):
+            LS16bit = weight & 0xffff
+            MS16bit = (weight >> 16) & 0xffff
+            # instrument.write_registers(st.HOLDING_PESO_CALIB_MS, [MS16bit, LS16bit]) 
+            instrument.write_register(st.HOLDING_PESO_CALIB_MS, MS16bit, functioncode=6)  
+            instrument.write_register(st.HOLDING_PESO_CALIB_LS, LS16bit, functioncode=6)  
                 
-                calibWeight = instrument.read_register(st.HOLDING_PESO_CALIB_MS)* 65536 + instrument.read_register(st.HOLDING_PESO_CALIB_LS, functioncode=3)
-                
-                t1 = instrument.read_register(st.HOLDING_PESO_CALIB_MS, functioncode=3)* 65536 
-                t2 = instrument.read_register(st.HOLDING_PESO_CALIB_LS, functioncode=3)
+            calibWeight = instrument.read_register(st.HOLDING_PESO_CALIB_MS)* 65536 + instrument.read_register(st.HOLDING_PESO_CALIB_LS, functioncode=3)
+            print(f"{calibWeight} <> {weight}")    
             if(calibWeight!=weight):
                 l.log_file(414, f"id: {weight}")
                 return -1
@@ -162,6 +162,17 @@ def calib_command(weight_kg, instrument: modbus.Instrument):
         l.log_file(407, f"{e}")
         return -1
 
+@async_modbus_operation   
+def set_richesta_peso(instrument: modbus.Instrument):
+    try: 
+        with _modbus_lock:
+            l.log_file(999, "set richiesta peso")
+            instrument.write_bit(st.COIL_PESO_COMMAND, 1, functioncode=5)
+            l.log_file(999, f"successo {instrument.address}")
+        return 1
+    except:
+        l.log_file(408)
+        return -1
     
 @async_modbus_operation    
 def get_totWeight(instrument: modbus.Instrument):
@@ -176,7 +187,7 @@ def get_totWeight(instrument: modbus.Instrument):
     """
     try:
         with _modbus_lock:
-            instrument.write_bit(st.COIL_PESO_COMMAND, 1, functioncode=5)
+            
             stato = True
             while stato:
                 modbus.serial.timeout = 0.2
@@ -270,7 +281,7 @@ def get_cells_status(instrument: modbus.Instrument):
             return val
         
     except:
-        l.log_file(417)
+        l.log_file(416)
         return -1
 
 @async_modbus_operation  
@@ -288,7 +299,7 @@ def get_adcs_status(instrument: modbus.Instrument):
             val = instrument.read_bit(st.COIL_ADCS_STATUS, functioncode=1)
             return val
     except:
-        l.log_file(417)
+        l.log_file(416)
         return -1
 
 

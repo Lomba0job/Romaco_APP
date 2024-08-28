@@ -16,14 +16,17 @@ class Bilancia():
         
     def check_coil_status(self) -> int:
         coil = mb.read_coil(self.modbusI)
-        if coil == 1:
-            message = f"Bilancia N {self.modbusI.address} ha riportato la bilancia a 1"
-            # print(message)
-            return 1
+        if coil != None:
+            if coil == 1:
+                message = f"Bilancia N {self.modbusI.address} ha riportato la bilancia a 1"
+                # print(message)
+                return 1
+            else:
+                message = f"Bilancia N {self.modbusI.address} non identificata"
+                # print(message)
+                return 0
         else:
-            message = f"Bilancia N {self.modbusI.address} non identificata"
-            # print(message)
-            return 0
+            return None
         
     def set_number(self, numero) -> None:
         self.position = numero

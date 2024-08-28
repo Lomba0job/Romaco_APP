@@ -23,7 +23,13 @@ class PesataThread(QThread):
         print(f"DEBUG PESATA | bilance {len(self.master.lista_bilance)}")
 
         for bilancia in self.master.lista_bilance:
-            self.get_weight_for_bilancia(bilancia)
+            self.set_weight_question(bilancia)
+            
+    def set_weight_question(self, bilancia):
+        self._log_thread_info("set_weight_question")
+        future_peso_tot = mb.set_richesta_peso(bilancia.modbusI)
+        future_peso_tot.add_done_callback(lambda f: self.get_weight_for_bilancia(f, bilancia))
+
 
     def get_weight_for_bilancia(self, bilancia):
         self._log_thread_info("get_weight_for_bilancia")

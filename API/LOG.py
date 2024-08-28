@@ -125,6 +125,7 @@ log_messages = {
     419: ('WARNING', 'DB errore di scrittura'),
     420: ('WARNING', 'Errore fase di ordinamento: '),
     421: ('WARNING', ''),
+    422: ('WARNING', 'Errore che provoca arresto ordinamento'),
     
     700: ('CRITICAL', 'Bilancie Scollegate'),
     701: ('CRITICAL', 'Deriva Eccessiva'),  #not implement

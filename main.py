@@ -1,3 +1,5 @@
+import os 
+import signal
 import sys
 import future
 import threading
@@ -108,7 +110,7 @@ class MainWindow(QMainWindow):
         self.lista_bilance = lista_ordianta
         #print(f"DEBUG MAIN {len(self.lista_bilance)}")
         self.rubrica_page.initUI()
-        self.calib_all()
+        # self.calib_all()
         self.diagno.update()
         self.change_page(1)  # Passa alla pagina rubrica
         
@@ -157,6 +159,9 @@ class MainWindow(QMainWindow):
         """
         log.log_file(2000, "Chiusura dell'applicazione, terminazione dei thread...")
         queue_processor.shutdown()  # Chiude tutti i thread del ThreadPoolExecutor
+        # Terminate all child processes
+        os.killpg(os.getpgid(os.getpid()), signal.SIGTERM)
+        
         super().closeEvent(event)
     
             

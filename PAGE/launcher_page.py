@@ -37,29 +37,49 @@ def serial_ports():
 class OrdinamentoWorker(QThread):
     progress_updated = pyqtSignal(int)
     finished = pyqtSignal()
+    error = pyqtSignal()
 
     def __init__(self, lista_bilance):
         super().__init__()
         self.lista_bilance: list[b.Bilancia] = lista_bilance
 
     def run(self):
+        error = False
+        for i in range(len(self.lista_bilance)):
+            ris = self.lista_bilance[i].set_coil_config()
+        if ris != 1:
+            error = True
+            l.log_file(402)
+            
         status_ok = [0 for _ in range(len(self.lista_bilance))]
-
+        
         while 0 in status_ok:
             for i in range(len(self.lista_bilance)):
-                if status_ok[i] == 0:
-                    try:
-                        result = self.lista_bilance[i].check_coil_status()
-                        if result == 1:
-                            status_ok[i] = 1
-                            self.lista_bilance[i].set_number(sum(status_ok))
-                        self.progress_updated.emit(sum(status_ok))
-                            
-                    except Exception as e:
-                        l.log_file(411, f"{self.lista_bilance[i].modbusI.address}: {e}")
-            time.sleep(0.2)
+                if not error:
+                    if status_ok[i] == 0:
+                        try:
+                            result = self.lista_bilance[i].check_coil_status()
+                            if result is not None:
+                                if result == 1:
+                                    l.log_file(999, f"bilancia {i} a 1")
+                                    status_ok[i] = 1
+                                    self.lista_bilance[i].set_number(sum(status_ok))
+                                else: 
+                                    l.log_file(999, f"bilancia {i} ancora a 0")
+                                self.progress_updated.emit(sum(status_ok))
+                            else:
+                                l.log_file(422, )
+                                self.error.emit()
+                                error = True
+
+                        except Exception as e:
+                            l.log_file(411, f"{self.lista_bilance[i].modbusI.address}: {e}")
+                            error = True
+                            self.error.emit()
+            # time.sleep(0.2)
         
-        self.finished.emit()
+        if not error:
+            self.finished.emit()
         
 
 class ModbusScanner(QThread):
@@ -280,10 +300,22 @@ class LauncherWidget(QWidget):
         self.worker = OrdinamentoWorker(self.lista_bilance)
         self.worker.progress_updated.connect(self.update_progress)
         self.worker.finished.connect(self.on_finished)
+        self.worker.error.connect(self.on_error)
         self.start_ordinamento()
 
     def start_ordinamento(self):
         self.worker.start()
+        
+    def on_error(self):
+        
+        QMessageBox.warning(self, "Ordinamento", "Errore 420\n Messaggio disturbato \n\n controlla i cavi\nse persiste riavviare l'app")
+        l.log_file(1000, "resetting lauocher main_thread")
+        self.lista_bilance.clear()
+        
+        self.start_button.setVisible(True)
+        self.start_button.setEnabled(True)
+        self.progress_bar.setVisible(False)
+        self.label.setVisible(False)
 
     def update_progress(self, value):
         # Assuming each bilancia corresponds to an equal percentage of the progress bar

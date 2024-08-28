@@ -1,10 +1,11 @@
-import minimalmodbus
+from API import modbus as m 
 import serial
 import os 
 import curses
 import time 
 
 # Costanti per i registri holding
+
 HOLDING_CELL1_MS = 0
 HOLDING_CELL1_LS = 1
 HOLDING_CELL2_MS = 2
@@ -22,6 +23,7 @@ COUNT = 13
 DIAGNOSTIC = 14
 
 # Costanti per i coil
+# Costanti per i coil
 COIL_PESO_COMMAND = 0
 COIL_TARE_COMMAND = 8
 COIL_CALIB_COMMAND = 16
@@ -30,7 +32,8 @@ COIL_PRESENCE_STATUS = 32
 COIL_CELL_STATUS = 40
 COIL_ADCS_STATUS = 48
 COIL_CONFIG = 56
-
+COIL_START = 64
+COIL_INPUT = 72
 
 
 # Indirizzi dei registri input
@@ -44,16 +47,13 @@ MAX_SCALES = 6
 
 list_instrument = []
 # Configurazione del master Modbus
-for i in range(1, 6):
+for i in range(1, 5):
     if i != 2:
-        instrument = minimalmodbus.Instrument('/dev/tty.usbserial-FT57PLKR', i)  # Modifica '/dev/ttyUSB0' con il tuo dispositivo seriale e '1' con l'ID del tuo slave
-        instrument.serial.baudrate = 9600  # Modifica la velocità in baud secondo necessità instrument.serial.bytesize = 8 instrument.serial.parity = serial.PARITY_NONE
-        instrument.serial.stopbits = 1
-        instrument.serial.bytesize = 8
-        instrument.serial.parity = serial.PARITY_NONE
-        instrument.serial.timeout = 0.2  # secondi
+        instrument = m.Instrument('/dev/tty.usbserial-FT57PLKR', i)  # Modifica '/dev/ttyUSB0' con il tuo dispositivo seriale e '1' con l'ID del tuo slave
+        instrument.serial.baudrate = 9600
+        instrument.serial.timeout = 0.15
+        instrument.mode = m.MODE_RTU
 
-        instrument.mode = minimalmodbus.MODE_RTU
         list_instrument.append(instrument)
 # Funzioni per leggere i registri holding
 def read_holding_registers():
@@ -83,20 +83,14 @@ def read_holding_registers():
         return None
 
 # Funzioni per leggere i coil
-def read_coils(instrument_i):
+def read_coils(instrument_i: m.Instrument):
     coils = []
     try:
         for i in range(0,10):
             coils.append(instrument_i.read_bit(i*8 , functioncode=1))  # Legge 8 coil a partire dal coil COIL_PESO_COMMAND
         # print(f"Coils read: {coils}")  # Debug
         coil_reg_params = {
-            'coil_PesoCommand': coils[0],
-            'coil_TareCommand': coils[1],
-            'coil_CalibCommand': coils[2],
-            'coil_LastCommandSuccess': coils[3],
-            'coil_PresenceStatus': coils[4],
-            'coil_CellStatus': coils[5],
-            'coil_AdcsStatus': coils[6],
+            
             'coil_Config': coils[7],
             'coils_Start': coils[8],
             'coils_Input': coils[9]
@@ -107,9 +101,13 @@ def read_coils(instrument_i):
         return None
 
 
-def start(instrument_t):
-    instrument_t.write_bit(64, value=1, functioncode=5)
-    
+def start(instrument_t: m.Instrument):
+    try:
+        instrument_t.write_bit(64, value=1, functioncode=5)
+    except Exception as e:
+        print(f"Error writing coils: {e}")
+        return None
+
     """
 while True:
 
@@ -122,22 +120,30 @@ while True:
     """
     
     
-def main(stdscr):
-    curses.curs_set(0)  # Nascondi il cursore
+def main():
 
-    for instrument in list_instrument:
-        start(instrument)
+    
         
-        
+    ciclo = 0
     while True:
-        stdscr.clear()
         
         for idx, instrument in enumerate(list_instrument):
-            stdscr.addstr(idx, 0, f" DEBUG | scheda {instrument.address}")
+            
             coil_regs = read_coils(instrument)
-            stdscr.addstr(idx, 20, f" Coil Registers: {coil_regs}")
+            print(f" DEBUG | scheda {instrument.address} Coil Registers: {coil_regs}")
+            if ciclo == 2:
+                for instrument in list_instrument:
+                    start(instrument)
+                ciclo = 20
+                print("RESET |||||||||||||||||||||             ")
+                
+            ciclo += 1
+        print("")
+            
+        
 
-        stdscr.refresh()
-        time.sleep(0.6)
 
-curses.wrapper(main)
+    
+            
+if __name__ == "__main__":
+    main()
