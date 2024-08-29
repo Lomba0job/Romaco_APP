@@ -45,11 +45,11 @@ class OrdinamentoWorker(QThread):
 
     def run(self):
         error = False
-        for i in range(len(self.lista_bilance)):
-            ris = self.lista_bilance[i].set_coil_config()
-        if ris != 1:
-            error = True
-            l.log_file(402)
+        # for i in range(len(self.lista_bilance)):
+            # ris = self.lista_bilance[i].set_coil_config()
+        # if ris != 1:
+            # error = True
+            # l.log_file(402)
             
         status_ok = [0 for _ in range(len(self.lista_bilance))]
         
@@ -96,9 +96,11 @@ class ModbusScanner(QThread):
 class LauncherWidget(QWidget):
     finished = pyqtSignal()
 
-    def __init__(self):
+    def __init__(self, master):
         super().__init__()
+        self.master = master
         self.initUI()
+        
         self.setAutoFillBackground(True)
         self.set_background_color()
         self.lista_bilance = []
@@ -260,6 +262,8 @@ class LauncherWidget(QWidget):
 
     def start_scanning(self):
         if len(self.lista_bilance) > 0:
+            self.master.queue_processor.shutdown()  # Chiude tutti i thread del ThreadPoolExecutor
+            self.master.new_qm()
             self.lista_bilance.clear()
         self.progress_bar.setVisible(True)
         self.label.setVisible(True)

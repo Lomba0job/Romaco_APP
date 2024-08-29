@@ -16,9 +16,10 @@ from API import API_db as db, modbus_generico as mg
 from API.modbus_generico import QueueProcessor
 from API import LOG as log
 
-queue_processor = QueueProcessor()
+
 class MainWindow(QMainWindow):
     def __init__(self):
+        self.queue_processor = QueueProcessor()
         super().__init__()
         db.crea_db()
         # Avvia il thread per processare la coda prima di qualsiasi altra operazione
@@ -53,11 +54,14 @@ class MainWindow(QMainWindow):
 
         self.change_page(1)  # Initialize to the launcher page
         
-
+    def new_qm(self):
+        self.queue_processor = QueueProcessor()
+        self.diagno.status_thread.stop()
+        
     def create_pages(self):
         # Launcher Page
         self.lista_bilance = []
-        self.launcher_page = l.LauncherWidget()
+        self.launcher_page = l.LauncherWidget(self)
         self.launcher_page.finished.connect(self.on_launcher_finished)
         self.central_widget.addWidget(self.launcher_page)
 
@@ -158,7 +162,7 @@ class MainWindow(QMainWindow):
         correttamente prima che l'applicazione si chiuda.
         """
         log.log_file(2000, "Chiusura dell'applicazione, terminazione dei thread...")
-        queue_processor.shutdown()  # Chiude tutti i thread del ThreadPoolExecutor
+        self.queue_processor.shutdown()  # Chiude tutti i thread del ThreadPoolExecutor
         # Terminate all child processes
         os.killpg(os.getpgid(os.getpid()), signal.SIGTERM)
         
