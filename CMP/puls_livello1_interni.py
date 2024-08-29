@@ -11,22 +11,22 @@ class ClickableWidget(QWidget):
         super().__init__(parent)
 
         # Layout for the entire widget
-        layout = QHBoxLayout()
+        layout = QVBoxLayout()
 
         # Image Label
         self.image_label = QLabel(self)
         ico = QPixmap(image_path)
-        self.image_label.setPixmap(QPixmap(ico).scaled(80, 80, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
-        self.image_label.setFixedWidth(90)
+        self.image_label.setPixmap(QPixmap(ico).scaled(90, 90, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
+        # self.image_label.setFixedWidth(150)
+        self.image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         # Text Label
         self.text_label = QLabel(text, self)
-        self.text_label.setObjectName("testo_puls")
+        self.text_label.setObjectName("testo_puls1")
         # Sub-layout to hold text and image
         layout.addWidget(self.image_label)
         layout.addWidget(self.text_label)
         layout.addStretch()
 
-        self.setFixedSize(QSize(550, 100))
         self.setLayout(layout)
 
         # Set cursor to hand cursor when hovering over the widget

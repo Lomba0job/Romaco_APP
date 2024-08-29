@@ -23,11 +23,27 @@ def get_style(style):
     return ico_new
 
 def get_db():
-    
-
     # Usage
     directory = get_resource_path(os.path.join("data", "db"))
     file_name = "peso.db"
+    file_path = os.path.join(directory, file_name)
+    
+    return file_path
+
+
+def get_app_log():
+    # Usage
+    directory = get_resource_path(os.path.join("data", "logs"))
+    file_name = "app.log"
+    file_path = os.path.join(directory, file_name)
+    
+    return file_path
+
+
+def get_thread_log():
+    # Usage
+    directory = get_resource_path(os.path.join("data", "logs"))
+    file_name = "thread.log"
     file_path = os.path.join(directory, file_name)
     
     return file_path

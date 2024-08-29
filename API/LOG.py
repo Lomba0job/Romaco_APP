@@ -91,6 +91,8 @@ log_messages = {
     13: ('SUCCESS', 'DB successo scrittura'),
     14: ('SUCCESS', 'set accensione su bilancia: '),
     
+    
+    
     101: ('INFO', 'Configurazione Richiesta'),
     102: ('INFO', 'Richiesta Peso '),
     103: ('INFO', 'Bilancia singola peso richiesta'),

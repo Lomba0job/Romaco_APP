@@ -46,6 +46,9 @@ class Header(QWidget):
         self.setAutoFillBackground(True)
         self.set_background_color()
         
+        
+        
+        
     def contro_label(self, livello, master):
         exit = QPushButton()
         # Carica la pixmap
@@ -117,6 +120,26 @@ class Header(QWidget):
             self.h1.addStretch()
             self.h1.addWidget(contro_conf)
             exit.clicked.connect(master.back_liv1)
+        elif livello == 6: 
+            # print("liv3")
+            self.clearLayout(self.h1)
+            contro_conf = QLabel("Database")
+            contro_conf.setObjectName("configurazione_label")
+            contro_conf.setAlignment(Qt.AlignmentFlag.AlignTop)
+            self.h1.addWidget(exit)
+            self.h1.addStretch()
+            self.h1.addWidget(contro_conf)
+            exit.clicked.connect(master.back_liv2)
+        elif livello == 7: 
+            # print("liv3")
+            self.clearLayout(self.h1)
+            contro_conf = QLabel("DataLog")
+            contro_conf.setObjectName("configurazione_label")
+            contro_conf.setAlignment(Qt.AlignmentFlag.AlignTop)
+            self.h1.addWidget(exit)
+            self.h1.addStretch()
+            self.h1.addWidget(contro_conf)
+            exit.clicked.connect(master.back_liv2)
         
         
     def set_background_color(self):
@@ -209,6 +232,8 @@ class Home_Impo(QWidget):
         self.setAutoFillBackground(True)
         self.set_background_color()
         
+        
+        
     def set_background_color(self):
         p = self.palette()
         p.setColor(self.backgroundRole(), QColor.fromRgb(254,254,254))
@@ -262,6 +287,9 @@ class Settings(QWidget):
         self.setLayout(self.main_layout)
         self.setAutoFillBackground(True)
         self.set_background_color()
+        
+        #self.setMaximumSize(self.master.screen_width,(self.master.screen_height))  # Imposta una dimensione fissa per la finestra principale
+        # self.stacked_widget.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         
     def set_background_color(self):
         p = self.palette()

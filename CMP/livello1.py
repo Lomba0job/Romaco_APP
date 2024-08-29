@@ -2,16 +2,18 @@ import sys
 from PyQt6.QtCore import Qt, QFile, QTextStream, QSize, pyqtSignal
 from PyQt6.QtWidgets import (
     QApplication, QPushButton, QLabel, QSizePolicy, QVBoxLayout, QWidget, QScrollArea, QFrame, QHBoxLayout, QDialog, QGridLayout, QStackedWidget, QMenuBar, 
-    QDoubleSpinBox
+    QDoubleSpinBox, QFileDialog, QMessageBox
+
     
 )
+import shutil
 from PyQt6.QtGui import QPixmap, QAction, QIcon, QColor
 import os 
 
 from PAGE import setting_page as s
-from API import funzioni as f
+from API import funzioni as f, LOG as l
 
-from CMP import puls_livello1 as p 
+from CMP import puls_livello1 as p, puls_livello1_interni as pi, messaggi as m
 
 class Livello1(QWidget):
 
@@ -34,6 +36,9 @@ class Livello1(QWidget):
         self.setLayout(self.main_layout)
         self.setAutoFillBackground(True)
         self.set_background_color()
+        
+        #self.setMaximumSize(self.master.master.screen_width,(self.master.master.screen_height))  # Imposta una dimensione fissa per la finestra principale
+        # self.stacked_widget.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         
         
     
@@ -77,8 +82,10 @@ class Livello1(QWidget):
         home_layout = QHBoxLayout()
         home_widget.setLayout(home_layout)
         
-        p1 = p.ClickableWidget(f.get_img("trash.png"),     "Elimina dati database") 
-        p2 = p.ClickableWidget(f.get_img("share.png"), "Esporta dati database") 
+        p1 = pi.ClickableWidget(f.get_img("trash.png"),     "Elimina dati database") 
+        p1.clicked.connect(lambda: self.svuota_file(f.get_db()))
+        p2 = pi.ClickableWidget(f.get_img("share.png"), "Esporta dati database") 
+        p2.clicked.connect(self.show_save_db)
         
         home_layout.addStretch()
         home_layout.addWidget(p1)
@@ -94,8 +101,10 @@ class Livello1(QWidget):
         home_layout = QHBoxLayout()
         home_widget.setLayout(home_layout)
         
-        p1 = p.ClickableWidget(f.get_img("trash.png"), "Elimina DataLog") 
-        p2 = p.ClickableWidget(f.get_img("share.png"), "Esporta DataLog") 
+        p1 = pi.ClickableWidget(f.get_img("trash.png"), "Elimina DataLog") 
+        p1.clicked.connect(self.svuota_log)
+        p2 = pi.ClickableWidget(f.get_img("share.png"), "Esporta DataLog") 
+        p2.clicked.connect(self.show_save_log)
         
         home_layout.addStretch()
         home_layout.addWidget(p1)
@@ -129,3 +138,108 @@ class Livello1(QWidget):
         self.stacked_widget.setCurrentIndex(2)
         self.master.contro_label(5)
     
+    def svuota_log(self):
+        self.svuota_file(f.get_app_log())
+        self.svuota_file(f.get_thread_log())
+        
+    
+    def show_save_db(self):
+        
+        # Prima, scegli il file da copiare
+        db= f.get_db()
+        
+        default_name = "database.db"
+        destination_file, _ = QFileDialog.getSaveFileName(self, 
+                                                         "Salva File Concatenato Come", 
+                                                         default_name, 
+                                                         "Log files (*.db);;Tutti i file (*)",
+                                                         )
+        if destination_file:
+            # Assicurarsi che il file salvato abbia l'estensione .log
+            if not destination_file.endswith('.db'):
+                destination_file += '.db'
+            
+            try:      
+                # Leggi il contenuto dei due file
+                with open(db, 'r') as file1, open(destination_file, 'w') as outfile:
+                    outfile.write(file1.read())
+                      # Aggiunge una nuova linea tra i contenuti dei due file
+                    
+                
+                l.log_file(999, f"File concatenato e salvato come: {destination_file}")
+                
+                self.show_success_message(f"Salvataggio del file \"{destination_file}\" db termianta con successo")
+            except Exception as e:
+                self.show_error_message(f"Errore durante il salvataggio del file: {e}")
+                
+            
+    def show_save_log(self):
+        # Prima, scegli il file da copiare
+        log1= f.get_app_log()
+        log2= f.get_thread_log()
+        
+        default_name = "concatenated_log.log"
+        destination_file, _ = QFileDialog.getSaveFileName(self, 
+                                                         "Salva File Concatenato Come", 
+                                                         default_name, 
+                                                         "Log files (*.log);;Tutti i file (*)",
+                                                         )
+        if destination_file:
+            # Assicurarsi che il file salvato abbia l'estensione .log
+            if not destination_file.endswith('.log'):
+                destination_file += '.log'
+            
+            try:      
+                # Leggi il contenuto dei due file
+                with open(log1, 'r') as file1, open(log2, 'r') as file2, open(destination_file, 'w') as outfile:
+                    outfile.write(file1.read())
+                    outfile.write("\n")  # Aggiunge una nuova linea tra i contenuti dei due file
+                    outfile.write(file2.read())
+                
+                print(f"File concatenato e salvato come: {destination_file}")
+                
+                self.show_success_message(destination_file, f"Concatenazione e salvataggio del file \"{destination_file}\" log termianta con successo")
+            except Exception as e:
+                self.show_error_message(destination_file, f"Errore durante la concatenazione dei file: {e}")
+
+    
+    def svuota_file(self, percorso_file):
+        try:
+            # Apri il file in modalità di scrittura ('w') per svuotarlo
+            with open(percorso_file, 'w') as file:
+                pass  # Non scriviamo nulla, lasciamo semplicemente il file vuoto
+            self.show_success_message(f"Il contenuto del file '{percorso_file}' è stato eliminato.")
+        except Exception as e:
+            self.show_error_message("Si è verificato un errore durante l'eliminazione del contenuto del file: {e}")
+    
+    def show_success_message(self, messaggio):
+        ico = QIcon(f.get_img("close.png"))
+        myModal = m.QCustomModals.SuccessModal(
+            title="salvataggio eseguito",  # Title of the modal dialog
+            parent=self,  # Parent widget to which the modal belongs
+            position='top-right',  # Position to display the modal dialog
+            closeIcon=ico,  # Path to the close icon image
+            description=messaggio,  # Description text displayed in the modal dialog
+            isClosable=False,  # Whether the modal dialog is closable (True or False)
+            duration=3000  # Duration (in milliseconds) for which the modal dialog remains visible
+        )
+
+        # Show the modal
+        myModal.show()
+        
+    def show_error_message(self, messaggio):
+        ico = QIcon(f.get_img("close.png"))
+        myModal = m.QCustomModals.ErrorModal(
+            title="salvataggio eseguito",  # Title of the modal dialog
+            parent=self,  # Parent widget to which the modal belongs
+            position='top-right',  # Position to display the modal dialog
+            closeIcon=ico,  # Path to the close icon image
+            description=messaggio,  # Description text displayed in the modal dialog
+            isClosable=False,  # Whether the modal dialog is closable (True or False)
+            duration=3000  # Duration (in milliseconds) for which the modal dialog remains visible
+        )
+
+        # Show the modal
+        myModal.show()
+        
+ 
