@@ -10,7 +10,8 @@ import os
 import time 
 
 from OBJ import bilancia as b
-from API import funzioni as f, modbus_generico as mg, LOG as l 
+from API import funzioni as f, modbus_generico as mg, LOG as l
+from CMP import messaggi as m
 
 class Bilancia(QWidget):
 
@@ -279,8 +280,10 @@ class Bilancia(QWidget):
         self._log_thread_info("update_calibrazione_ui")
         if risult == 0: 
             print("all ok")
+            self.show_success_message(f"CALIBRAZIONE EFFETTUTA su bilancia {self.numero}")
         else: 
             print("error")
+            self.show_error_message(f"CALIBRAZIONE tara su bilancia {self.numero}")
             
     def effettua_tara(self):
         self._log_thread_info("effettua_tara")
@@ -300,8 +303,10 @@ class Bilancia(QWidget):
         self._log_thread_info("update_tara_ui")
         if risult == 0: 
             print("all ok")
+            self.show_success_message(f"TARA EFFETTUTA su bilancia {self.numero}")
         else: 
             print("error")
+            self.show_error_message(f"ERRORE tara su bilancia {self.numero}")
         
     def set_background_color(self):
         p = self.palette()
@@ -322,3 +327,34 @@ class Bilancia(QWidget):
         """Log thread information for diagnostics."""
         current_thread = threading.current_thread()
         l.log_file(1000, f"DEBUG THREAD | {function_name} eseguito su thread: {current_thread.name} (ID: {current_thread.ident})")
+        
+        
+    def show_success_message(self, messaggio):
+        ico = QIcon(f.get_img("close.png"))
+        myModal = m.QCustomModals.SuccessModal(
+            title="TERMINATA",  # Title of the modal dialog
+            parent=self,  # Parent widget to which the modal belongs
+            position='top-right',  # Position to display the modal dialog
+            closeIcon=ico,  # Path to the close icon image
+            description=messaggio,  # Description text displayed in the modal dialog
+            isClosable=False,  # Whether the modal dialog is closable (True or False)
+            duration=3000  # Duration (in milliseconds) for which the modal dialog remains visible
+        )
+
+        # Show the modal
+        myModal.show()
+        
+    def show_error_message(self, messaggio):
+        ico = QIcon(f.get_img("close.png"))
+        myModal = m.QCustomModals.ErrorModal(
+            title="ERRORE",  # Title of the modal dialog
+            parent=self,  # Parent widget to which the modal belongs
+            position='top-right',  # Position to display the modal dialog
+            closeIcon=ico,  # Path to the close icon image
+            description=messaggio,  # Description text displayed in the modal dialog
+            isClosable=False,  # Whether the modal dialog is closable (True or False)
+            duration=3000  # Duration (in milliseconds) for which the modal dialog remains visible
+        )
+
+        # Show the modal
+        myModal.show()

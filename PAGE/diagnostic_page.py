@@ -117,7 +117,7 @@ class DiagnosticWidget(QWidget):
             self.status_thread.start()
 
     def UI(self):
-        self.lista_ogg_attivi = []
+        self.lista_ogg_attivi:list[b.Bilancia] = []
         # print(f"DEBUG DIAGNO| {len(self.master.lista_bilance)}")
         for i in range(1, 7):
             if i <= len(self.master.lista_bilance):
@@ -173,6 +173,7 @@ class DiagnosticWidget(QWidget):
                 future.add_done_callback(self.handle_calibrazione_completata)
 
     def handle_calibrazione_completata(self, future):
+        
         self._log_thread_info("handle_calibrazione_completata")
         try:
             risult = future.result()
@@ -183,6 +184,8 @@ class DiagnosticWidget(QWidget):
     def update_calibrazione_ui(self, risult):
         self.push.setObjectName("pls")
         self.push.setText("ESEGUI LA TARA COMPLETA")
+        for b  in self.lista_ogg_attivi:
+            b.show_success_message("CALIBRAZIONE EFFETTUTA")
         self._log_thread_info("update_calibrazione_ui")
         if risult == 0:
             l.log_file(4)

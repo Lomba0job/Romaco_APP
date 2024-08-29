@@ -1,10 +1,11 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QComboBox, QPushButton, QMessageBox, QFormLayout, QProgressBar, QHBoxLayout, QGroupBox, QGraphicsEffect
 from PyQt6.QtCore import Qt, pyqtSignal, QThread, pyqtSlot, QFile, QTextStream, QPropertyAnimation, QEasingCurve, QParallelAnimationGroup
-from PyQt6.QtGui import QFontDatabase, QPixmap, QPalette, QColor
+from PyQt6.QtGui import QFontDatabase, QPixmap, QPalette, QColor, QIcon
 import serial.tools.list_ports
 import sys
 import glob
 from API import modbus_generico as m
+from CMP import messaggi as me
 from API import funzioni as f
 import time
 from API import LOG as l
@@ -278,6 +279,7 @@ class LauncherWidget(QWidget):
         self.start_button.setVisible(False)
         
     def rileva_porte(self):
+        self.port_combo.clear()
         result = serial_ports()
         for port in result:
             self.port_combo.addItem(port)
@@ -292,12 +294,12 @@ class LauncherWidget(QWidget):
             if self.lista_bilance is not None:
                 self.ordinamento()
             else:
-                QMessageBox.warning(self, "Scan Results", "Errore 402")
+                self.show_error_message( "Scan Errore 402")
                 self.start_button.setVisible(True)
                 self.label.setVisible(False)
                 self.progress_bar.setVisible(False)
         else:
-            QMessageBox.warning(self, "Scan Results", "Errore 401")
+            self.show_error_message( "Scan Errore 401")
             self.start_button.setVisible(True)
             self.label.setVisible(False)
             self.progress_bar.setVisible(False)
@@ -365,3 +367,21 @@ class LauncherWidget(QWidget):
         self.progress_bar.setVisible(False)
         self.label.setVisible(False)
         self.worker.deleteLater()
+
+    
+    
+        
+    def show_error_message(self, messaggio):
+        ico = QIcon(f.get_img("close.png"))
+        myModal = me.QCustomModals.ErrorModal(
+            title="ERRORE",  # Title of the modal dialog
+            parent=self,  # Parent widget to which the modal belongs
+            position='top-right',  # Position to display the modal dialog
+            closeIcon=ico,  # Path to the close icon image
+            description=messaggio,  # Description text displayed in the modal dialog
+            isClosable=False,  # Whether the modal dialog is closable (True or False)
+            duration=3000  # Duration (in milliseconds) for which the modal dialog remains visible
+        )
+
+        # Show the modal
+        myModal.show()
