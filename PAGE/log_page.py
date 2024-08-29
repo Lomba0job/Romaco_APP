@@ -16,6 +16,8 @@ class LogPage(QWidget):
         # Main Layout
         main_layout = QVBoxLayout()
         
+        """
+        v 2.0 ricerca filtrata
         # Filters Layout
         filters_layout = QHBoxLayout()
         filters_layout.setContentsMargins(10, 10, 10, 10)
@@ -133,6 +135,7 @@ class LogPage(QWidget):
         
         main_layout.addLayout(filters_layout)
         
+        """
         # Scroll Area for Log Entries
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidgetResizable(True)
