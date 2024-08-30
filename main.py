@@ -73,8 +73,8 @@ class MainWindow(QMainWindow):
         self.central_widget.addWidget(self.salva_peso)
         self.salva_peso.peso_salvato.connect(self.update_log_page)
         
-        self.log = lo.LogPage(self)
-        self.central_widget.addWidget(self.log)
+        self.log_page = lo.LogPage(self)
+        self.central_widget.addWidget(self.log_page)
         
         self.diagno = d.DiagnosticWidget(self)
         self.central_widget.addWidget(self.diagno)
@@ -82,8 +82,12 @@ class MainWindow(QMainWindow):
         self.settings = se.Settings(self)
         self.central_widget.addWidget(self.settings)
         
+    def ripristino_db(self):
+        db.crea_db()
+        self.update_log_page()
+        
     def update_log_page(self):
-        self.log.load_data()  # Chiama il metodo per ricaricare i dati nella pagina di log
+        self.log_page.load_data()  # Chiama il metodo per ricaricare i dati nella pagina di log
         # self.change_page(3)  # Passa alla pagina di log dopo l'aggiornamento
         
     def launcher_call(self):

@@ -208,6 +208,9 @@ class Livello1(QWidget):
             # Apri il file in modalità di scrittura ('w') per svuotarlo
             with open(percorso_file, 'w') as file:
                 pass  # Non scriviamo nulla, lasciamo semplicemente il file vuoto
+            if percorso_file == f.get_db():
+                self.master.master.ripristino_db()
+            
             self.show_success_message(f"Il contenuto del file '{percorso_file}' è stato eliminato.")
         except Exception as e:
             self.show_error_message("Si è verificato un errore durante l'eliminazione del contenuto del file: {e}")

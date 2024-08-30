@@ -193,33 +193,33 @@ class LogPage(QWidget):
             log_widget = l.LogEntryWidget(date=date_str, peso_totale=entry['peso_totale'], name=entry['name'], priority=entry['priority'])
             self.scroll_layout.addWidget(log_widget)
             
-    def reset_filters(self):
+    # def reset_filters(self):
         # Resetta tutti i campi dei filtri
-        self.ggd.clear()
-        self.mmd.clear()
-        self.aad.clear()
-        self.gga.clear()
-        self.mma.clear()
-        self.aaa.clear()
-        self.pesod.clear()
-        self.pesoa.clear()
+        # self.ggd.clear()
+        # self.mmd.clear()
+        # self.aad.clear()
+        # self.gga.clear()
+        # self.mma.clear()
+        # self.aaa.clear()
+        # self.pesod.clear()
+        # self.pesoa.clear()
         # Carica tutti i dati dal database
-        self.load_data()
-        
-    def load_filtered_data(self):
+        # self.load_data()
+        # 
+    # def load_filtered_data(self):
         # Qui applichi i filtri e carichi i dati filtrati dal database
-        date_from = f"{self.aad.text()}-{self.mmd.text()}-{self.ggd.text()}"
-        date_to = f"{self.aaa.text()}-{self.mma.text()}-{self.gga.text()}"
-        
+        # date_from = f"{self.aad.text()}-{self.mmd.text()}-{self.ggd.text()}"
+        # date_to = f"{self.aaa.text()}-{self.mma.text()}-{self.gga.text()}"
+        # 
         # Filtra per priorità
-        priority = []
-        if self.test_radio.isChecked():
-            priority.append(0)  # Priorità TEST
-        if self.intermedio_radio.isChecked():
-            priority.append(1)  # Priorità INTERMEDIO
-        if self.definitivo_radio.isChecked():
-            priority.append(2)  # Priorità DEFINITIVO
-
+        # priority = []
+        # if self.test_radio.isChecked():
+            # priority.append(0)  # Priorità TEST
+        # if self.intermedio_radio.isChecked():
+            # priority.append(1)  # Priorità INTERMEDIO
+        # if self.definitivo_radio.isChecked():
+            # priority.append(2)  # Priorità DEFINITIVO
+# 
         # Usa la logica di filtraggio per ottenere i dati dal database
-        log_entries = db.get_filtered(self.page_number, date_from, date_to, priority)
-        self.populate_log_entries(log_entries)
+        # log_entries = db.get_filtered(self.page_number, date_from, date_to, priority)
+        # self.populate_log_entries(log_entries)

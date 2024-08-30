@@ -14,32 +14,34 @@ Skipping entry /Users/lavoro/Documents/PROGETTI_LAVORO/Romaco_4/05_software/Roma
 
  |==================================================================================================|
  |                               Counting Lines 	                                                |
- |OBJ/thread_pesata_continua.py                                                    |	         71 |
+ |OBJ/thread_pesata_continua.py                                                    |	         75 |
  |OBJ/__init__.py                                                                  |	          0 |
  |OBJ/log_ogg.py                                                                   |	        118 |
  |OBJ/bilancia.py                                                                  |	         32 |
  |OBJ/thread_pesata.py                                                             |	         93 |
- |CMP/livello2.py                                                                  |	        324 |
+ |CMP/livello2.py                                                                  |	        491 |
  |CMP/puls_livello2.py                                                             |	         47 |
  |CMP/loading.py                                                                   |	        111 |
  |CMP/header.py                                                                    |	         43 |
- |CMP/Bilancia_diagno.py                                                           |	        292 |
+ |CMP/Bilancia_diagno.py                                                           |	        326 |
  |CMP/Bilancia_diagno_deactive.py                                                  |	        119 |
  |CMP/navbar.py                                                                    |	         95 |
  |CMP/__init__.py                                                                  |	          0 |
+ |CMP/messaggi.py                                                                  |	        685 |
+ |CMP/puls_livello1_interni.py                                                     |	         47 |
  |CMP/rectangle_univ.py                                                            |	        255 |
  |CMP/rectangle_linux.py                                                           |	        249 |
  |CMP/loading2.py                                                                  |	        167 |
- |CMP/livello1.py                                                                  |	        126 |
+ |CMP/livello1.py                                                                  |	        236 |
  |CMP/puls_livello1.py                                                             |	         47 |
- |PAGE/launcher_page.py                                                            |	        332 |
+ |PAGE/launcher_page.py                                                            |	        350 |
  |PAGE/salva_peso_page.py                                                          |	        373 |
  |PAGE/log_page.py                                                                 |	        217 |
  |PAGE/__init__.py                                                                 |	          0 |
- |PAGE/setting_page.py                                                             |	        300 |
+ |PAGE/setting_page.py                                                             |	        328 |
  |PAGE/graph_page.py                                                               |	         22 |
  |PAGE/home_page.py                                                                |	        270 |
- |PAGE/diagnostic_page.py                                                          |	        187 |
+ |PAGE/diagnostic_page.py                                                          |	        190 |
  |risorse/__init__.py                                                              |	          0 |
  |risorse/resources_rc.py                                                          |	       1175 |
  |TEST/__init__.py                                                                 |	          0 |
@@ -57,17 +59,17 @@ Skipping entry /Users/lavoro/Documents/PROGETTI_LAVORO/Romaco_4/05_software/Roma
  |STYLE/bilancia.qss                                                               |	         66 |
  |STYLE/log.qss                                                                    |	         77 |
  |test.py                                                                          |	        133 |
- |API/LOG.py                                                                       |	        151 |
+ |API/LOG.py                                                                       |	        153 |
  |API/modbus_strutture.py                                                          |	         26 |
  |API/modbus_unico.py                                                              |	         32 |
  |API/__init__.py                                                                  |	          0 |
  |API/modbus.py                                                                    |	       3383 |
  |API/modbus_generico.py                                                           |	        381 |
  |API/API_db.py                                                                    |	        176 |
- |API/funzioni.py                                                                  |	         27 |
+ |API/funzioni.py                                                                  |	         40 |
  |.ipynb_checkpoints/untitled-checkpoint.py                                        |	         56 |
  |main_test.py                                                                     |	         62 |
  |main.py                                                                          |	        159 |
  |untitled.py                                                                      |	        105 |
  |==================================================================================================| 
- |Total lines                                                                      |	      10753 |
+ |Total lines                                                                      |	      11864 |
