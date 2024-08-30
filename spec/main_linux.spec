@@ -7,7 +7,7 @@ import os
 block_cipher = None
 
 a = Analysis(['../main.py'],
-             pathex=['../', '/..env/bin'],  # Add venv path here
+             pathex=['../'],
              binaries=[],
              datas=[
                 ('../data/bin/*', 'data/bin'),
@@ -57,21 +57,18 @@ coll = COLLECT(exe,
 def create_desktop_file():
     desktop_entry_content = f"""
 [Desktop Entry]
-Version=1.0
+Version=1.1
 Name=Sistema Isola
 Comment=programma sistema isola NANOLEVER
-Exec={os.path.abspath('dist/sistema_isola/sistema_isola')}
-Icon={os.path.abspath('dist/sistema_isola/logo_app.png')}
+Exec=setsid {os.path.abspath('dist/sistema_isola/sistema_isola')}
+Icon={os.path.abspath('dist/sistema_isola/_intenral/ICO/logo_app.png')}
 Terminal=false
 Type=Application
 Categories=Utility;Application;
     """
     # Path to the desktop file in the user's application directory
-    desktop_file_path = os.path.expanduser('sistema_isola.desktop')
+    desktop_file_path = os.path.expanduser('~/.local/share/applications/sistema_isola.desktop')
     with open(desktop_file_path, 'w') as desktop_file:
         desktop_file.write(desktop_entry_content)
     # Set executable permission to the .desktop file
     os.chmod(desktop_file_path, 0o755)
-
-# Execute the function to create the .desktop file
-create_desktop_file()
