@@ -1,0 +1,11 @@
+
+[Desktop Entry]
+Version=1.0
+Name=Sistema Isola
+Comment=programma sistema isola NANOLEVER
+Exec=/Users/lavoro/Documents/PROGETTI_LAVORO/Romaco_4/05_software/Romaco_APP/dist/sistema_isola/sistema_isola
+Icon=/Users/lavoro/Documents/PROGETTI_LAVORO/Romaco_4/05_software/Romaco_APP/dist/sistema_isola/logo_app.png
+Terminal=false
+Type=Application
+Categories=Utility;Application;
+    

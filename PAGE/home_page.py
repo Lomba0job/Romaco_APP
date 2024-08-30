@@ -2,7 +2,7 @@ import concurrent.futures
 import threading
 from PyQt6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QLabel, QComboBox, QPushButton, QSizePolicy, QProgressBar
 from PyQt6.QtCore import Qt, QFile, QTextStream, QThread, pyqtSignal, pyqtSlot, QTimer, QSize
-from PyQt6.QtGui import QColor, QPalette
+from PyQt6.QtGui import QColor, QPalette, QIcon
 import time 
 
 from CMP import loading2 as carica, rectangle_linux as r
@@ -16,14 +16,14 @@ from API import LOG as l
 
 
 if platform.system() == "Linux":
-    from CMP import rectangle_linux as r
+    from CMP import rectangle_linux as r, messaggi as m 
 
     # Imposta variabili d'ambiente per Qt e VTK prima di inizializzare qualsiasi componente
     os.environ['QT_QPA_PLATFORM'] = 'xcb'
     os.environ['VTK_USE_X'] = '1'
     l.log_file(800)
 else:
-    from CMP import rectangle_univ as r
+    from CMP import rectangle_univ as r, messaggi as m 
     l.log_file(900)
     
 class Home_Page(QWidget):
@@ -304,6 +304,7 @@ class Home_Page(QWidget):
             l.log_file(2, f"{pesi_bilance}")
             self.finalUI(pesi_bilance)
         else: 
+            self.show_error_message(f" errore interno guada il log")   
             l.log_file(412, f"{pesi_bilance}")
             self.initUI()
 
@@ -315,3 +316,18 @@ class Home_Page(QWidget):
         """Log thread information for diagnostics."""
         current_thread = threading.current_thread()
         l.log_file(1000, f"DEBUG THREAD | {function_name} eseguito su thread: {current_thread.name} (ID: {current_thread.ident})")
+        
+    def show_error_message(self, messaggio):
+        ico = QIcon(f.get_img("close.png"))
+        myModal = m.QCustomModals.ErrorModal(
+            title="PESATA IN ERRORE",  # Title of the modal dialog
+            parent=self,  # Parent widget to which the modal belongs
+            position='top-right',  # Position to display the modal dialog
+            closeIcon=ico,  # Path to the close icon image
+            description=messaggio,  # Description text displayed in the modal dialog
+            isClosable=False,  # Whether the modal dialog is closable (True or False)
+            duration=3000  # Duration (in milliseconds) for which the modal dialog remains visible
+        )
+
+        # Show the modal
+        myModal.show()

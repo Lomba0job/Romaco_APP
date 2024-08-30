@@ -4,7 +4,8 @@ from PyQt6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QLabel, QComboBox
 from PyQt6.QtCore import Qt, QFile, QTextStream, QThread, pyqtSignal, pyqtSlot, QTimer, QSize
 from PyQt6.QtGui import QColor, QPalette, QPixmap, QIcon
 
-from CMP import loading2 as carica, livello1 as l1, livello2 as l2
+from CMP import loading2 as carica, livello1 as l1, livello2 as l2, messaggi as m
+
 from API import funzioni as f, modbus_generico as mb, LOG as l 
 
 
@@ -258,12 +259,27 @@ class Home_Impo(QWidget):
             self.master.stacked_widget.setCurrentIndex(2)  # Livello2
             self.master.contro_label(2)
         else:
-            print("WRONG")
+            self.show_error_message(f"password inserita: [{self.pass_text.text()}] non corretta")   
             l.log_file(409)
         self.canc()
         
     def canc(self):
         self.pass_text.setText("")
+    
+    def show_error_message(self, messaggio):
+        ico = QIcon(f.get_img("close.png"))
+        myModal = m.QCustomModals.ErrorModal(
+            title="PASSWORD SBAGLIATA",  # Title of the modal dialog
+            parent=self,  # Parent widget to which the modal belongs
+            position='top-right',  # Position to display the modal dialog
+            closeIcon=ico,  # Path to the close icon image
+            description=messaggio,  # Description text displayed in the modal dialog
+            isClosable=False,  # Whether the modal dialog is closable (True or False)
+            duration=3000  # Duration (in milliseconds) for which the modal dialog remains visible
+        )
+
+        # Show the modal
+        myModal.show()
         
         
 
@@ -341,3 +357,6 @@ class Settings(QWidget):
 
     def contro_label(self, livello):
         self.head.contro_label(livello, self)
+        
+        
+    

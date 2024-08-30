@@ -14,10 +14,15 @@ myModal.show()
 """
 import weakref
 
-from PyQt6.QtGui import QPaintEvent, QPainter, QIcon, QPalette, QPixmap
-from PyQt6.QtCore import Qt, QPoint, QSize, QEvent, QTimer, QPropertyAnimation, QParallelAnimationGroup, QEasingCurve, QObject, pyqtSignal
-from PyQt6.QtWidgets import QStyleOption, QWidget, QStyle, QGraphicsOpacityEffect, QApplication
-from Custom_Widgets.components.python.ui_info import Ui_Form
+from PyQt6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,QFont, QFontDatabase, QGradient, QIcon,
+    QImage, QKeySequence, QLinearGradient, QPainter, QPaintEvent, QPainter,QPalette, QPixmap, QRadialGradient, QTransform)
+from PyQt6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,QMetaObject, QObject, QPoint, QRect,
+    QSize, QTime, QUrl, Qt,  QEvent, QTimer, QPropertyAnimation, QParallelAnimationGroup, QEasingCurve, QObject, pyqtSignal)
+from PyQt6.QtWidgets import (QStyleOption, QWidget, QStyle, QGraphicsOpacityEffect, QApplication, QVBoxLayout, QFrame, QHBoxLayout, QLabel,
+                            QPushButton, QSizePolicy, QVBoxLayout, QWidget)
+
+from CMP import Ui_Form as u
+
 
 class LoadForm(QWidget):
     def __init__(self, form):
@@ -27,7 +32,7 @@ class LoadForm(QWidget):
         self.form.setupUi(self)
         
 class QCustomModals:
-    class BaseModal(QWidget, Ui_Form):
+    class BaseModal(QWidget, u.Ui_Form):
         position = None
         title = None
         description = None
@@ -66,17 +71,17 @@ class QCustomModals:
             self.setupUi(self)
             
             # get default icon:
-            self.closeIcon = QIcon(self.style().standardIcon(QStyle.SP_TitleBarCloseButton).pixmap(QSize(32, 32)))
+            self.closeIcon = QIcon(self.style().standardIcon(QStyle.StandardPixmap.SP_TitleBarCloseButton).pixmap(QSize(32, 32)))
             self.closeButton.setIcon(self.closeIcon)
             
             # Get the info icon from the style
-            self.infoIcon = self.style().standardIcon(QStyle.SP_MessageBoxInformation).pixmap(QSize(32, 32))
+            self.infoIcon = self.style().standardIcon(QStyle.StandardPixmap.SP_MessageBoxInformation).pixmap(QSize(32, 32))
             # Get the success icon from the style
-            self.successIcon = self.style().standardIcon(QStyle.SP_DialogApplyButton).pixmap(QSize(32, 32))
+            self.successIcon = self.style().standardIcon(QStyle.StandardPixmap.SP_DialogApplyButton).pixmap(QSize(32, 32))
             # Get the warning icon from the style
-            self.warningIcon = self.style().standardIcon(QStyle.SP_MessageBoxWarning).pixmap(QSize(32, 32))
+            self.warningIcon = self.style().standardIcon(QStyle.StandardPixmap.SP_MessageBoxWarning).pixmap(QSize(32, 32))
             # Get the error icon from the style
-            self.errorIcon = self.style().standardIcon(QStyle.SP_MessageBoxCritical).pixmap(QSize(32, 32))
+            self.errorIcon = self.style().standardIcon(QStyle.StandardPixmap.SP_MessageBoxCritical).pixmap(QSize(32, 32))
 
             # Customize modal based on kwargs
             if 'title' in kwargs:
@@ -112,7 +117,7 @@ class QCustomModals:
                 # Get the palette from the application
                 palette = app.palette()
                 
-            background_color = palette.color(QPalette.Window)
+            background_color = palette.color(QPalette.ColorRole.Window)
 
             # Calculate the luminance of the background color
             luminance = 0.2126 * background_color.red() + 0.7152 * background_color.green() + 0.0722 * background_color.blue()
@@ -137,7 +142,7 @@ class QCustomModals:
             
             self.closeButton.setFixedSize(20, 20)
             self.closeButton.setIconSize(QSize(self.spacing, self.spacing))
-            self.closeButton.setCursor(Qt.PointingHandCursor)
+            self.closeButton.setCursor(Qt.CursorShape.PointingHandCursor)
             # Connect close button
             self.closeButton.clicked.connect(self.close)
             self.closeButton.setVisible(self.isClosable)
@@ -155,10 +160,10 @@ class QCustomModals:
             opt = QStyleOption()
             opt.initFrom(self)
             painter = QPainter(self)
-            self.style().drawPrimitive(QStyle.PE_Widget, opt, painter, self)
+            self.style().drawPrimitive(QStyle.PrimitiveElement.PE_Widget, opt, painter, self)
 
-            painter.setRenderHints(QPainter.Antialiasing)
-            painter.setPen(Qt.NoPen)
+            painter.setRenderHints(QPainter.RenderHint.Antialiasing)
+            painter.setPen(Qt.PenStyle.NoPen)
 
             #
             rect = self.rect().adjusted(1, 1, -1, -1)
@@ -223,7 +228,7 @@ class QCustomModals:
 
         def eventFilter(self, obj, e: QEvent):
             if obj is self.parent():
-                if e.type() in [QEvent.Resize, QEvent.WindowStateChange]:
+                if e.type() in [QEvent.Type.Resize, QEvent.Type.WindowStateChange]:
                     self.adjustSizeToContent()
 
             return super().eventFilter(obj, e)
@@ -530,7 +535,7 @@ class QCustomModalsManager(QObject):
         slideAni = QPropertyAnimation(QCustomModals, b'pos')  # Create a slide animation
         
         # Set easing curve for smooth animation
-        easing_curve = QEasingCurve.OutCubic
+        easing_curve = QEasingCurve.Type.OutCubic
         slideAni.setEasingCurve(easing_curve)
         
         slideAni.setDuration(500)  # Set the duration of the animation
@@ -614,8 +619,8 @@ class QCustomModalsManager(QObject):
         if obj not in self.QCustomModalss:
             return False
 
-        if e.type() in [QEvent.Resize, QEvent.WindowStateChange]:
-            size = e.size() if e.type() == QEvent.Resize else None
+        if e.type() in [QEvent.Type.Resize, QEvent.Type.WindowStateChange]:
+            size = e.size() if e.type() == QEvent.Type.Resize else None
             for bar in self.QCustomModalss[obj]:
                 bar.move(self.modalPosition(bar, size))
 
