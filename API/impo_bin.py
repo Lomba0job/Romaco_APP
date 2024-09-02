@@ -19,7 +19,7 @@ class SettingsManager:
             try:
                 with open(self.file, 'rb') as f:
                     data = f.read()
-                    if len(data) == 10:  # We expect exactly 10 bytes (2 booleans + 1 integer)
+                    if len(data) == 8:  # We expect exactly 6 bytes (2 booleans + 1 integer)
                         self.lettura, self.auto_tara, self.peso = struct.unpack('??i', data)
                         l.log_file(19)
                     else:
