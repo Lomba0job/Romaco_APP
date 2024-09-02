@@ -3,6 +3,8 @@ from PyQt6.QtWidgets import (
     QPushButton, QLabel, QSizePolicy, QVBoxLayout, QWidget, QScrollArea, QFrame, QHBoxLayout, QDialog, QGridLayout, QStackedWidget, QMenuBar, 
     QSpinBox, QRadioButton, QFileDialog
 )
+from openpyxl import Workbook
+from openpyxl.utils import get_column_letter
 import csv
 from datetime import datetime
 import threading
@@ -135,6 +137,10 @@ class Livello2(QWidget):
         self.stop = QPushButton("STOP")
         self.stop.setObjectName("bigd")
         self.stop.clicked.connect(self.stop_reg)
+        self.stampa = QPushButton("STAMPa")
+        self.stampa.setObjectName("bigd")
+        self.stampa.setVisible(False)
+        self.stampa.clicked.connect(self.stampa_reg)
         
         labmi = QLabel("MISURE EFFETTUATE:")
         labmi.setObjectName("desc1")
@@ -145,6 +151,7 @@ class Livello2(QWidget):
         
         h2.addWidget(self.start)
         h2.addWidget(self.stop)
+        h2.addWidget(self.stampa)
         h2.addStretch()
         h2.addWidget(labmi)
         h2.addWidget(self.mi)
@@ -175,7 +182,7 @@ class Livello2(QWidget):
         print("start")
         self.stop.setObjectName("big")
         self.start.setObjectName("bigd")
-
+        self.stampa.setVisible(False)
         self.start.style().unpolish(self.start)
         self.start.style().polish(self.start)
         self.start.update()
@@ -189,6 +196,7 @@ class Livello2(QWidget):
         
         self.stop_requested = False
         self.start_pesata()
+        
 
     def stop_reg(self):
         print("stop")
@@ -204,7 +212,7 @@ class Livello2(QWidget):
         self.stop.style().unpolish(self.stop)
         self.stop.style().polish(self.stop)
         self.stop.update()
-
+        self.stampa.setVisible(True)
         self.start.setEnabled(True)
         self.stop.setEnabled(False)
         
@@ -307,6 +315,11 @@ class Livello2(QWidget):
     
         canvas.draw()
         
+        self.mi.setText(str(int(self.mi.text) + 1))
+        
+            
+            
+        
     def _log_thread_info(self, function_name):
         """Log thread information for diagnostics."""
         current_thread = threading.current_thread()
@@ -343,6 +356,62 @@ class Livello2(QWidget):
             ]
             writer.writerow(row)
             print(f"DEBUG | Dati scritti nel file: {row}")
+            
+    def stampa_reg(self):
+        massimo = []
+        minimo = []
+        for n in range(len(self.pesi_totali)):
+            if self.pesi_totali[n]:  # Check if the list is not empty
+                massimo.append(max(self.pesi_totali[n]))
+                minimo.append(min(self.pesi_totali[n]))
+            for i in range(1, 5):
+                if self.pesi_celle[n][i]:  # Check if the list is not empty
+                    massimo.append(max(self.pesi_celle[n][i]))
+                    minimo.append(min(self.pesi_celle[n][i]))
+        self.write_to_excel(massimo, minimo)
+        
+    def write_to_excel(self, massimo, minimo):
+        # Create a new Excel workbook and sheet
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Pesi Bilance"
+
+        # Write headers
+        headers = ["Bilancia", "Max Peso Totale", "Min Peso Totale", "Max Cella 1", "Min Cella 1",
+                   "Max Cella 2", "Min Cella 2", "Max Cella 3", "Min Cella 3", "Max Cella 4", "Min Cella 4"]
+        ws.append(headers)
+
+        # Write data for each balance
+        balance_count = len(self.pesi_totali)
+        for n in range(balance_count):
+            row = [f"Bilancia {n+1}"]
+            row.append(max(self.pesi_totali[n]) if self.pesi_totali[n] else None)
+            row.append(min(self.pesi_totali[n]) if self.pesi_totali[n] else None)
+            for i in range(1, 5):
+                row.append(max(self.pesi_celle[n][i]) if self.pesi_celle[n][i] else None)
+                row.append(min(self.pesi_celle[n][i]) if self.pesi_celle[n][i] else None)
+            ws.append(row)
+
+        # Adjust column widths
+        for col_num, col in enumerate(ws.columns, 1):
+            max_length = max(len(str(cell.value)) for cell in col)
+            ws.column_dimensions[get_column_letter(col_num)].width = max_length + 2
+        default_name = "report.xlsx"
+        # Save the workbook
+        destination_file, _ = QFileDialog.getSaveFileName(self, 
+                                                         "Salva File Concatenato Come", 
+                                                         default_name, 
+                                                         "Log files (*.xlsx);;Tutti i file (*)",
+                                                         )
+        if destination_file:
+            # Assicurarsi che il file salvato abbia l'estensione .log
+            if not destination_file.endswith('.db'):
+                destination_file += '.xlsx'
+                
+        wb.save(destination_file)
+        l.log_file(999, f"Excel report saved as: {destination_file}")
+        self.show_success_message(f"Report salvato come \"{destination_file}\"")
+
                 
     def convert_to_dict(self, pesata, n):
         """Converte una lista in un dizionario con le chiavi appropriate."""
