@@ -166,7 +166,7 @@ class Livello1(QWidget):
                       # Aggiunge una nuova linea tra i contenuti dei due file
                     
                 
-                l.log_file(999, f"File concatenato e salvato come: {destination_file}")
+                l.log_file(17, f"{destination_file}")
                 
                 self.show_success_message(f"Salvataggio del file \"{destination_file}\" db termianta con successo")
             except Exception as e:
@@ -175,9 +175,9 @@ class Livello1(QWidget):
             
     def show_save_log(self):
         # Prima, scegli il file da copiare
-        log1= f.get_app_log()
-        log2= f.get_thread_log()
-        
+        log1 = f.get_app_log()
+        log2 = f.get_thread_log()
+
         default_name = "concatenated_log.log"
         destination_file, _ = QFileDialog.getSaveFileName(self, 
                                                          "Salva File Concatenato Come", 
@@ -188,19 +188,26 @@ class Livello1(QWidget):
             # Assicurarsi che il file salvato abbia l'estensione .log
             if not destination_file.endswith('.log'):
                 destination_file += '.log'
-            
-            try:      
-                # Leggi il contenuto dei due file
+
+            try:
+                # Check if the source files exist and are readable
+                if not os.path.exists(log1):
+                    raise FileNotFoundError(f"File not found: {log1}")
+                if not os.path.exists(log2):
+                    raise FileNotFoundError(f"File not found: {log2}")
+
+                # Open files and write content
                 with open(log1, 'r') as file1, open(log2, 'r') as file2, open(destination_file, 'w') as outfile:
                     outfile.write(file1.read())
                     outfile.write("\n")  # Aggiunge una nuova linea tra i contenuti dei due file
                     outfile.write(file2.read())
-                
-                print(f"File concatenato e salvato come: {destination_file}")
-                
-                self.show_success_message(destination_file, f"Concatenazione e salvataggio del file \"{destination_file}\" log termianta con successo")
+
+                l.log_file(15, f"{destination_file}")
+                self.show_success_message(f"Concatenazione e salvataggio del file \"{destination_file}\" log termianta con successo")
             except Exception as e:
-                self.show_error_message(destination_file, f"Errore durante la concatenazione dei file: {e}")
+                # Log the error and show an error message
+                l.log_file(418, f"Errore durante la concatenazione dei file: {e}")
+                self.show_error_message(f"Errore durante la concatenazione dei file: {e}")
 
     
     def svuota_file(self, percorso_file):
@@ -210,7 +217,9 @@ class Livello1(QWidget):
                 pass  # Non scriviamo nulla, lasciamo semplicemente il file vuoto
             if percorso_file == f.get_db():
                 self.master.master.ripristino_db()
-            
+                l.log_file(18)
+            else:
+                l.log_file(16)
             self.show_success_message(f"Il contenuto del file '{percorso_file}' è stato eliminato.")
         except Exception as e:
             self.show_error_message("Si è verificato un errore durante l'eliminazione del contenuto del file: {e}")

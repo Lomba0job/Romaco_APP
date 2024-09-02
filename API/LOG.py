@@ -90,6 +90,10 @@ log_messages = {
     12: ('SUCCESS', 'DB successo lettura'),
     13: ('SUCCESS', 'DB successo scrittura'),
     14: ('SUCCESS', 'set accensione su bilancia: '),
+    15: ('SUCCESS', 'salvataggio LOG:  '),
+    16: ('SUCCESS', 'cancellazione LOG'),
+    17: ('SUCCESS', 'salvataggio DB:  '),
+    18: ('SUCCESS', 'cancellazione DB'),
     
     
     
