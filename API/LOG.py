@@ -51,7 +51,7 @@ def setup_logger():
     app_handler.setLevel(logging.DEBUG)
     app_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
     app_handler.setFormatter(app_formatter)
-    app_handler.addFilter(CodiceFilter(set(range(0, 1000))))  # Codici da 0 a 999 inclusi
+    app_handler.addFilter(CodiceFilter(set(range(0, 999))))  # Codici da 0 a 998 inclusi
 
     # Handler for thread.log with a specific filter
     thread_handler = logging.FileHandler(thread_log_path)
