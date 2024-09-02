@@ -304,7 +304,7 @@ class Home_Page(QWidget):
             l.log_file(2, f"{pesi_bilance}")
             self.finalUI(pesi_bilance)
         else: 
-            self.show_error_message(f" errore interno guada il log")   
+            self.show_error_message(f" errore interno guarda il log")   
             l.log_file(412, f"{pesi_bilance}")
             self.initUI()
 

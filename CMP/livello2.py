@@ -1,7 +1,7 @@
 from PyQt6.QtCore import Qt, QFile, QTextStream, QSize, pyqtSignal, pyqtSlot, QTimer
 from PyQt6.QtWidgets import (
     QPushButton, QLabel, QSizePolicy, QVBoxLayout, QWidget, QScrollArea, QFrame, QHBoxLayout, QDialog, QGridLayout, QStackedWidget, QMenuBar, 
-    QSpinBox, QRadioButton, QFileDialog
+    QSpinBox, QRadioButton, QFileDialog, QCheckBox
 )
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
@@ -40,6 +40,7 @@ class Livello2(QWidget):
         self.diagnosi_page()    #p1
         self.db_page()          #p2
         self.log_page()         #p3
+        self.sett_page()        #p4
         
         self.main_layout.addWidget(self.stacked_widget)
         self.setLayout(self.main_layout)
@@ -75,6 +76,7 @@ class Livello2(QWidget):
         p1.clicked.connect(self.show_diagnosi_page)
         
         p2 = p.ClickableWidget(f.get_img("PARAM_SET.png"), "Settaggio Parametri")
+        p2.clicked.connect(self.show_param_page)
         
         
         p3 = p.ClickableWidget(f.get_img("DB_F.png"), "Fuzioni Database")
@@ -219,6 +221,10 @@ class Livello2(QWidget):
     def show_diagnosi_page(self):
         self.stacked_widget.setCurrentIndex(1)
         self.master.contro_label(3)
+        
+    def show_param_page(self):
+        self.stacked_widget.setCurrentIndex(4)
+        self.master.contro_label(8)
         
     def home(self):
         self.stacked_widget.setCurrentIndex(0)
@@ -405,7 +411,7 @@ class Livello2(QWidget):
                                                          )
         if destination_file:
             # Assicurarsi che il file salvato abbia l'estensione .log
-            if not destination_file.endswith('.db'):
+            if not destination_file.endswith('.xlsx'):
                 destination_file += '.xlsx'
                 
         wb.save(destination_file)
@@ -462,6 +468,63 @@ class Livello2(QWidget):
         
         self.stacked_widget.addWidget(home_widget)
          
+    
+    def sett_page(self):
+        
+        home_widget = QWidget()
+        home_layout = QVBoxLayout()
+        home_widget.setLayout(home_layout)
+        home_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        h1 = QHBoxLayout()
+        h2 = QHBoxLayout()
+        h3 = QHBoxLayout()
+        
+        lab = QLabel("Valore massimo di controllo: ")
+        lab.setObjectName("desc1")  
+        
+        self.kg = QSpinBox(self)
+        self.kg.setRange(1, 400)
+        self.kg.setValue(20)
+        self.kg.setSingleStep(1)
+        self.kg.setMinimumWidth(100)
+        
+        kglab = QLabel("Kg")
+        kglab.setObjectName("desc1")
+        
+        h1.addStretch()
+        h1.addWidget(lab)
+        h1.addSpacing(20)
+        h1.addWidget(self.kg)
+        h1.addWidget(kglab)
+        h1.addStretch()
+        
+        self.controllo = QCheckBox("Controllo Interno Abilitato")
+        self.controllo.setChecked(True)
+        h2.addStretch()
+        h2.addWidget(self.controllo)
+        h2.addStretch()
+        
+        self.tara_auto = QCheckBox("Auto Tara all'accensione")
+        self.tara_auto.setChecked(False)
+        h3.addStretch()
+        h3.addWidget(self.tara_auto)
+        h3.addStretch()
+        
+        self.pulsante_salva = QPushButton("SALVA")
+        self.pulsante_salva.setObjectName("bigd")
+        
+        home_layout.addStretch()
+        home_layout.addLayout(h1)
+        home_layout.addStretch()
+        home_layout.addLayout(h2)
+        home_layout.addStretch()
+        home_layout.addLayout(h3)
+        home_layout.addStretch()
+        home_layout.addWidget(self.pulsante_salva)
+        home_layout.addStretch()
+        
+        self.stacked_widget.addWidget(home_widget)
+    
     def clearLayout(self, layout):
         if layout is not None:
             while layout.count():
