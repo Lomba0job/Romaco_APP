@@ -141,6 +141,16 @@ class Header(QWidget):
             self.h1.addStretch()
             self.h1.addWidget(contro_conf)
             exit.clicked.connect(master.back_liv2)
+        elif livello == 7: 
+            # print("liv3")
+            self.clearLayout(self.h1)
+            contro_conf = QLabel("Parametri")
+            contro_conf.setObjectName("configurazione_label")
+            contro_conf.setAlignment(Qt.AlignmentFlag.AlignTop)
+            self.h1.addWidget(exit)
+            self.h1.addStretch()
+            self.h1.addWidget(contro_conf)
+            exit.clicked.connect(master.back_liv2)
         
         
     def set_background_color(self):

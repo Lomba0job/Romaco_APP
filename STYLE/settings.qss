@@ -277,3 +277,25 @@ QRadioButton::indicator::checked {
     background-color: #E74C3C;
     border-radius: 15px;
 }
+
+QCheckBox {
+    font-size: 25px;
+    color: #5D5D5D;
+}
+
+QCheckBox::indicator {
+    width: 30px;
+    height: 30px;
+}
+
+QCheckBox::indicator::unchecked {
+    border: 2px solid #5D5D5D;
+    background-color: white;
+    border-radius: 15px;
+}
+
+QCheckBox::indicator::checked {
+    border: 2px solid #5D5D5D;
+    background-color: #E74C3C;
+    border-radius: 15px;
+}

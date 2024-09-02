@@ -30,6 +30,15 @@ def get_db():
     
     return file_path
 
+def get_bin():
+    # Usage
+    directory = get_resource_path(os.path.join("data", "bin"))
+    file_name = "imp.bin"
+    file_path = os.path.join(directory, file_name)
+    
+    return file_path
+
+
 
 def get_app_log():
     # Usage

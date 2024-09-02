@@ -51,7 +51,7 @@ def setup_logger():
     app_handler.setLevel(logging.DEBUG)
     app_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
     app_handler.setFormatter(app_formatter)
-    app_handler.addFilter(CodiceFilter(set(range(0, 1000))))  # Codici da 0 a 999 inclusi
+    app_handler.addFilter(CodiceFilter(set(range(0, 999))))  # Codici da 0 a 998 inclusi
 
     # Handler for thread.log with a specific filter
     thread_handler = logging.FileHandler(thread_log_path)
@@ -90,6 +90,12 @@ log_messages = {
     12: ('SUCCESS', 'DB successo lettura'),
     13: ('SUCCESS', 'DB successo scrittura'),
     14: ('SUCCESS', 'set accensione su bilancia: '),
+    15: ('SUCCESS', 'salvataggio LOG:  '),
+    16: ('SUCCESS', 'cancellazione LOG'),
+    17: ('SUCCESS', 'salvataggio DB:  '),
+    18: ('SUCCESS', 'cancellazione DB'),
+    19: ('SUCCESS', 'lettura .bin'),
+    20: ('SUCCESS', 'scrittura .bin'),
     
     
     
@@ -128,6 +134,9 @@ log_messages = {
     420: ('WARNING', 'Errore fase di ordinamento: '),
     421: ('WARNING', ''),
     422: ('WARNING', 'Errore che provoca arresto ordinamento'),
+    423: ('WARNING', '.bin corrotto in lettura'),
+    424: ('WARNING', 'errore sconosciuto .bin in lettura'),
+    425: ('WARNING', 'errore sconosciuto .bin in scrittura'),
     
     700: ('CRITICAL', 'Bilancie Scollegate'),
     701: ('CRITICAL', 'Deriva Eccessiva'),  #not implement

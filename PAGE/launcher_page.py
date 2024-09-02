@@ -62,11 +62,11 @@ class OrdinamentoWorker(QThread):
                             result = self.lista_bilance[i].check_coil_status()
                             if result is not None:
                                 if result == 1:
-                                    l.log_file(999, f"bilancia {i} a 1")
+                                    # l.log_file(999, f"bilancia {i} a 1")
                                     status_ok[i] = 1
                                     self.lista_bilance[i].set_number(sum(status_ok))
-                                else: 
-                                    l.log_file(999, f"bilancia {i} ancora a 0")
+                                # else: 
+                                    # l.log_file(999, f"bilancia {i} ancora a 0")
                                 self.progress_updated.emit(sum(status_ok))
                             else:
                                 l.log_file(422, )
