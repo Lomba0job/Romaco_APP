@@ -94,6 +94,8 @@ log_messages = {
     16: ('SUCCESS', 'cancellazione LOG'),
     17: ('SUCCESS', 'salvataggio DB:  '),
     18: ('SUCCESS', 'cancellazione DB'),
+    19: ('SUCCESS', 'lettura .bin'),
+    20: ('SUCCESS', 'scrittura .bin'),
     
     
     
@@ -132,6 +134,9 @@ log_messages = {
     420: ('WARNING', 'Errore fase di ordinamento: '),
     421: ('WARNING', ''),
     422: ('WARNING', 'Errore che provoca arresto ordinamento'),
+    423: ('WARNING', '.bin corrotto in lettura'),
+    424: ('WARNING', 'errore sconosciuto .bin in lettura'),
+    425: ('WARNING', 'errore sconosciuto .bin in scrittura'),
     
     700: ('CRITICAL', 'Bilancie Scollegate'),
     701: ('CRITICAL', 'Deriva Eccessiva'),  #not implement

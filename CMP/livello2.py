@@ -484,7 +484,8 @@ class Livello2(QWidget):
         
         self.kg = QSpinBox(self)
         self.kg.setRange(1, 400)
-        self.kg.setValue(20)
+        val = self.master.master.binario.get_lettura_val()
+        self.kg.setValue(val)
         self.kg.setSingleStep(1)
         self.kg.setMinimumWidth(100)
         
@@ -499,19 +500,20 @@ class Livello2(QWidget):
         h1.addStretch()
         
         self.controllo = QCheckBox("Controllo Interno Abilitato")
-        self.controllo.setChecked(True)
+        self.controllo.setChecked(self.master.master.binario.get_lettura())
         h2.addStretch()
         h2.addWidget(self.controllo)
         h2.addStretch()
         
         self.tara_auto = QCheckBox("Auto Tara all'accensione")
-        self.tara_auto.setChecked(False)
+        self.tara_auto.setChecked(self.master.master.binario.get_autotare())
         h3.addStretch()
         h3.addWidget(self.tara_auto)
         h3.addStretch()
         
         self.pulsante_salva = QPushButton("SALVA")
         self.pulsante_salva.setObjectName("bigd")
+        self.pulsante_salva.clicked.connect(self.salva_bin)
         
         home_layout.addStretch()
         home_layout.addLayout(h1)
@@ -524,7 +526,11 @@ class Livello2(QWidget):
         home_layout.addStretch()
         
         self.stacked_widget.addWidget(home_widget)
-    
+        
+    def salva_bin(self):
+        self.master.master.binario.set_autoTara(self.tara_auto.isChecked())
+        self.master.master.binario.set_lettura(self.controllo.isChecked(), self.kg.value())
+            
     def clearLayout(self, layout):
         if layout is not None:
             while layout.count():

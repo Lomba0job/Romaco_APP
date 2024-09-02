@@ -15,6 +15,7 @@ from CMP import navbar as nv
 from API import API_db as db, modbus_generico as mg
 from API.modbus_generico import QueueProcessor
 from API import LOG as log
+from API import impo_bin as impo
 
 
 class MainWindow(QMainWindow):
@@ -22,6 +23,7 @@ class MainWindow(QMainWindow):
         self.queue_processor = QueueProcessor()
         super().__init__()
         db.crea_db()
+        self.binario = impo.SettingsManager()
         # Avvia il thread per processare la coda prima di qualsiasi altra operazione
         log.setup_logger()
         log.log_file(0)
@@ -118,7 +120,8 @@ class MainWindow(QMainWindow):
         self.lista_bilance = lista_ordianta
         #print(f"DEBUG MAIN {len(self.lista_bilance)}")
         self.rubrica_page.initUI()
-        # self.calib_all()
+        if self.binario.auto_tara():
+            self.calib_all()
         self.diagno.update()
         self.change_page(1)  # Passa alla pagina rubrica
         

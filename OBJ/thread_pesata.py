@@ -71,9 +71,10 @@ class PesataThread(QThread):
             s = peso[0]
             # print(f"DEBUG PESATA check | pesi {peso}, primo {s}")
             warn = False
-            for p in peso:
-                if abs(p - s) > 20000:  # SOTTOCHIAVE IMPOSTAZIONE
-                    warn = True  # ! AGGIUNGERE ERRORE
+            if self.master.binario.get_lettura():
+                for p in peso:
+                    if abs(p - s) > (self.master.binario.get_lettura_val() * 100):  # SOTTOCHIAVE IMPOSTAZIONE
+                        warn = True  # ! AGGIUNGERE ERRORE
             # print(f"DEBUG PESATA check | war {warn}")
             if not warn:
                 l.log_file(3)
