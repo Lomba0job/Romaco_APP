@@ -164,7 +164,7 @@ class LogPage(QWidget):
 
     def load_data(self):
         log.log_file(111)
-        log_entries = db.get(self.page_number)  # Recupera i dati dal database
+        log_entries = db.get_latest_entries()  # Recupera i dati dal database
         # print(log_entries)
         self.populate_log_entries(log_entries)
         

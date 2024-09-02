@@ -92,6 +92,38 @@ def get(page_number):
     except sqlite3.Error as e:
         l.log_file(418, f" {e}")
         return []
+    
+def get_latest_entries():
+    l.log_file(111, " download")
+    # Numero di righe da recuperare
+    page_size = 100
+    
+    # Connessione al database
+    conn = sqlite3.connect(f.get_db())
+    
+    # Creazione di un cursore per eseguire i comandi SQL
+    cursor = conn.cursor()
+    
+    # Query per ottenere gli ultimi 100 record ordinati per id in modo decrescente
+    query = '''
+        SELECT * FROM PESATA ORDER BY id DESC LIMIT ?
+    '''
+    
+    try:
+        cursor.execute(query, (page_size,))
+        rows = cursor.fetchall()  # Recupera tutte le righe del risultato della query
+        conn.close()
+        
+        # Nomi delle colonne come chiavi del dizionario
+        column_names = ['id', 'peso_totale', 'peso_b1', 'peso_b2', 'peso_b3', 'peso_b4', 'peso_b5', 'peso_b6', 'desc', 'priority', 'data', 'name']
+        
+        # Conversione delle righe in una lista di dizionari
+        results = [dict(zip(column_names, row)) for row in rows]
+        l.log_file(12)
+        return results
+    except sqlite3.Error as e:
+        l.log_file(418, f" {e}")
+        return []
 
 
 def get_priority(page_number, priority):
