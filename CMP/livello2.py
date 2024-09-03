@@ -5,6 +5,7 @@ from PyQt6.QtWidgets import (
 )
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
+from openpyxl.styles import Font, PatternFill
 import csv
 from datetime import datetime
 import threading
@@ -139,8 +140,8 @@ class Livello2(QWidget):
         self.stop = QPushButton("STOP")
         self.stop.setObjectName("bigd")
         self.stop.clicked.connect(self.stop_reg)
-        self.stampa = QPushButton("STAMPa")
-        self.stampa.setObjectName("bigd")
+        self.stampa = QPushButton("STAMPA")
+        self.stampa.setObjectName("big")
         self.stampa.setVisible(False)
         self.stampa.clicked.connect(self.stampa_reg)
         
@@ -321,7 +322,14 @@ class Livello2(QWidget):
     
         canvas.draw()
         
-        self.mi.setText(str(int(self.mi.text) + 1))
+        try:
+            current_value = int(self.mi.text())
+        except ValueError:
+            # If not, set it to 0
+            current_value = 0
+
+        # Increment and update the QLabel
+        self.mi.setText(str(current_value + 1))
         
             
             
@@ -366,59 +374,143 @@ class Livello2(QWidget):
     def stampa_reg(self):
         massimo = []
         minimo = []
+        media_pesi_totali = []
+        media_pesi_celle = [[] for _ in range(4)]  # List for each cell (1-4)
+
         for n in range(len(self.pesi_totali)):
-            if self.pesi_totali[n]:  # Check if the list is not empty
+            # Ensure the lists are not empty before performing operations
+            if self.pesi_totali[n]:  
                 massimo.append(max(self.pesi_totali[n]))
                 minimo.append(min(self.pesi_totali[n]))
-            for i in range(1, 5):
+                media_pesi_totali.append(sum(self.pesi_totali[n]) / len(self.pesi_totali[n]))
+            else:
+                massimo.append(None)
+                minimo.append(None)
+                media_pesi_totali.append(None)
+
+            for i in range(1, 5):  # Loop over each cell (1-4)
                 if self.pesi_celle[n][i]:  # Check if the list is not empty
-                    massimo.append(max(self.pesi_celle[n][i]))
-                    minimo.append(min(self.pesi_celle[n][i]))
-        self.write_to_excel(massimo, minimo)
-        
-    def write_to_excel(self, massimo, minimo):
+                    cell_max = max(self.pesi_celle[n][i])
+                    cell_min = min(self.pesi_celle[n][i])
+                    cell_media = sum(self.pesi_celle[n][i]) / len(self.pesi_celle[n][i])
+                else:
+                    cell_max = None
+                    cell_min = None
+                    cell_media = None
+
+                media_pesi_celle[i-1].append((cell_max, cell_min, cell_media))
+
+        self.write_to_excel(massimo, minimo, media_pesi_totali, media_pesi_celle)
+    
+    def write_to_excel(self, massimo, minimo, media_pesi_totali, media_pesi_celle):
         # Create a new Excel workbook and sheet
         wb = Workbook()
         ws = wb.active
         ws.title = "Pesi Bilance"
 
-        # Write headers
-        headers = ["Bilancia", "Max Peso Totale", "Min Peso Totale", "Max Cella 1", "Min Cella 1",
-                   "Max Cella 2", "Min Cella 2", "Max Cella 3", "Min Cella 3", "Max Cella 4", "Min Cella 4"]
-        ws.append(headers)
+        # Define styles
+        header_font = Font(bold=True, color="FFFFFF")
+        header_fill = PatternFill(start_color="4F81BD", end_color="4F81BD", fill_type="solid")
+        subtitle_font = Font(bold=True, color="000000")
+        subtitle_fill = PatternFill(start_color="C6EFCE", end_color="C6EFCE", fill_type="solid")
+        max_fill = PatternFill(start_color="FFCCCC", end_color="FFCCCC", fill_type="solid")  # Light red for massimo
+        min_fill = PatternFill(start_color="CCFFCC", end_color="CCFFCC", fill_type="solid")  # Light green for minimo
+        media_fill = PatternFill(start_color="CCCCFF", end_color="CCCCFF", fill_type="solid")  # Light blue for media
 
         # Write data for each balance
         balance_count = len(self.pesi_totali)
+        row = 1
         for n in range(balance_count):
-            row = [f"Bilancia {n+1}"]
-            row.append(max(self.pesi_totali[n]) if self.pesi_totali[n] else None)
-            row.append(min(self.pesi_totali[n]) if self.pesi_totali[n] else None)
-            for i in range(1, 5):
-                row.append(max(self.pesi_celle[n][i]) if self.pesi_celle[n][i] else None)
-                row.append(min(self.pesi_celle[n][i]) if self.pesi_celle[n][i] else None)
-            ws.append(row)
+            # Header for each balance
+            ws.cell(row=row, column=1, value=f"BILANCIA {n+1}")
+            ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=10)
+            for cell in ws[row]:
+                cell.font = header_font
+                cell.fill = header_fill
+            row += 1
 
-        # Adjust column widths
+            # Number of weights recorded
+            num_pesi = len(self.pesi_totali[n])
+            ws.cell(row=row, column=1, value=f"NUMERO PESI REGISTRATI: {num_pesi} tempo: {num_pesi * self.tempo.value()} min")
+            ws.merge_cells(start_row=row, start_column=2, end_row=row, end_column=10)
+            for cell in ws[row]:
+                cell.font = subtitle_font
+                cell.fill = subtitle_fill
+            row += 1
+
+            # Total weight data
+            ws.cell(row=row, column=1, value="PESO TOTALE")
+            ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=4)
+            row += 1
+
+            # Media row
+            ws.cell(row=row, column=1, value="MEDIA:")
+            ws.cell(row=row, column=3, value=f"{media_pesi_totali[n] if media_pesi_totali[n] is not None else 'N/A'}")
+            ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=2)
+            ws.cell(row=row, column=1).fill = media_fill  # Apply fill color to media description cell
+            row += 1
+
+            # Max-Min row
+            ws.cell(row=row, column=1, value="MAX-MIN:")
+            ws.cell(row=row, column=2, value="massimo:")
+            ws.cell(row=row, column=3, value=f"{massimo[n] if massimo[n] is not None else 'N/A'}")
+            ws.cell(row=row, column=4, value="minimo:")
+            ws.cell(row=row, column=5, value=f"{minimo[n] if minimo[n] is not None else 'N/A'}")
+            ws.cell(row=row, column=2).fill = max_fill  # Apply fill color to massimo description cell
+            ws.cell(row=row, column=4).fill = min_fill  # Apply fill color to minimo description cell
+            row += 1
+
+            # Data for each cell
+            for i in range(4):
+                max_cella, min_cella, media_cella = media_pesi_celle[i][n]
+
+                # Row 1: "CELLA INTERNA {i+1}"
+                ws.cell(row=row, column=2, value=f"CELLA INTERNA {i+1}")
+                ws.merge_cells(start_row=row, start_column=2, end_row=row, end_column=5)
+                row += 1
+
+                # Row 2: "MEDIA:"
+                ws.cell(row=row, column=3, value="MEDIA:")
+                ws.cell(row=row, column=4, value=f"{media_cella if media_cella is not None else 'N/A'}")
+                ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=2)
+                ws.cell(row=row, column=3).fill = media_fill  # Apply fill color to media description cell
+                row += 1
+
+                # Row 3: "MAX-MIN:", "massimo:", maximum value, "minimo:", minimum value
+                ws.cell(row=row, column=3, value="MAX-MIN:")
+                ws.cell(row=row, column=4, value="massimo:")
+                ws.cell(row=row, column=5, value=f"{max_cella if max_cella is not None else 'N/A'}")
+                ws.cell(row=row, column=6, value="minimo:")
+                ws.cell(row=row, column=7, value=f"{min_cella if min_cella is not None else 'N/A'}")
+                ws.cell(row=row, column=4).fill = max_fill  # Apply fill color to massimo description cell
+                ws.cell(row=row, column=6).fill = min_fill  # Apply fill color to minimo description cell
+                row += 1
+
+            # Add two blank rows between balances
+            row += 2
+
+        # Adjust column widths for readability
         for col_num, col in enumerate(ws.columns, 1):
             max_length = max(len(str(cell.value)) for cell in col)
             ws.column_dimensions[get_column_letter(col_num)].width = max_length + 2
-        default_name = "report.xlsx"
+
         # Save the workbook
-        destination_file, _ = QFileDialog.getSaveFileName(self, 
-                                                         "Salva File Concatenato Come", 
-                                                         default_name, 
-                                                         "Log files (*.xlsx);;Tutti i file (*)",
-                                                         )
+        default_name = "report.xlsx"
+        destination_file, _ = QFileDialog.getSaveFileName(
+            self, 
+            "Salva File Concatenato Come", 
+            default_name, 
+            "Log files (*.xlsx);;Tutti i file (*)",
+        )
         if destination_file:
-            # Assicurarsi che il file salvato abbia l'estensione .log
+            # Ensure the file saved has the .xlsx extension
             if not destination_file.endswith('.xlsx'):
                 destination_file += '.xlsx'
-                
-        wb.save(destination_file)
-        l.log_file(999, f"Excel report saved as: {destination_file}")
-        self.show_success_message(f"Report salvato come \"{destination_file}\"")
 
-                
+            wb.save(destination_file)
+            l.log_file(999, f"Excel report saved as: {destination_file}")
+            self.show_success_message(f"Report salvato come \"{destination_file}\"")
+    
     def convert_to_dict(self, pesata, n):
         """Converte una lista in un dizionario con le chiavi appropriate."""
         return {
@@ -428,7 +520,7 @@ class Livello2(QWidget):
             'pesoc2': pesata[2] if len(pesata) > 2 else '',
             'pesoc3': pesata[3] if len(pesata) > 3 else '',
             'pesoc4': pesata[4] if len(pesata) > 4 else '',
-        }
+        }   
         
     def db_page(self):
         

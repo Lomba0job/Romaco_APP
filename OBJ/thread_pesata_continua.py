@@ -75,13 +75,22 @@ class PesataThread(QThread):
             print(f"DEBUG PESATA TIME | Bilancia {bilancia.modbusI.address} completed in {end_bilancia_time - start_bilancia_time:.4f} seconds")
         else:
             print(f"DEBUG PESATA TIME | Bilancia {bilancia.modbusI.address} completed in {end_bilancia_time - start_bilancia_time:.4f} seconds (failed or warning)")
-        self.pesi_bilance.append(result)
+        # Append a tuple (bilancia.id, result) to the list
+        self.pesi_bilance.append((bilancia.modbusI.address, result))
+
+        # Check if all bilance have completed their pesata
         if len(self.pesi_bilance) == len(self.master.lista_bilance):
+            # Sort the pesi_bilance list by bilancia.id
+            self.pesi_bilance.sort(key=lambda x: x[0])
+
+            # Extract just the results, ordered by bilancia.id
+            ordered_results = [result for _, result in self.pesi_bilance]
 
             end_time = time.time()
             print(f"DEBUG PESATA TIME | Total pesata process completed in {end_time - self.start_time:.4f} seconds")
 
-            self.pesata_completata.emit(self.pesi_bilance)  # Emit the signal with the result
+            # Emit the signal with the ordered result
+            self.pesata_completata.emit(ordered_results)
 
     def _log_thread_info(self, function_name):
         """Log thread information for diagnostics."""

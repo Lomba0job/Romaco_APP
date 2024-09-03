@@ -120,8 +120,9 @@ class MainWindow(QMainWindow):
         self.lista_bilance = lista_ordianta
         #print(f"DEBUG MAIN {len(self.lista_bilance)}")
         self.rubrica_page.initUI()
-        if self.binario.auto_tara():
+        if self.binario.auto_tara:
             self.calib_all()
+            log.log_file(112)
         self.diagno.update()
         self.change_page(1)  # Passa alla pagina rubrica
         
