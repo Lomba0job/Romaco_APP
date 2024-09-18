@@ -57,7 +57,7 @@ coll = COLLECT(exe,
 def create_desktop_file():
     desktop_entry_content = f"""
 [Desktop Entry]
-Version=1.1
+Version=1.1ope
 Name=Sistema Isola
 Comment=programma sistema isola NANOLEVER
 Exec=setsid {os.path.abspath('dist/sistema_isola/sistema_isola')}

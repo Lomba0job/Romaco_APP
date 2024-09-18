@@ -1,13 +1,54 @@
-from PyQt6.QtWidgets import QWidget, QHBoxLayout, QLabel
+from PyQt6.QtWidgets import QDialog, QVBoxLayout, QPushButton, QTableWidget, QTableWidgetItem, QWidget, QHBoxLayout, QLabel
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QColor, QFont, QPalette
-from API import funzioni as f
+from API import funzioni as f, API_db as db
 
+
+class DetailsDialog(QDialog):
+    def __init__(self, entry_id, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Dettagli Pesata")
+        self.setFixedSize(600, 600)
+        
+        layout = QVBoxLayout(self)
+        
+        # Tabella per mostrare i dettagli
+        self.table = QTableWidget(11, 2)  # -11 campi (peso_totale, peso_b1, peso_b2, etc.)
+        self.table.setHorizontalHeaderLabels(["Campo", "Valore"])
+        layout.addWidget(self.table)
+        
+        # Pulsante per chiudere la finestra
+        close_button = QPushButton("Chiudi")
+        close_button.clicked.connect(self.close)
+        layout.addWidget(close_button)
+        
+        # Carica i dettagli della riga dal database
+        self.load_details(entry_id)
+
+    def load_details(self, entry_id):
+        # Recupera i dati dal database usando l'ID
+        entry_data = db.get_by_id(entry_id)
+        if entry_data:
+            fields = ["Peso Totale", "Peso Bilancia 1", "Peso Bilancia 2", "Peso Bilancia 3", "Peso Bilancia 4", "Peso Bilancia 5", "Peso Bilancia 6", "Descrizione", "Priorità", "Data", "Nome"]
+            values = [entry_data.get('peso_totale'), entry_data.get('peso_b1'), entry_data.get('peso_b2'), 
+                      entry_data.get('peso_b3'), entry_data.get('peso_b4'), entry_data.get('peso_b5'), 
+                      entry_data.get('peso_b6'), entry_data.get('desc'), entry_data.get('priority'), 
+                      entry_data.get('data'), entry_data.get('name')]
+            print(values)
+            for i, (field, value) in enumerate(zip(fields, values)):
+                self.table.setItem(i, 0, QTableWidgetItem(field))
+                self.table.setItem(i, 1, QTableWidgetItem(str(value)))
+                
 class LogEntryWidget(QWidget):
-    def __init__(self, date, peso_totale, name, priority, parent=None):
-        date_str = str(date)  # Assicurati che date sia una stringa
-        print(f"{date}, {peso_totale}, {name}, {priority}")
-        super().__init__()
+    def __init__(self, id, sdate, peso_totale, name, priority, parent=None):
+        super().__init__(parent)
+        self.id = id
+        self.date = sdate
+        self.peso_totale = peso_totale
+        self.name = name
+        self.priority = priority
+        date_str = str(sdate)  # Assicurati che date sia una stringa
+        print(f"{date_str}, {peso_totale}, {name}, {priority}")
         self.setFixedHeight(40)
         self.setContentsMargins(0, 0, 0, 0)
         
@@ -117,3 +158,12 @@ class LogEntryWidget(QWidget):
                 self.setStyleSheet(self.styleSheet() + additional_style)
         except Exception as e:
             print(f"Error loading stylesheet: {e}")
+            
+    def mousePressEvent(self, event):
+        # Apri la finestra di dialogo quando il widget viene cliccato
+        self.show_details_dialog()
+
+    def show_details_dialog(self):
+        # Mostra una finestra di dialogo con i dettagli della riga selezionata
+        details_dialog = DetailsDialog(self.id)
+        details_dialog.exec()

@@ -212,3 +212,29 @@ def get_filtered(page_number, date_from=None, date_to=None, priority=None):
     except sqlite3.Error as e:
         l.log_file(418, f" {e}")
         return []
+    
+def get_by_id(entry_id):
+    l.log_file(114, f" {entry_id}")
+    
+    # Connessione al database
+    conn = sqlite3.connect(f.get_db())
+    cursor = conn.cursor()
+    
+    # Query per ottenere il record per ID
+    query = 'SELECT * FROM PESATA WHERE ID = ?'
+    
+    try:
+        cursor.execute(query, (entry_id,))
+        row = cursor.fetchone()
+        conn.close()
+        
+        if row:
+            column_names = ['id', 'peso_totale', 'peso_b1', 'peso_b2', 'peso_b3', 'peso_b4', 'peso_b5', 'peso_b6', 'desc', 'priority', 'data', 'name']
+            print(column_names)
+            print(row)
+            return dict(zip(column_names, row))
+        else:
+            return None
+    except sqlite3.Error as e:
+        l.log_file(418, f" {e}")
+        return None
